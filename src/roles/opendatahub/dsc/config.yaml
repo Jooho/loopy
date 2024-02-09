@@ -1,0 +1,57 @@
+role:
+  name: opendatahub-create-dsc
+  manifests:
+    datasciencecluster: commons/manifests/opendatahub/datasciencecluster.yaml
+  input_env:
+    - name: OPENDATAHUB_TYPE
+      description: The opendatabub operator type (opendatahub,rhoai)
+
+    - name: DATASCIENCECLUSTER_NAME
+      description: The name of dsc object
+
+    - name: ENABLE_CODEFLARE
+      descrption: Deploy code flare (Removed, Managed)
+
+    - name: ENABLE_DASHBOARD
+      description: Deploy dashboard (Removed, Managed)
+
+    - name: ENABLE_DATASCIENCEPIPELINES
+      description: Deploy pipelines (Removed, Managed)
+
+    - name: ENABLE_KSERVE
+      description: Deploy Kserve (Managed, Removed)
+
+    - name: ENABLE_KSERVE_KNATIVE (Managed, Removed)
+      description: Deploy serverless dependencies
+
+    - name: ENABLE_MODELMESH
+      desription: Deploy modelmesh (Removed, Managed)
+
+    - name: ENABLE_RAY
+      description: Deploy ray (Removed, Managed)
+
+    - name: ENABLE_TRUSTYAI
+      description: Deploy Trust AI (Removed, Managed)
+
+    - name: ENABLE_WORKBENCHES
+      description: Deploy workbenches (Removed, Managed)
+
+    - name: CLUSTER_TYPE
+      description: openshift platform
+      required: true
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true      
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token
+      

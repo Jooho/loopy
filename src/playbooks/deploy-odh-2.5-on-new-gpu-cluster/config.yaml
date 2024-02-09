@@ -1,0 +1,20 @@
+playbook:
+  name: deploy-odh-2.5-on-new-gpu-cluster
+  description: This playbook will create a openshift cluster that has GPU and it will install odh,serverless operators.
+  # input_env_file: /tmp/abc
+  # input_env:
+  #     MACHINE_POOL_TYPE: m5.4xlarge
+  steps:
+   - role:
+       name: openshift-install
+       input_env:
+         OSIA_CONFIGURATION_KEY_PATH: "/tmp/"
+   - unit:
+       name: install-odh-2.5-operator      
+   - role:
+       name: operator-install
+       input_env:
+         SUBSCRIPTION_NAME: serverless-operator
+         OPERATOR_NAMESPACE: openshift-serverless
+         OPERATOR_NAME: serverless-operator
+         CATALOGSOURCE_NAME: redhat-operators

@@ -1,0 +1,18 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    serving.knative.openshift.io/enablePassthrough: "true"
+    sidecar.istio.io/inject: "true"
+    sidecar.istio.io/rewriteAppHTTPProbers: "true"
+  name: caikit-tgis-example-isvc-rest
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: caikit
+      runtime: caikit-tgis-runtime
+      storage:
+        key: localMinIO
+        path: llm/models/flan-t5-small-caikit
+      

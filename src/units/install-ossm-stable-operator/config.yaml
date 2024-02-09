@@ -1,0 +1,10 @@
+unit:
+  name: install-ossm-stable-operator                
+  role:
+    name: operator-install
+    input_env:
+      SUBSCRIPTION_NAME: servicemeshoperator
+      OPERATOR_NAMESPACE: openshift-operators
+      OPERATOR_NAME: servicemeshoperator
+      CATALOGSOURCE_NAME: redhat-operators
+      OPERATOR_LABEL: "name=istio-operator"

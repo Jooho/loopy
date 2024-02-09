@@ -1,0 +1,11 @@
+unit:
+  name: install-rhoai-stable-operator-without-dsci
+  role:
+    name: operator-install
+    input_env:
+      SUBSCRIPTION_NAME: rhods-operator
+      OPERATOR_NAMESPACE: red-hat-ods-operator
+      OPERATOR_NAME: rhods-operator
+      CATALOGSOURCE_NAME: redhat-operators
+      OPERATOR_LABEL: "name=rhods-operator"
+      CONFIG_ENV: "name=DISABLE_DSC_CONFIG"

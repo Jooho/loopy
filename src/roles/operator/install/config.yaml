@@ -1,0 +1,65 @@
+role:
+  name: operator-install
+  # output_filename: operator-install-output.sh
+  manifests:
+    subscription: commons/manifests/kubernetes/subscription.yaml
+    operatorgroup: commons/manifests/kubernetes/operatorgroup.yaml
+  input_env:
+    - name: SUBSCRIPTION_NAME
+      description: Subscription object name
+      required: true
+
+    - name: OPERATOR_NAMESPACE
+      description: Namespace where the operator will run      
+      required: true
+
+    - name: OPERATOR_LABEL
+      description: operator label to verify operator is running well or not
+      required: true
+
+    - name: OPERATOR_POD_PREFIX
+      description: operator pod prefix to verify operator is running well or not (set this if the operator does not have unique label. It will be used instead of OPERATOR_LABEL)
+    
+    - name: CHANNEL
+      description: Subscription channel
+      default: stable
+    
+    - name: INSTALL_APPROVAL
+      description: Upgrade plan approval (Automatic/Manual)
+
+    - name: OPERATOR_NAME
+      description: The target operator name to be installed
+      required: true
+
+    - name: OPERATOR_VERSION
+      description: The target operator version to be installed
+
+    - name: CATALOGSOURCE_NAME
+      description: The catalog source name that contains the target operator
+
+    - name: CATALOGSOURCE_NAMESPACE
+      description: The namespace that the catalog source is in
+
+    - name: OPERATORGROUP_CREATE
+      description: Set false, the namespace already have operator group. Automatically it will set to false if OPERATOR_NAMESPACE is `openshift-operators`
+      default: "true"
+
+    - name: CONFIG_ENV
+      description: Set this, if you want to add config.env.
+      default: ""
+      
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token
+      

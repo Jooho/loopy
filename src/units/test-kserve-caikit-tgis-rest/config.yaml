@@ -1,0 +1,11 @@
+unit:
+  name: test-kserve-caikit-tgis-rest
+  role:
+    name: kserve-caikit-test
+    input_env:
+      CAIKIT_ARCH_TYPE: caikit-tgis
+      PROTOCOL: rest
+      ISVC_STORAGE_PATH_TYPE: storage
+      TEST_NAMESPACE: kserve-demo
+      STORAGE_CONFIG_TYPE: json
+      

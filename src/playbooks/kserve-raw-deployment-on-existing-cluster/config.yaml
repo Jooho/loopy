@@ -1,0 +1,22 @@
+playbook:
+  name: kserve-raw-deployment-on-existing-cluster
+  description: 
+  # input_env_file: /tmp/abc
+  # input_env:
+  #     MACHINE_POOL_TYPE: m5.4xlarge
+  steps:
+    - unit:
+        name: install-rhoai-stable-operator-without-dsci
+    - role:
+        name: opendatahub-create-dsci       
+        input_env:
+            OPENDATAHUB_TYPE: rhoai
+            ENABLE_SERVICEMESH: Removed
+    - role:
+        name: opendatahub-create-dsc
+        input_env:
+            ENABLE_KSERVE_KNATIVE: Removed         
+
+
+ 
+    

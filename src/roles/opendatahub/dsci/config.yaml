@@ -1,0 +1,36 @@
+role:
+  name: opendatahub-create-dsci
+  manifests:
+    dsci: commons/manifests/opendatahub/dsci.yaml
+  input_env:
+    - name: OPENDATAHUB_TYPE
+      description: The opendatabub operator type (opendatahub,rhoai)
+
+    - name: DSCI_NAME
+      description: The name of dsc object
+
+    - name: ENABLE_SERVICEMESH
+      descrption: Install OSSM (Managed,Removed)
+
+    - name: ENABLE_MONITORING
+      descrption: Install monitoring (Managed,Removed)
+      
+    - name: CLUSTER_TYPE
+      description: openshift platform
+      required: true
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true      
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token
+      

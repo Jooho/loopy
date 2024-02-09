@@ -1,0 +1,48 @@
+role:
+  name: minio-deploy
+  # output_filename: operator-install-output.sh
+  manifests:
+    minio_deployment: ./manifests/minio.yaml
+  input_env:
+    - name: MINIO_NAMESPACE
+    - name: ACCESS_KEY_ID
+    - name: SECRET_ACCESS_KEY
+    - name: MINIO_IMAGE
+    - name: DEFAULT_BUCKET_NAME
+    - name: MINIO_REGION
+  
+    # - name: ENABLE_SSL
+    # - name: ENABLE_CONSOLE
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token
+  output_env:
+    - name: MINIO_S3_SVC_URL
+      required: true
+    - name: MINIO_DEFAULT_BUCKET_NAME
+      required: true
+    - name: MINIO_ACCESS_KEY_ID
+      required: true
+    - name: MINIO_SECRET_ACCESS_KEY
+      required: true
+    - name: MINIO_REGION
+      required: true
+    # - name: MINIO_CONSOLE_URL
+  
+
+  
+
+
+      

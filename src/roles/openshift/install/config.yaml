@@ -1,0 +1,34 @@
+role:
+  name: openshift-install
+  output_filename: openshift-cluster-output.sh
+  input_env:
+    - name: OSIA_CONFIGURATION_KEY_PATH
+      description: private key for osai repository
+      required: true
+
+    - name: CLUSTER_NAME
+      description: openshift cluster name
+      default: model-serving-test-cluster
+
+    - name: MACHINE_POOL_TYPE
+      description: openshift node type
+      default: m5.2xlarge
+      
+  output_env:
+    - name: CLUSTER_CONSOLE_URL
+      description: openshift console url
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+
+    - name: CLUSTER_TYPE
+      description: openshift cluster type (PSI, ROSA)
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+    
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token

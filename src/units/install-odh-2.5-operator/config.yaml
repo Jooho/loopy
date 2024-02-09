@@ -1,0 +1,10 @@
+unit:
+  name: install-odh-2.5-operator
+  role:
+    name: operator-install
+    input_env:
+      SUBSCRIPTION_NAME: opendatahub-operator
+      OPERATOR_NAMESPACE: opendatahub
+      OPERATOR_NAME: opendatahub-operator
+      OPERATOR_LABEL: "name=error"
+      OPERATOR_POD_PREFIX: "opendatahub"

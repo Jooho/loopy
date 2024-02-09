@@ -1,0 +1,59 @@
+role:
+  name: kserve-caikit-test
+  # output_filename: operator-install-output.sh
+  manifests:
+    storage_config_json: ./manifests/kserve/storage-config-secret-json.yaml
+    storage_config_annotation: ./manifests/kserve/storage-config-secret-annotation.yaml
+    storage_config_serviceaccount: ./manifests/kserve/storage-config-serviceaccount.yaml
+    caikit_standalone_serving_runtime: ./manifests/caikit-standalond/tgis-servingruntime.yaml
+    caikit_standalone_isvc_storageuri_grpc: ./manifests/caikit-standalond/tgis-isvc-stroageuri-grpc.yaml
+    caikit_standalone_isvc_storage_grpc: ./manifests/caikit-standalond/tgis-isvc-stroage-grpc.yaml
+    caikit_tgis_serving_runtime: ./manifests/caikit-tgis/caikit-tgis-servingruntime.yaml
+    caikit_tgis_serving_runtime_grpc: ./manifests/caikit-tgis/caikit-tgis-servingruntime-grpc.yaml
+    caikit_tgis_isvc_storageuri_grpc: ./manifests/caikit-tgis/caikit-tgis-isvc-storageuri-grpc.yaml
+    caikit_tgis_isvc_storageuri_rest: ./manifests/caikit-tgis/caikit-tgis-isvc-storageuri-rest.yaml
+    caikit_tgis_isvc_storage_grpc: ./manifests/caikit-tgis/caikit-tgis-isvc-storage-grpc.yaml
+    caikit_tgis_isvc_storage_rest: ./manifests/caikit-tgis/caikit-tgis-isvc-storage-rest.yaml
+  input_env:
+    - name: MINIO_S3_SVC_URL
+      required: true
+    - name: DEFAULT_BUCKET_NAME
+      required: true
+    - name: ACCESS_KEY_ID
+      required: true
+    - name: SECRET_ACCESS_KEY
+      required: true    
+
+    - name: CAIKIT_ARCH_TYPE
+      description: caikit supports 2 architectures (caikit_standalone, caikit_tgis)
+
+    - name: PROTOCOL
+      description: caikit supports 2 protocols (rest,grpc)
+
+    - name: ISVC_STORAGE_PATH_TYPE
+      description: kserve support various storage path types (storageuri, storage)
+
+    - name: STORAGE_CONFIG_TYPE
+      description: kserve support 2 storage-config secret types(json,annotation)
+    - name: TEST_NAMESPACE
+      
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token
+  
+
+  
+
+
+      

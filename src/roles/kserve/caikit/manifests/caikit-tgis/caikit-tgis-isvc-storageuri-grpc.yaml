@@ -1,0 +1,21 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    serving.knative.openshift.io/enablePassthrough: "true"
+    sidecar.istio.io/inject: "true"
+    sidecar.istio.io/rewriteAppHTTPProbers: "true"
+  name: caikit-tgis-example-isvc
+spec:
+  predictor:
+    serviceAccountName: sa
+    model:
+      modelFormat:
+        name: caikit
+      runtime: caikit-tgis-runtime
+      ports:
+        - containerPort: 8085
+          name: h2c
+          protocol: TCP
+      storageUri: s3://%minio_default_bucket_name%/llm/models/flan-t5-small-caikit
+      

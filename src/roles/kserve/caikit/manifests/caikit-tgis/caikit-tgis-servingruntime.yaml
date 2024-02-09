@@ -1,0 +1,34 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+labels:
+  opendatahub.io/dashboard: "true"
+metadata:
+  annotations:
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    openshift.io/display-name: Caikit TGIS ServingRuntime for KServe
+  name: caikit-tgis-runtime
+spec:
+  containers:
+    - args:
+        - --model-name=/mnt/models/artifacts/
+      command:
+        - text-generation-launcher
+      env:
+        - name: TRANSFORMERS_CACHE
+          value: /tmp/transformers_cache
+      image: quay.io/opendatahub/text-generation-inference@sha256:e50101c1245b22e080b5754efb7c2b69fd1422e5a608d276eab249bdc5cc5a55
+      name: kserve-container
+    - env:
+        - name: RUNTIME_LOCAL_MODELS_DIR
+          value: /mnt/models
+        - name: RUNTIME_GRPC_SERVER_THREAD_POOL_SIZE
+          value: "64"
+      image: quay.io/opendatahub/caikit-tgis-serving@sha256:153294140ecc87839defeca317b4b67cc16e8f56ec2211f3540ed00e0efa0ae0
+      name: transformer-container
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+  multiModel: false
+  supportedModelFormats:
+    - autoSelect: true
+      name: caikit

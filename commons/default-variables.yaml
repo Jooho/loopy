@@ -1,0 +1,47 @@
+operator:
+  channel: stable
+  install_approval: Automatic
+  catalogsource_name: community-operators
+  catalogsource_namespace: openshift-marketplace
+  operator_version: latest
+openshift:
+  type: psi  
+
+opendatahub:
+  opendatahub_type: opendatahub
+  datasciencecluster_name: rhoai
+  enable_codeflare: Removed
+  enable_dashboard: Removed
+  enable_datasciencepipelines: Removed
+  enable_kserve: Managed
+  enable_kserve_knative: Managed
+  enable_modelmesh: Removed
+  enable_ray: Removed
+  enable_trustyai: Removed
+  enable_workbenches: Removed
+
+minio:
+  minio_namespace: minio
+  access_key_id: admin
+  secret_access_key: password
+  minio_image: quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5  
+  enable_ssl: "false"
+  enable_console: "false"
+  minio_region: "us-east-1"
+  default_bucket_image: modelmesh-example-models
+  default_bucket_name: modelmesh-example-models
+  
+kserve:
+  caikit_arch_type: caikit-tgis
+  protocol: rest
+  isvc_storage_path_type: storageuri
+  test_namespace: kserve-demo
+  storage_config_type: json
+  default_bucket_name: modelmesh-example-models
+  minio_region: "us-east-1"
+  
+cli:
+  output_root_dir: /tmp/ms_cli
+  output_env_dir: output
+  output_artifacts_dir: artifacts
+  output_report_file: report

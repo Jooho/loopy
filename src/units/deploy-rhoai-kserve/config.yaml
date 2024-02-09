@@ -1,0 +1,7 @@
+unit:
+  name: deploy-rhoai-kserve
+  role:
+    name: opendatahub-deploy
+    input_env:
+      OPENDATAHUB_TYPE: rhoai
+   

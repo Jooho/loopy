@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    model.serving.test: "true"
+  name: %subscription-name%
+  namespace: %operator-namespace%
+spec:
+  channel: %channel%
+  installPlanApproval: %install-approval%
+  name: %operator-name%
+  source: %catalogsource-name%
+  sourceNamespace: %catalogsource-namespace%
+  startingCSV: %operator-name%.%operator-version%

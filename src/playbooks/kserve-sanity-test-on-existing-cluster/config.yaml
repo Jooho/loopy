@@ -1,0 +1,20 @@
+playbook:
+  name: kserve-sanity-test-on-existing-cluster
+  description: 
+  # input_env_file: /tmp/abc
+  # input_env:
+  #     MACHINE_POOL_TYPE: m5.4xlarge
+  steps:
+   - unit:
+       name: install-serverless-stable-operator         
+   - unit:
+       name: install-ossm-stable-operator                
+   - unit:
+       name: install-rhoai-stable-operator      
+   - unit:
+       name: deploy-rhoai-kserve
+   - role:
+       name: minio-deploy
+   - unit:
+       name: test-kserve-caikit-tgis-rest       
+    

@@ -1,0 +1,10 @@
+unit:
+  name: install-rhoai-stable-operator
+  role:
+    name: operator-install
+    input_env:
+      SUBSCRIPTION_NAME: rhods-operator
+      OPERATOR_NAMESPACE: red-hat-ods-operator
+      OPERATOR_NAME: rhods-operator
+      CATALOGSOURCE_NAME: redhat-operators
+      OPERATOR_LABEL: "name=rhods-operator"

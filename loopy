@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+import click
+import os
+import sys
+import yaml
+from datetime import datetime
+from config import update_config
+
+# main.py path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# add ./src/cli/commands
+commands_dir = os.path.join(current_dir, "src", "cli", "commands")
+logics_dir = os.path.join(current_dir, "src", "cli", "logics")
+sys.path.append(commands_dir)
+sys.path.append(logics_dir)
+
+from roles import list_roles, show_role, test_role, run_role
+from units import list_units, show_unit, run_unit
+from playbooks import list_playbooks, show_playbook, run_playbook
+
+def init(default_vars):
+    # Create default dirs
+    root_dir=default_vars['cli']['output_root_dir']
+    now = datetime.now()
+
+    # "2024-02-05_1430"
+    date_dir = os.path.join(root_dir,now.strftime("%Y%m%d_%H%M"))
+    output_dir=os.path.join(date_dir,default_vars['cli']['output_env_dir'])
+    artifacts_dir=os.path.join(date_dir,default_vars['cli']['output_artifacts_dir'])
+    report_file=os.path.join(date_dir,default_vars['cli']['output_report_file'])
+
+    os.makedirs(output_dir, exist_ok=True) 
+    os.makedirs(artifacts_dir, exist_ok=True) 
+    
+    with open(report_file, 'w') as file:
+        file.write("# This is a report.")
+        file.write("")
+        
+    update_config('output_dir', output_dir)        
+    os.environ['OUTPUT_DIR']=output_dir
+    update_config('artifacts_dir', artifacts_dir)        
+    os.environ['ARTIFACTS_DIR']=artifacts_dir
+    update_config('report_file', report_file)               
+    os.environ['REPORT_FILE']=report_file
+    
+    # Update PATH to add ./bin dir
+    path = os.environ['PATH']
+    bin_path = os.path.join(os.getcwd(), 'bin')
+    new_path = f"{bin_path}:{path}"
+    os.environ['PATH'] = new_path
+    
+@click.group()
+def roles():
+    pass
+
+@click.group()
+def units():
+    pass
+
+@click.group()
+def playbooks():
+    pass
+
+@click.group()
+def cli():
+    pass
+
+roles.add_command(list_roles)
+roles.add_command(show_role)
+roles.add_command(test_role)
+roles.add_command(run_role)
+
+units.add_command(list_units)
+units.add_command(show_unit)
+units.add_command(run_unit)
+
+playbooks.add_command(list_playbooks)
+playbooks.add_command(show_playbook)
+playbooks.add_command(run_playbook)
+
+cli.add_command(roles)
+cli.add_command(units)
+cli.add_command(playbooks)
+
+
+# Load configuation file(./config.yaml)
+with open("./config.yaml", "r") as file:
+    config_data = yaml.safe_load(file)
+
+with open(config_data["default_vars_file"], "r") as file:
+    default_vars = yaml.safe_load(file)
+
+main_context_settings = dict(
+    config={"default_vars": default_vars, "config_data": config_data}
+)
+
+init(default_vars)
+
+if __name__ == "__main__":
+    cli(obj=main_context_settings)

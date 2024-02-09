@@ -1,0 +1,10 @@
+playbook:
+  name: deploy-odh-2.5-on-new-cluster
+  role:
+    name: openshift-install
+    input_env:
+      OSIA_CONFIGURATION_KEY_PATH: "/tmp/"
+  unit:
+    name: install-odh-2.5-operator
+  
+      

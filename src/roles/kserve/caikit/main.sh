@@ -90,6 +90,9 @@ result=0
 
 info "Wait until runtime is READY"
 wait_for_pods_ready "serving.kserve.io/inferenceservice=${CAIKIT_ARCH_TYPE}-example-isvc-${PROTOCOL}" ${TEST_NAMESPACE}
+
+if [[ $? != 0 ]]
+then
 wait_pod_containers_ready "serving.kserve.io/inferenceservice=${CAIKIT_ARCH_TYPE}-example-isvc-${PROTOCOL}" ${TEST_NAMESPACE}
 
 temp_result=$?

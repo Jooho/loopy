@@ -45,6 +45,12 @@ check_oc_status
 if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]]
 then
   oc get ns $OPERATOR_NAMESPACE || oc new-project $OPERATOR_NAMESPACE
+  if [[ $? != 0 ]]
+  then
+    error "[FAIL] It failed to create the project($OPERATOR_NAMESPACE)" 
+    exit 1
+  fi
+
   sed -e \
   "s+%operatorgroup-name%+$SUBSCRIPTION_NAME+g; \
    s+%operatorgroup-namespace%+$OPERATOR_NAMESPACE+g"  $og_manifests_path > ${ROLE_DIR}/$(basename $og_manifests_path)
@@ -76,6 +82,11 @@ then
 fi
 
 oc apply -f ${ROLE_DIR}/$(basename $subs_manifests_path)
+if [[ $? != 0 ]]
+then
+  error "[FAIL] It failed to apply the subscription(${ROLE_DIR}/$(basename $subs_manifests_path) " 
+  exit 1
+fi
 
 ############# VERIFY #############
 if [[ z$OPERATOR_POD_PREFIX != z ]]

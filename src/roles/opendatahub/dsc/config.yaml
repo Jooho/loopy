@@ -1,4 +1,5 @@
 role:
+  created_date: 20240215
   name: opendatahub-create-dsc
   manifests:
     datasciencecluster: commons/manifests/opendatahub/datasciencecluster.yaml

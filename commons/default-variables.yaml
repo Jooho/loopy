@@ -28,7 +28,6 @@ minio:
   enable_ssl: "false"
   enable_console: "false"
   minio_region: "us-east-1"
-  default_bucket_image: modelmesh-example-models
   default_bucket_name: modelmesh-example-models
   
 kserve:

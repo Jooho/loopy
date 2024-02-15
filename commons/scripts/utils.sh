@@ -106,20 +106,21 @@ function wait_pod_containers_ready(){
                 success "[SUCCESS] Pod(s) with label '${pod_label}' is(are) Ready!"
                 break
             else 
-                tempcount=$((tempcount+1))
                 pending "[PENDING] Pod(s) with label '${pod_label}' is(are) ${red}NOT${clear}${pending} Ready yet: $tempcount times"
                 pending "[PENDING] Wait for 10 seconds"
 
                 sleep 10
             fi
-            if [[ $ready != $desired ]] && [[ $checkcount == $tempcount ]]
-            then
-                error "[ERROR] Pod(s) with label '${pod_label}' is(are) NOT Ready${clear}\n"
-                exit 1
-            fi
         else 
             pending "[PENDING] Pod is NOT created yet"
             sleep 10
+        fi
+        
+        tempcount=$((tempcount+1))
+        if [[ $checkcount == $tempcount ]]
+        then
+            error "[ERROR] Pod(s) with label '${pod_label}' is(are) NOT Ready${clear}\n"
+            exit 1
         fi
     done
 }
@@ -153,7 +154,7 @@ wait_for_pods_ready() {
       echo
       oc get pods -l $pod_selector -n $pod_namespace
       error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
-      break
+      exit 1
     fi
 
     wait_counter=$((wait_counter + 1))
@@ -179,7 +180,7 @@ wait_for_pod_name_ready() {
     echo "The pod($pod_name) in '$pod_namespace' namespace are running and ready."
   else
     error "Timed out after 300s waiting for pod($pod_name)"
-    return 1
+    exit 1
   fi
 }
 
@@ -195,7 +196,7 @@ function wait_for_just_created_pod_ready(){
     if [[ $wait_counter -ge 12 ]]; then
       echo
       oc get pods $pod_name -n $namespace
-      return 1
+      exit 1
     fi
     echo "No pods created in $namespace. Pods may not be up yet."
 

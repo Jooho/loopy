@@ -1,4 +1,5 @@
 playbook:
+  created_date: 20240215
   name: kserve-sanity-test-on-existing-cluster
   description: 
   # input_env_file: /tmp/abc

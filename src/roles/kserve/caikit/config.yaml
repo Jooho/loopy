@@ -1,4 +1,5 @@
 role:
+  created_date: 20240215
   name: kserve-caikit-test
   # output_filename: operator-install-output.sh
   manifests:
@@ -17,11 +18,11 @@ role:
   input_env:
     - name: MINIO_S3_SVC_URL
       required: true
-    - name: DEFAULT_BUCKET_NAME
+    - name: MINIO_DEFAULT_BUCKET_NAME
       required: true
-    - name: ACCESS_KEY_ID
+    - name: MINIO_ACCESS_KEY_ID
       required: true
-    - name: SECRET_ACCESS_KEY
+    - name: MINIO_SECRET_ACCESS_KEY
       required: true    
 
     - name: CAIKIT_ARCH_TYPE
@@ -35,6 +36,7 @@ role:
 
     - name: STORAGE_CONFIG_TYPE
       description: kserve support 2 storage-config secret types(json,annotation)
+
     - name: TEST_NAMESPACE
       
     - name: CLUSTER_API_URL

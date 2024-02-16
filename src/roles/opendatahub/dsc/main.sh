@@ -88,6 +88,7 @@ info "Veirfy role"
 result=1
 if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
+  knative_result=1
   info "- Checking if KNATIVE pods are running"
   wait_for_pods_ready "app=controller" "knative-serving"
   wait_for_pods_ready "app=net-istio-controller" "knative-serving"
@@ -109,29 +110,46 @@ then
   if [[ $? == 0 ]]
   then
     success "[SUCCESS] KNative pods are running properly" 
-    result=0
+    knative_result=0
   fi
 fi
 
 if [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
+  kserve_result=1
   info "- Checking if KServer pod is running"
   wait_for_pods_ready "control-plane=kserve-controller-manager" "${opendatahub_namespace}"
-  if [[ $? == 0 ]]
+  kserve_result=$?
+  wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
+  if [[ kserve_result == 0 && $? == 0 ]]
   then
     success "[SUCCESS] Successfully deployed KServe operator!"
-    result=0
+    kserve_result=0
   fi 
 fi
 
 if [[ ${ENABLE_MODELMESH} == "Managed" ]]
 then
+  modelmesh_result=1
   info "- Checking if Modelmesh pods are running"
   wait_for_pods_ready "control-plane=modelmesh-controller" "${opendatahub_namespace}"
+  modelmesh_result=$?
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
+  if [[ modelmesh_result == 0 && $? == 0 ]]
+  then
+    success "[SUCCESS] Successfully deployed ModelMesh operator!"
+    modelmesh_result=0
+  fi
+fi
+
+if [[ ${ENABLE_DASHBOARD} == "Managed" ]]
+then
+  modelmesh_result=1
+  info "- Checking if Modelmesh pods are running"
+  wait_for_pods_ready "deployment=odh-dashboard" "${opendatahub_namespace}"
   if [[ $? == 0 ]]
   then
-    success "[SUCCESS] Successfully deployed KServe operator!"
+    success "[SUCCESS] Successfully deployed Dashboard!"
     modelmesh_result=0
   fi
 fi

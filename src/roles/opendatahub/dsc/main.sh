@@ -127,7 +127,7 @@ fi
 if [[ ${ENABLE_MODELMESH} == "Managed" ]]
 then
   info "- Checking if Modelmesh pods are running"
-  wait_for_pods_ready "control-plane=modelmesh-controller-manager" "${opendatahub_namespace}"
+  wait_for_pods_ready "control-plane=modelmesh-controller" "${opendatahub_namespace}"
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
   if [[ $? == 0 ]]
   then

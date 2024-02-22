@@ -43,8 +43,8 @@ mv yq_linux_amd64  ${root_directory}/bin/yq
 JQ_VERSION=1.7.1
 wget https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64
 # osx https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-macos-amd64
-chmod 777 jq_linux64
-mv jq_linux64  ${root_directory}/bin/jq
+chmod 777 jq-linux64
+mv jq-linux64  ${root_directory}/bin/jq
 
 # GRPC_CURL
 GRPC_CURL=1.8.9

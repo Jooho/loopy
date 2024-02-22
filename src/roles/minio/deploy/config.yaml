@@ -11,8 +11,13 @@ role:
     - name: MINIO_IMAGE
     - name: DEFAULT_BUCKET_NAME
     - name: MINIO_REGION
-  
-    # - name: ENABLE_SSL
+    
+    - name: ENABLE_SSL
+    - name: ROOT_CA_FILE_PATH
+    - name: CERT_FILE_PATH
+    - name: KEY_FILE_PATH
+    
+    
     # - name: ENABLE_CONSOLE
 
     - name: CLUSTER_API_URL

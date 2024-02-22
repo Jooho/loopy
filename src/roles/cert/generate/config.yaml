@@ -1,0 +1,31 @@
+role:
+  created_date: 20240215
+  name: cert-generate
+  # output_filename: operator-install-output.sh
+  files:
+    openssl-san: ./files/openssl-san.config
+  input_env:
+    - name: SAN_LIST
+      description: (ex "minio.minio.svc.cluster.local,minio-minio.test")
+      required: true
+    - name: ROOT_CA_CERT_NAME
+    - name: ROOT_CA_KEY_NAME
+    - name: CERT_NAME
+    - name: KEY_NAME
+    - name: CSR_NAME
+    - name: CN
+
+  output_env:
+    - name: ROOT_CA_FILE_PATH
+      required: true
+    - name: CERT_FILE_PATH
+      required: true
+    - name: KEY_FILE_PATH
+      required: true
+    
+  
+
+  
+
+
+      

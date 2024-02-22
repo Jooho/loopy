@@ -62,3 +62,9 @@ mv oc kubectl ${root_directory}/bin/.
 wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.3.0/kustomize_v5.3.0_linux_amd64.tar.gz
 tar xvf kustomize_v5.3.0_linux_amd64.tar.gz
 mv kustomize  ${root_directory}/bin/.
+
+openssl version
+if [[ $? != '0' ]]
+then
+  sudo dnf -y install openssl
+fi

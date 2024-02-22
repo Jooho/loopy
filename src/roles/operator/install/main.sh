@@ -33,6 +33,9 @@ og_manifests_path=$root_directory/$og_manifests
 subs_manifests=$(yq e '.role.manifests.subscription' $current_dir/config.yaml)
 subs_manifests_path=$root_directory/$subs_manifests
 
+catalogsource_manifests=$(yq e '.role.manifests.catalogsource' $current_dir/config.yaml)
+catalogsource_manifests_path=$root_directory/$catalogsource_manifests
+
 if [[ z${CLUSTER_TOKEN} != z ]]
 then
   oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
@@ -80,6 +83,34 @@ then
   IFS='=' read -r name value <<< "$CONFIG_ENV"
   yq -i ".spec.config.env += [{\"$name\": \"$value\"}]" ${ROLE_DIR}/$(basename $subs_manifests_path)
 fi
+
+# Check if catalogsource is needed or not
+if [[ ${CATALOGSOURCE_NAME} == "community-operators" || ${CATALOGSOURCE_NAME} == "redhat-operators" || ${CATALOGSOURCE_NAME} == "redhat-marketplace" || ${CATALOGSOURCE_NAME} == "certified-operators" ]]
+then
+  echo "The catalogsource(${CATALOGSOURCE_NAME}) is official one"
+else
+  echo "The catalogsource(${CATALOGSOURCE_NAME}) is NOT official one so it will create a catalogsource with catalog image{${CATALOGSOURCE_IMAGE}}"
+
+  if [[ -z ${CATALOGSOURCE_IMAGE} ]];
+  then
+    die "catalogsource image is required. please provide it"
+  fi
+
+  sed -e \
+  "s+%catalogsource-displayname%+$CATALOGSOURCE_DISPLAYNAME+g; \
+   s+%catalogsource-publisher%+$CATALOGSOURCE_PUBLISHER+g; \
+   s+%catalogsource-image%+$CATALOGSOURCE_IMAGE+g; \
+   s+%catalogsource-name%+$CATALOGSOURCE_NAME+g; \
+   s+%catalogsource-namespace%+$CATALOGSOURCE_NAMESPACE+g" $catalogsource_manifests_path > ${ROLE_DIR}/$(basename $catalogsource_manifests_path)
+
+   oc apply -f ${ROLE_DIR}/$(basename $catalogsource_manifests_path)
+fi
+if [[ $? != 0 ]]
+then
+  error "[FAIL] It failed to apply the catalogsource(${ROLE_DIR}/$(basename $catalogsource_manifests_path) " 
+  exit 1
+fi
+
 
 oc apply -f ${ROLE_DIR}/$(basename $subs_manifests_path)
 if [[ $? != 0 ]]

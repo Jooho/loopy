@@ -14,5 +14,5 @@ spec:
         name: pytorch
       runtime: tgis-runtime
       storage:
-        key: localMinIO
+        key: aws-connection-minio
         path: llm/models/flan-t5-small-caikit

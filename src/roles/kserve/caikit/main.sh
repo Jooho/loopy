@@ -78,6 +78,10 @@ cp $servingruntime_manifests  ${ROLE_DIR}/.
 sed -e \
 "s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g" $inferenceservice_manifests > ${ROLE_DIR}/$(basename $inferenceservice_manifests)
 
+if [[ ${STORAGE_CONFIG_TYPE} != "json" ]]
+then
+  yq -i  ".spec.predictor.serviceAccountName=\"sa\""  ${ROLE_DIR}/$(basename $inferenceservice_manifests)
+fi
 
 echo "oc apply -f ${ROLE_DIR}/$(basename $servingruntime_manifests) -n ${TEST_NAMESPACE}"
 echo "oc apply -f ${ROLE_DIR}/$(basename $inferenceservice_manifests) -n ${TEST_NAMESPACE}"

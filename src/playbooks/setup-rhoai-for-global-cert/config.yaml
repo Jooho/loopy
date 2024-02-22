@@ -1,0 +1,58 @@
+playbook:
+  created_date: 20240221
+  name: setup-rhoai-for-global-cert
+  description: Install dependent operators/Create DSCi with global cert/Generate certificate and apply it to Minio/Deploy KServe model. This playbook will fail to pull an model.
+  steps:
+   - unit:
+       name: install-serverless-stable-operator 
+   - unit:
+       name: install-ossm-stable-operator       
+   - unit:
+       name: install-odh-2.5-operator
+       input_env:
+         CATALOGSOURCE_NAME: rhods-catalog-dev 
+         CHANNEL: fast 
+         OPERATOR_VERSION: v2.8.0-incubation 
+         CATALOGSOURCE_IMAGE: quay.io/opendatahub/opendatahub-operator-catalog:v2.8.0-incubation
+   - role: 
+       name: opendatahub-create-dsci
+   - role:
+       name: shell-execute
+       input_env:
+         COMMANDS: "kubectl patch DSCInitialization ${DSCI_NAME} --type=json -p='[{\"op\": \"add\", \"path\": \"/spec/trustedCABundle\", \"value\": {\"managementState\": \"Managed\", \"customCABundle\": \"\"}}]'"
+   - role:
+       name: opendatahub-create-dsc
+       input_env:
+         ENABLE_MODELMESH: Managed 
+         ENABLE_DASHBOARD: Managed
+   - role:
+       name: shell-execute
+       description: add devflags for kserve
+       input_env:
+         DATASCIENCECLUSTER_NAME: rhoai    
+         COMMANDS: "kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/components/kserve/devFlags\", \"value\": {\"manifests\":[{\"contextDir\": \"config\",\"sourcePath\": \"overlays/odh\",\"uri\": \"https://github.com/jooho/kserve/tarball/test-manifests\"},{\"contextDir\": \"config\",\"uri\": \"https://github.com/jooho/odh-model-controller/tarball/global-ca\"}]}}]'"
+   - role:
+       name: shell-execute
+       description: add devflags for modelmesh
+       input_env:
+         COMMANDS: "kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/components/modelmeshserving/devFlags\", \"value\": {\"manifests\":[{\"contextDir\": \"config\",\"uri\": \"https://github.com/jooho/odh-model-controller/tarball/global-ca\"}]}}]'"
+         
+   - role:
+       name: cert-generate
+       input_env:
+         SAN_LIST: minio.minio.svc.cluster,minio.minio.svc          
+   - role:
+       name: minio-deploy
+       input_env:
+         ENABLE_SSL: "true"
+   - role:
+       name: shell-execute
+       input_env:
+         COMMANDS: "oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard=\"true\""
+   - role:
+       name: kserve-caikit-test
+       input_env:
+         MINIO_S3_SVC_URL: https://minio.minio.svc:9000 
+         MINIO_DEFAULT_BUCKET_NAME: modelmesh-example-models
+         MINIO_ACCESS_KEY_ID: admin 
+         MINIO_SECRET_ACCESS_KEY: password

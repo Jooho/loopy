@@ -26,13 +26,13 @@ role:
       required: true    
 
     - name: CAIKIT_ARCH_TYPE
-      description: caikit supports 2 architectures (caikit_standalone, caikit_tgis)
+      description: caikit supports 2 architectures (caikit_tgis, caikit_standalone ) - caikit_standalone is tbd
 
     - name: PROTOCOL
       description: caikit supports 2 protocols (rest,grpc)
 
     - name: ISVC_STORAGE_PATH_TYPE
-      description: kserve support various storage path types (storageuri, storage)
+      description: kserve support various storage path types (storage, storageuri) - storageuri is tbd
 
     - name: STORAGE_CONFIG_TYPE
       description: kserve support 2 storage-config secret types(json,annotation)

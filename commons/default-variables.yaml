@@ -3,6 +3,8 @@ operator:
   install_approval: Automatic
   catalogsource_name: community-operators
   catalogsource_namespace: openshift-marketplace
+  catalogsource_displayname: custom catalogsource
+  catalogsource_publisher: custom catalogsource
   operator_version: latest
 openshift:
   type: psi  
@@ -33,11 +35,19 @@ minio:
 kserve:
   caikit_arch_type: caikit-tgis
   protocol: rest
-  isvc_storage_path_type: storageuri
+  isvc_storage_path_type: storage
   test_namespace: kserve-demo
   storage_config_type: json
   default_bucket_name: modelmesh-example-models
   minio_region: "us-east-1"
+
+cert:
+  root_ca_cert_name: root.crt
+  root_ca_key_name: root.key
+  cert_name: custom.crt
+  key_name: custom.key
+  csr_name:  custom.csr
+  cn: custom
   
 cli:
   output_root_dir: /tmp/ms_cli

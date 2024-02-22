@@ -8,7 +8,6 @@ metadata:
   name: caikit-tgis-example-isvc
 spec:
   predictor:
-    serviceAccountName: sa
     model:
       modelFormat:
         name: caikit

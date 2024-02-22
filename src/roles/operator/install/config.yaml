@@ -5,6 +5,7 @@ role:
   manifests:
     subscription: commons/manifests/kubernetes/subscription.yaml
     operatorgroup: commons/manifests/kubernetes/operatorgroup.yaml
+    catalogsource: commons/manifests/kubernetes/catalogsource.yaml
   input_env:
     - name: SUBSCRIPTION_NAME
       description: Subscription object name
@@ -41,12 +42,15 @@ role:
     - name: CATALOGSOURCE_NAMESPACE
       description: The namespace that the catalog source is in
 
+    - name: CATALOGSOURCE_IMAGE
+      description: The catalogsource image that include the operator you want to install
+
     - name: OPERATORGROUP_CREATE
       description: Set false, the namespace already have operator group. Automatically it will set to false if OPERATOR_NAMESPACE is `openshift-operators`
       default: "true"
 
     - name: CONFIG_ENV
-      description: Set this, if you want to add config.env.
+      description: Set this, if you want to add config.env.(ex "name=DISABLE_DSC_CONFIG")
       default: ""
       
     - name: CLUSTER_API_URL

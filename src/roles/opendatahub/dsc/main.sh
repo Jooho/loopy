@@ -52,6 +52,7 @@ then
   if [[ $CLUSTER_TYPE == 'ROSA' || $CLUSTER_TYPE == 'rosa' ]]
   then
     info "Cluster type is ROSA so it will update SMCP security"
+    oc::wait::object::availability "oc get smcp data-science-smcp -n istio-system" 6 10
     oc patch smcp data-science-smcp --type merge --patch '{"spec":{"security":{"identity":{"type":"ThirdParty"}}}}' -n istio-system
   fi
 

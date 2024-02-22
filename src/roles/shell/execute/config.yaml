@@ -1,0 +1,8 @@
+role:
+  name: shell-execute
+  created_date: 20240221
+  input_env:
+    - name: COMMANDS
+      description: command list (ex "oc get pod, ls")
+      required: true
+      

@@ -46,7 +46,7 @@ def run_playbook(ctx, playbook_name, params,input_env_file=None):
     for index,step in enumerate(steps):
         if list(step)[0] == 'role':
             role_name=step['role']['name']
-            additional_input_env=get_role_input_env(step['role'])
+            additional_input_env=get_input_env(step['role'])
             role = Role(ctx, index, default_vars, role_list, role_name, params, None)
             if additional_input_env is not None:
                 unit=Unit(role_name+"-unit",role,additional_input_env)
@@ -55,14 +55,28 @@ def run_playbook(ctx, playbook_name, params,input_env_file=None):
                 playbook.add_component(role)
         if list(step)[0] == 'unit':            
             unit_name=step['unit']['name']
-            unit_input_env=units.get_unit_input_env(unit_name)
+            playbook_unit_input_env=get_input_env(step['unit'])
+            merged_unit_input_env = merge_unit_input_env(unit_name,playbook_unit_input_env)
             role = Role(ctx, index, default_vars, role_list, units.get_role_name(unit_name), params, None)
-            unit=Unit(unit_name,role,unit_input_env)
+            unit=Unit(unit_name,role,merged_unit_input_env)
             
             playbook.add_component(unit)
     playbook.start()
 
-def get_role_input_env(role_info):
+def merge_unit_input_env(unit_name, playbook_unit_input_env):
+    for unit in unit_list:
+        if unit_name == unit["name"]:
+            unit_config_path = unit["path"] + "/config.yaml"
+            with open(unit_config_path, "r") as file:
+                unit_config_vars = yaml.safe_load(file)
+                unit_input_env= unit_config_vars["unit"]["role"]["input_env"]
+                if playbook_unit_input_env is not None:
+                    for key, value in playbook_unit_input_env.items():
+                        unit_input_env[key] = value
+                    return unit_input_env
+                return unit_input_env
+
+def get_input_env(role_info):
     if "input_env" not in role_info:
         return None
     else:

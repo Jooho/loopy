@@ -38,13 +38,32 @@ else
 fi
 check_oc_status
 
+oc get ns ${MINIO_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${MINIO_NAMESPACE} > /dev/null 2>&1 
 sed -e \
 "s+%access_key_id%+$ACCESS_KEY_ID+g; \
  s+%secret_access_key%+$SECRET_ACCESS_KEY+g; \
  s+%minio_namespace%+$MINIO_NAMESPACE+g; \
  s+%minio_image%+$MINIO_IMAGE+g" $minio_deployment_manifests_path > ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
-oc get ns ${MINIO_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${MINIO_NAMESPACE} > /dev/null 2>&1 
+enable_ssl=$(is_positive ${ENABLE_SSL})
+if [[ ${enable_ssl} == "0" ]]
+then
+  info "MINIO SSL Enabled"
+  echo "${ROOT_CA_FILE_PATH}"
+  if [[ ! -n ${ROOT_CA_FILE_PATH} || ! -n ${CERT_FILE_PATH} || ! -n ${KEY_FILE_PATH} ]]
+  then
+    echo "Required values(ROOT_CA_FILE_PATH,CERT_FILE_PATH,KEY_FILE_PATH) are NOT inputed."
+    exit 1
+  fi
+  cp ${ROOT_CA_FILE_PATH} ${ROLE_DIR}/root.crt
+  cp ${CERT_FILE_PATH} ${ROLE_DIR}/minio.crt
+  cp ${KEY_FILE_PATH} ${ROLE_DIR}/minio.key
+
+  oc create secret generic minio-tls --from-file="${ROLE_DIR}/minio.key" --from-file="${ROLE_DIR}/minio.crt" --from-file="${ROLE_DIR}/root.crt" -n ${MINIO_NAMESPACE}
+
+  yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelmesh/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
+fi  
+
 oc apply -f ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
 ############# VERIFY #############

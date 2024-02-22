@@ -98,7 +98,7 @@ def gather_env(ctx, default_vars, role_config_dir_path, role_name, params,additi
     required_envs = []
     # Set them as environment variables
     role_group_name=role_name.split("-")[0]
-    for key in default_vars[role_group_name]:
+    for key in default_vars.get(role_group_name, {}): 
         os.environ[str.upper(key)] = default_vars[role_group_name][key]
 
     # Load config.yaml in the role. Read input_env and overwrite the environment value if there is default field

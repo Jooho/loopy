@@ -17,5 +17,5 @@ spec:
           name: h2c
           protocol: TCP
       storage:
-        key: localMinIO
+        key: aws-connection-minio
         path: llm/models/flan-t5-small-caikit

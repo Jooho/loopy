@@ -26,6 +26,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 manifests=$(yq e '.role.manifests' "$current_dir/config.yaml")
 
@@ -168,4 +169,4 @@ fi
 ############# OUTPUT #############
 
 ############# REPORT #############
-echo "${role_name}::$?" >> ${REPORT_FILE}
+echo "${index_role_name}::$?" >> ${REPORT_FILE}

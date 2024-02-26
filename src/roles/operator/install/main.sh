@@ -26,6 +26,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 og_manifests=$(yq e '.role.manifests.operatorgroup' $current_dir/config.yaml)
 og_manifests_path=$root_directory/$og_manifests
@@ -149,4 +150,4 @@ fi
 
 
 ############# REPORT #############
-echo "${role_name}::${OPERATOR_NAME}::$?" >> ${REPORT_FILE}
+echo "${index_role_name}::${OPERATOR_NAME}::$?" >> ${REPORT_FILE}

@@ -13,26 +13,17 @@ source $current_dir/test-variables.sh
 source $root_directory/commons/scripts/utils.sh
 
 #Verify
-while IFS= read -r line; do
-  IFS='::' read -ra ADDR <<< "$line"
-  last_element=${ADDR[-1]}
-  if [ "$last_element" == "0" ]; then
-    success "[SUCCESS] report result is 0"
-  else
-    die "[FAIL] Report result is NOT 0"
-  fi
-done < ${REPORT_FILE}
+result=($(awk '/^STDOUT:/{print $2}' "${ROLE_DIR}/commands.txt"))
+expected_values=("Linux" "jhouse.example.com")
 
+for ((i=0; i<${#result[@]}; i++)); do
+    if [ "${result[i]}" = "${expected_values[i]}" ]; then
+        echo "Result ${result[i]} matches expected value ${expected_values[i]}"
+    else
+        echo "Result ${result[i]} does not match expected value ${expected_values[i]}"
+    fi
+done
 
-while IFS= read -r line; do
-  IFS='::' read -ra ADDR <<< "$line"
-  last_element=${ADDR[-1]}
-  if [[ "$last_element" == "Linux" || "$last_element" == "jhouse.example.com" ]]; then
-    success "[SUCCESS] Command result is Linux,jhosue.example.com"
-  else
-    die "[FAIL] Command result is NOT Linux"
-  fi
-done < ${ROLE_DIR}/commands.txt
 
 
 if [[ $? == 0 ]]

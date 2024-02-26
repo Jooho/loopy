@@ -26,6 +26,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 minio_deployment_manifests=$(yq e '.role.manifests.minio_deployment' $current_dir/config.yaml)
 minio_deployment_manifests_path=$current_dir/$minio_deployment_manifests
@@ -87,4 +88,4 @@ echo "MINIO_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}" >> ${OUTPUT_ENV_FILE}
 echo "MINIO_REGION=${MINIO_REGION}" >> ${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
-echo "${role_name}::$?" >> ${REPORT_FILE}
+echo "${index_role_name}::$?" >> ${REPORT_FILE}

@@ -28,6 +28,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 openssl_san_file=$(yq e '.role.files.openssl-san' $current_dir/config.yaml)
 openssl_san_file_path=$current_dir/$openssl_san_file
@@ -64,4 +65,4 @@ echo "CERT_FILE_PATH=${ROLE_DIR}/${CERT_NAME}" >> ${OUTPUT_ENV_FILE}
 echo "KEY_FILE_PATH=${ROLE_DIR}/${KEY_NAME}" >> ${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
-echo "${role_name}::$?" >> ${REPORT_FILE}
+echo "${index_role_name}::$?" >> ${REPORT_FILE}

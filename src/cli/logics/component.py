@@ -2,7 +2,7 @@ import subprocess
 import os
 import yaml
 import utils
-from config import config_dict
+from config import config_dict, update_config
 
 class Role:
     def __init__(self, ctx, index, default_vars, role_list, role_name, params, param_output_env_file):
@@ -24,6 +24,7 @@ class Role:
             role_dir_path=os.path.join(artifacts_dir_path,self.name)                        
         create_dir_if_does_not_exist(role_dir_path)        
         os.environ['ROLE_DIR']=role_dir_path
+        update_config('role_dir', role_dir_path) 
         
         print(f"Role '{self.name}': Gathering environment and setting environment variables")
         gather_env(
@@ -46,11 +47,21 @@ class Role:
             # print(proc.stdout.strip())
             
             # This show logs and also save it to file
+            target_main_file_type="bash"
+            target_main_file=os.path.join(self.role_config_dir_path,"main.sh")
+            print(f"JOHOUSE -- {target_main_file}")
+            if not os.path.exists(target_main_file):
+                target_main_file=os.path.join(self.role_config_dir_path,"main.py")
+                target_main_file_type="python"
             with open(log_output_file, 'w') as f:
-                with subprocess.Popen(['bash', self.role_config_dir_path + "/main.sh"], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True) as proc:                
+                with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True) as proc:                
                     for line in proc.stdout:
                         print(line, end='') 
                         f.write(line)
+                # with subprocess.Popen(['bash', self.role_config_dir_path + "/main.sh"], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True) as proc:                
+                #     for line in proc.stdout:
+                #         print(line, end='') 
+                #         f.write(line)                        
         except subprocess.CalledProcessError as e:
             print(f"Command failed with return code {e.returncode}:")
             print(e.output)

@@ -26,6 +26,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 dsci_manifests=$(yq e '.role.manifests.dsci' $current_dir/config.yaml)
 dsci_manifests_path=$root_directory/$dsci_manifests
@@ -75,4 +76,4 @@ fi
 
 
 ############# REPORT #############
-echo ${role_name}::create-dsci::$result >> ${REPORT_FILE}
+echo ${index_role_name}::create-dsci::$result >> ${REPORT_FILE}

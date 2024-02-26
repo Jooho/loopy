@@ -8,7 +8,7 @@ role_list=utils.initialize("./src/roles", "role")
 
 @click.command(name="list")
 def list_units():
-    click.echo("Available units:")
+    click.echo("Available utils:")
     for unit in unit_list:
         click.echo(f" - {unit['name']}")
 
@@ -69,6 +69,7 @@ def get_unit_input_env(unit_name):
 def get_role_name(unit_name):
     for unit in unit_list:
         if unit_name == unit["name"]:
+            print(unit_name)
             return unit["role_name"]
         
     

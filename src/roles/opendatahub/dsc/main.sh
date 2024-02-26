@@ -26,6 +26,7 @@ fi
 
 #################################################################
 source $root_directory/commons/scripts/utils.sh
+index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 dsc_manifests=$(yq e '.role.manifests.datasciencecluster' $current_dir/config.yaml)
 dsc_manifests_path=$root_directory/$dsc_manifests
@@ -158,4 +159,4 @@ fi
 
 
 ############# REPORT #############
-echo ${role_name}::create-dsc::$result >> ${REPORT_FILE}
+echo ${index_role_name}::create-dsc::$result >> ${REPORT_FILE}

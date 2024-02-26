@@ -12,8 +12,4 @@ role_name=$3
 source $current_dir/test-variables.sh
 source $root_directory/commons/scripts/utils.sh
 
-oc delete subscription ${SUBSCRIPTION_NAME} -n ${OPERATOR_NAMESPACE}
-csv_name=$(oc get csv -n ${OPERATOR_NAMESPACE} | grep ${OPERATOR_NAME}|awk '{print $1}')
-oc delete csv $csv_name -n ${OPERATOR_NAMESPACE}
-
 success "Clean up $role_name test"

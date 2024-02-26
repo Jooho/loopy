@@ -19,7 +19,8 @@ playbook:
    - role:
        name: shell-execute
        input_env:
-         COMMANDS: "kubectl patch DSCInitialization ${DSCI_NAME} --type=json -p='[{\"op\": \"add\", \"path\": \"/spec/trustedCABundle\", \"value\": {\"managementState\": \"Managed\", \"customCABundle\": \"\"}}]'"
+         COMMANDS: |
+          kubectl patch DSCInitialization ${DSCI_NAME} --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'
    - role:
        name: opendatahub-create-dsc
        input_env:
@@ -30,12 +31,14 @@ playbook:
        description: add devflags for kserve
        input_env:
          DATASCIENCECLUSTER_NAME: rhoai    
-         COMMANDS: "kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/components/kserve/devFlags\", \"value\": {\"manifests\":[{\"contextDir\": \"config\",\"sourcePath\": \"overlays/odh\",\"uri\": \"https://github.com/jooho/kserve/tarball/test-manifests\"},{\"contextDir\": \"config\",\"uri\": \"https://github.com/jooho/odh-model-controller/tarball/global-ca\"}]}}]'"
+         COMMANDS: |
+          kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "https://github.com/jooho/kserve/tarball/test-manifests"},{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'"
    - role:
        name: shell-execute
        description: add devflags for modelmesh
        input_env:
-         COMMANDS: "kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/components/modelmeshserving/devFlags\", \"value\": {\"manifests\":[{\"contextDir\": \"config\",\"uri\": \"https://github.com/jooho/odh-model-controller/tarball/global-ca\"}]}}]'"
+         COMMANDS: |
+           kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'"
          
    - role:
        name: cert-generate
@@ -48,7 +51,8 @@ playbook:
    - role:
        name: shell-execute
        input_env:
-         COMMANDS: "oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard=\"true\""
+         COMMANDS: |
+          oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
    - role:
        name: kserve-caikit-test
        input_env:

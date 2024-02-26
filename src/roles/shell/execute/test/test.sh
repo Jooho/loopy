@@ -42,7 +42,6 @@ echo ${role_dir}
 role_name=$(yq e '.role.name' ${role_dir}/config.yaml)
 
 # Target Script
-${role_dir}/main.sh
-cat ${ROLE_DIR}/commands.txt
+python ${role_dir}/main.py
 # Verify Script
-result=$($current_dir/verify.sh ${root_directory} ${current_dir} ${role_name})
+$current_dir/verify.sh ${root_directory} ${current_dir} ${role_name}

@@ -4,4 +4,5 @@ unit:
   role:
     name: shell-execute
     input_env:
-      COMMANDS: "kubectl patch DSCInitialization default-dsci --type=json -p='[{\"op\": \"add\", \"path\": \"/spec/trustedCABundle\", \"value\": {\"managementState\": \"Managed\", \"customCABundle\": \"\"}}]'"
+      COMMANDS: |
+        kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'      

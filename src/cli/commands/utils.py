@@ -1,5 +1,6 @@
 import os
 import yaml
+import re
 
 def initialize(directory, type):
     item_list = []
@@ -10,21 +11,24 @@ def initialize(directory, type):
             with open(config_path, "r") as config_file:
                 config_data = yaml.safe_load(config_file)
                 if config_data:
-                    if type == "role":
-                        name = config_data["role"]["name"]
-                        path = os.path.abspath(root)
-                        item_list.append({"name": name, "path": path})
-                    if type == "unit":
-                        name = config_data["unit"]["name"]
-                        role_name = config_data["unit"]["role"]["name"]
-                        path = os.path.abspath(root)
-                        item_list.append({"name": name, "path": path, "role_name": role_name})                        
-                    if type == "playbook":
-                        name = config_data["playbook"]["name"]
-                        path = os.path.abspath(root)
-                        item_list.append({"name": name, "path": path})                                                
+                    path = os.path.abspath(root)
+                    if 'name' in config_data[type]:
+                        name = config_data[type]["name"]
+                    else:                            
+                        name = convert_path_to_component_name(path,type)
+                    item_list.append({"name": name, "path": path})
+                                                                 
     return item_list
 
+def convert_path_to_component_name(path,component):
+    pattern = r'/'+component+'s/(.*)/(.*)$'  
+    match = re.search(pattern, path+"/")
+    if match:
+        dir_names = match.group(1).split('/')  
+        component_name = "-".join(dir_names) 
+        return f"{component_name}"
+    else:
+        return None
 
 def get_default_vars(ctx):
     return ctx.obj.get('config','default_vars') ["default_vars"] 

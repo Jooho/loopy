@@ -5,10 +5,9 @@ import utils
 from config import config_dict, update_config
 
 class Role:
-    def __init__(self, ctx, index, default_vars, role_list, role_name, params, param_output_env_file):
+    def __init__(self, ctx, index, role_list, role_name, params, param_output_env_file):
         self.index=index
         self.name = role_name
-        self.default_vars = default_vars
         self.role_config_dir_path = get_role_config_dir_path(role_list, role_name)
         self.params = params
         self.ctx = ctx
@@ -27,14 +26,15 @@ class Role:
         update_config('role_dir', role_dir_path) 
         
         print(f"Role '{self.name}': Gathering environment and setting environment variables")
-        gather_env(
+        aggregated_input_vars, required_envs=get_aggregated_input_vars(
             self.ctx,
-            self.default_vars,
             self.role_config_dir_path,
             self.name,
             self.params,
             additional_input_vars
-        )
+        )        
+        export_env_variables(aggregated_input_vars)
+        verify_required_env_exist(required_envs)
         print(f"Role '{self.name}': Executing bash script")
         log_output_file=os.path.join(role_dir_path,"log")
         output_env_file_full_path=get_output_env_file_path(self.index,output_env_dir_path,self.role_config_dir_path,self.param_output_env_file)
@@ -49,7 +49,6 @@ class Role:
             # This show logs and also save it to file
             target_main_file_type="bash"
             target_main_file=os.path.join(self.role_config_dir_path,"main.sh")
-            print(f"JOHOUSE -- {target_main_file}")
             if not os.path.exists(target_main_file):
                 target_main_file=os.path.join(self.role_config_dir_path,"main.py")
                 target_main_file_type="python"
@@ -80,8 +79,6 @@ class Unit:
     def start(self):
         print(f"Unit '{self.name}': Starting role '{self.role.name}'")
         self.role.start(self.unit_input_env)
-
-
 class Playbook:
     def __init__(self, name):
         self.name = name
@@ -105,39 +102,56 @@ def create_dir_if_does_not_exist(directory_path):
             print(f"Failed to create a new direcotry: {directory_path} ({e})")
     
 
-def gather_env(ctx, default_vars, role_config_dir_path, role_name, params,additional_input_vars):
+def export_env_variables(input_variabels):
+    for input_var in input_variabels:
+        os.environ[input_var] = input_variabels[input_var]
+
+def Get_default_input_value(ctx, role_config_dir_path, role_name, additional_input_vars, input_key):
+    aggregated_input_vars, _ = get_aggregated_input_vars(ctx,role_config_dir_path,role_name, None, additional_input_vars)
+        
+    if input_key in aggregated_input_vars:
+       return  aggregated_input_vars[input_key]      
+   
+    return ""
+
+def Get_required_input_keys(ctx, role_config_dir_path, role_name):
+    _, required_envs = get_aggregated_input_vars(ctx,role_config_dir_path,role_name, None, None)
+    
+    return required_envs
+
+
+def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, additional_input_vars):
+    default_vars = utils.get_default_vars(ctx)
     required_envs = []
-    # Set them as environment variables
+    aggregated_input_vars = {}
+
     role_group_name=role_name.split("-")[0]
     for key in default_vars.get(role_group_name, {}): 
-        os.environ[str.upper(key)] = default_vars[role_group_name][key]
-
+        aggregated_input_vars[str.upper(key)] = default_vars[role_group_name][key]
+        
     # Load config.yaml in the role. Read input_env and overwrite the environment value if there is default field
-    with open(role_config_dir_path+"/config.yaml", "r") as file:
+    with open(role_config_dir_path + "/config.yaml", "r") as file:
         role_config_vars = yaml.safe_load(file)
-        for role_config_input_env in role_config_vars["role"]["input_env"]:
-            # print(role_config_input_env)
-            for role_default_env in role_config_input_env:
-                if "required" in role_default_env:
-                    required_envs.append(role_config_input_env["name"])
-                if "default" in role_default_env:
-                    os.environ[role_config_input_env["name"]] = role_config_input_env["default"]
-                    
-                        
-    # If it is unit, add additional input variabels
-    if additional_input_vars is not None:
-        for input_var in additional_input_vars:
-            os.environ[input_var] = additional_input_vars[input_var]
-            
-    # If user put params, it will overwrite environment variable
-    with open(role_config_dir_path+"/config.yaml", "r") as file:
-        role_config_vars = yaml.safe_load(file)
-        for param in params:
-            for role_config_input_env in role_config_vars["role"]["input_env"]:
-                if str.lower(role_config_input_env["name"]) == str.lower(param):
-                    os.environ[role_config_input_env["name"]] = params[param]
-    verify_required_env_exist(required_envs)
+        for input_env in role_config_vars["role"]["input_env"]:
+            for default_env in input_env:
+                if "required" in default_env:
+                    required_envs.append(input_env["name"])
+                if "default" in default_env:
+                    aggregated_input_vars[input_env["name"]] = input_env["default"]
 
+    # If it is unit, add additional input variables
+    if additional_input_vars is not None:
+        for input_var, value in additional_input_vars.items():
+            aggregated_input_vars[input_var] = value
+
+    # If user put params, it will overwrite environment variable
+    if params is not None:
+        for param in params:
+            for input_env in role_config_vars["role"]["input_env"]:
+                if input_env["name"].lower() == param.lower():
+                    aggregated_input_vars[input_env["name"]] = params[param]
+
+    return aggregated_input_vars, required_envs
 
 def verify_required_env_exist(required_envs):
     for required_env in required_envs:

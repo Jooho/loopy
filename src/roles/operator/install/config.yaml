@@ -67,4 +67,3 @@ role:
 
     - name: CLUSTER_TOKEN  
       description: openshift cluster login token
-      

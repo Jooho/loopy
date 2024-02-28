@@ -1,8 +1,9 @@
+import os
 import click
 import utils
-import os
 import yaml
-from component import Role, Playbook
+from component import Role, Get_default_input_value, Get_required_input_keys
+from colorama import Fore, Style, Back
 
 role_list = utils.initialize("./src/roles","role")
 
@@ -15,10 +16,15 @@ def list_roles():
 
 @click.command(name="show")
 @click.argument("role_name")
-def show_role(role_name):
-    click.echo(f"Details for role: {role_name}")
-    # Add your implementation here
-
+@click.pass_context
+def show_role(ctx, role_name):
+    verify_role_exist(role_name)
+  
+    for item in role_list:
+        if role_name == item["name"]:
+            role_path=item["path"]
+    display_role_info(ctx, role_name,role_path)
+    
 
 @click.command(name="test")
 @click.argument("role_name")
@@ -37,12 +43,12 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
     # role command specific validation
     verify_role_exist(role_name)
     verify_if_param_exist_in_role(params, role_name)
-    default_vars = utils.get_default_vars(ctx)
+    # default_vars = utils.get_default_vars(ctx)
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)
     # Params is priority. additional vars will be overwritten by params
     params=utils.update_params_with_input_file(additional_vars_from_file,params)    
 
-    role = Role(ctx, None, default_vars, role_list, role_name, params, output_env_file_name)
+    role = Role(ctx, None, role_list, role_name, params, output_env_file_name)
     role.start()
 
 
@@ -77,3 +83,56 @@ def verify_if_param_exist_in_role(params, role_name):
     else:
         print(f"no input enviroment name exist: {target_param}")
         exit(1)
+
+
+def get_config_data(config_file_dir):
+    try:
+        with open(os.path.join(config_file_dir,"config.yaml"), 'r') as config_file:
+            config_data = yaml.safe_load(config_file)
+            return config_data
+    except FileNotFoundError:
+        click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
+
+def display_role_info(ctx, role_name,role_path):
+    role_config_data=get_config_data(role_path)['role']
+    target_main_file=os.path.join(role_path,"main.sh")
+    if not os.path.exists(target_main_file):
+        target_main_file=os.path.join(role_path,"main.py")
+    
+    click.echo(f"{Fore.BLUE}Type:{Style.RESET_ALL} Role")
+    click.echo(f"{Fore.BLUE}Name:{Style.RESET_ALL} {role_name}")
+    click.echo(f"{Fore.BLUE}Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
+    click.echo(f"{Fore.BLUE}Main File Path:{Style.RESET_ALL} {target_main_file}")
+    click.echo(f"{Fore.BLUE}Example Command:{Style.RESET_ALL}{Fore.RED} loopy role run {role_name}{Style.RESET_ALL}")
+
+    input_env_list= role_config_data.get('input_env', {})
+    output_env_list= role_config_data.get('output_env', {})
+         
+    click.echo(f"{Fore.BLUE}Input:{Style.RESET_ALL}{' '*51}| {Fore.BLUE}Output:{Style.RESET_ALL}")
+    click.echo(f"- {Fore.GREEN}required{Style.RESET_ALL}{' '*(57-len('- required'))}| - {Fore.GREEN}required{Style.RESET_ALL}")
+    required_input_keys = Get_required_input_keys(ctx, role_path, role_name)
+    required_input_output_max_len = max(len(required_input_keys), len(output_env_list))
+    
+    for i in range(required_input_output_max_len):
+        input_env = required_input_keys[i] if i < len(required_input_keys) else {}
+        output_env = output_env_list[i] if i < len(output_env_list) else {}
+        input_name = input_env
+        output_name = output_env.get('name', '')
+        default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name) if input_name else ''
+        if input_name and output_name:
+           click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} |   - {output_name}")
+        elif input_name and not output_name:
+           click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} | ")
+        elif not input_name and output_name:
+           click.echo(f" {' '*(55)} |   - {output_name}")
+   
+    click.echo(f"- {Fore.YELLOW}optional{Style.RESET_ALL}{' '*(57-len('- optional'))}| - {Fore.YELLOW}optional{Style.RESET_ALL}")
+    for input in input_env_list:
+        input_name=input['name']
+        if not input_name in required_input_keys:
+            default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name) if input_name else ''
+            if len(default_input_value)> 55:
+                click.echo(f"  - {input_name}  {' '*(50-len(input_name) )} | ")
+                click.echo(f"    ({default_input_value}) {' '*(48- len(default_input_value))} ")
+            else:                    
+                click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} | ")

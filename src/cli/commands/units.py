@@ -37,16 +37,36 @@ def run_unit(ctx, unit_name, params=None, output_env_file_name=None, input_env_f
     
     verify_unit_exist(unit_name)
     verify_if_param_exist_in_unit(params, unit_name, unit_list)
-    # default_vars = utils.get_default_vars(ctx)
+
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)
     # Params is priority. additional vars will be overwritten by params
     params=utils.update_params_with_input_file(additional_vars_from_file,params)
-    unit_input_env=get_unit_input_env(unit_name)
-        
-    role = Role(ctx, None, role_list, get_role_name(unit_name), params, output_env_file_name)
-    unit=Unit(unit_name,role,unit_input_env)   
+    # unit_input_env=get_unit_input_env(unit_name)
+
+    unit=Unit(unit_name)   
+    unit_config_data=get_config_data_by_name(unit_name,'unit')['unit']
+    if 'steps' in unit_config_data:
+        for index,step in enumerate(unit_config_data["steps"]):
+            if list(step)[0] != 'role':
+                click.echo("Unit can not include another unit in the steps")
+                exit(1)
+            role_name=step['role']['name']
+            additional_input_env=get_input_env(step['role'])
+            role = Role(ctx, index, role_list, role_name, params, None, additional_input_env)                
+            unit.add_component(role)    
+    else: 
+        additional_input_env=get_input_env(unit_config_data['role'])      
+        role = Role(ctx, None, role_list, get_role_name(unit_name), params, output_env_file_name,additional_input_env)
+        unit.add_component(role)
     unit.start()
 
+def get_input_env(role_info):
+    if "input_env" not in role_info:
+        return None
+    else:
+        return role_info["input_env"]
+        
+        
 def verify_unit_exist(unit_name):
     for unit in unit_list:
         if unit_name == unit["name"]:
@@ -80,7 +100,7 @@ def get_role_name(unit_name):
             return unit["role_name"]
          
 
-def get_config_data(config_file_dir):
+def get_config_data_by_config_file_dir(config_file_dir):
     try:
         with open(os.path.join(config_file_dir,"config.yaml"), 'r') as config_file:
             config_data = yaml.safe_load(config_file)
@@ -88,12 +108,24 @@ def get_config_data(config_file_dir):
     except FileNotFoundError:
         click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
 
+
+def get_config_data_by_name(name,type):
+    if type == 'unit':
+        for unit in unit_list:
+            if name == unit["name"]:
+                path=unit["path"]
+    else:
+        for role in role_list:
+            if name == role["name"]:
+                path=role["path"]
+    return get_config_data_by_config_file_dir(path)    
+
 def display_unit_info(ctx, unit_name, unit_path, role_name):
-    unit_config_data=get_config_data(unit_path)['unit']
+    unit_config_data=get_config_data_by_config_file_dir(unit_path)['unit']
     for role in role_list:
         if role_name == role["name"]:
             role_path=role["path"]
-    role_config_data=get_config_data(role_path)['role']
+    role_config_data=get_config_data_by_config_file_dir(role_path)['role']
     target_main_file=os.path.join(role_path,"main.sh")
     if not os.path.exists(target_main_file):
         target_main_file=os.path.join(role_path,"main.py")
@@ -106,7 +138,10 @@ def display_unit_info(ctx, unit_name, unit_path, role_name):
     click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")
     click.echo(f"{Fore.BLUE}  Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
     click.echo(f"{Fore.BLUE}  Main File Path:{Style.RESET_ALL} {target_main_file}")
-    unit_env_list=unit_config_data['role'].get('input_env',{})
+    if "steps" in unit_config_data:
+        unit_env_list=unit_config_data['steps'][0]['role'].get('input_env',{})    
+    else:        
+        unit_env_list=unit_config_data['role'].get('input_env',{})
     required_input_keys = Get_required_input_keys(ctx, role_path, role_name)
              
     click.echo(f"{Fore.BLUE}  Input:{Style.RESET_ALL}")    

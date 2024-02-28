@@ -48,7 +48,7 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
     # Params is priority. additional vars will be overwritten by params
     params=utils.update_params_with_input_file(additional_vars_from_file,params)    
 
-    role = Role(ctx, None, role_list, role_name, params, output_env_file_name)
+    role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
     role.start()
 
 

@@ -18,7 +18,10 @@ def initialize(directory, type):
                             name = config_data[type]["name"]
                         else:
                             name = convert_path_to_component_name(path,type)
-                        role_name = config_data[type]["role"]["name"]
+                        if 'steps' in config_data[type]:
+                            role_name = config_data[type]["steps"][0]["role"]["name"]
+                        else:
+                            role_name = config_data[type]["role"]["name"]
                         item_list.append({"name": name, "path": path, "role_name": role_name})
                     else:
                         path = os.path.abspath(root)

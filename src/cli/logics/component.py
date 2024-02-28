@@ -5,15 +5,16 @@ import utils
 from config import config_dict, update_config
 
 class Role:
-    def __init__(self, ctx, index, role_list, role_name, params, param_output_env_file):
+    def __init__(self, ctx, index, role_list, role_name, params, param_output_env_file,additional_input_vars=None):
         self.index=index
         self.name = role_name
         self.role_config_dir_path = get_role_config_dir_path(role_list, role_name)
         self.params = params
         self.ctx = ctx
         self.param_output_env_file=param_output_env_file
+        self.additional_input_vars=additional_input_vars
             
-    def start(self,additional_input_vars=None):        
+    def start(self):        
         output_env_dir_path=config_dict['output_dir']
         artifacts_dir_path=config_dict['artifacts_dir']
         if self.index is not None:
@@ -31,7 +32,7 @@ class Role:
             self.role_config_dir_path,
             self.name,
             self.params,
-            additional_input_vars
+            self.additional_input_vars
         )        
         export_env_variables(aggregated_input_vars)
         verify_required_env_exist(required_envs)
@@ -71,14 +72,17 @@ class Role:
         print()
 
 class Unit:
-    def __init__(self, unit_name,role, unit_input_env):
+    def __init__(self, unit_name):
         self.name = unit_name
-        self.role=role
-        self.unit_input_env= unit_input_env
+        self.components = []
+    
+    def add_component(self, role):
+        self.components.append(role)
 
     def start(self):
-        print(f"Unit '{self.name}': Starting role '{self.role.name}'")
-        self.role.start(self.unit_input_env)
+        print(f"Unit '{self.name}': Starting role")        
+        for component in self.components:
+            component.start()
 class Playbook:
     def __init__(self, name):
         self.name = name

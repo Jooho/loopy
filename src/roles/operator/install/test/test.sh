@@ -31,11 +31,14 @@ source $current_dir/test-variables.sh
 source $root_directory/commons/scripts/utils.sh
 
 role_dir=$(dirname "$current_dir")
-echo ${role_dir}
 role_name=$(yq e '.role.name' ${role_dir}/config.yaml)
 
+rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_ENV_DIR}
+mkdir -p ${ROLE_DIR}
+touch ${ROLE_DIR}/${OUTPUT_ENV_FILE}
+touch ${REPORT_FILE}
 # Target Script
 ${role_dir}/main.sh
 
 # Verify Script
-result=$($current_dir/verify.sh ${root_directory} ${current_dir} ${role_name})
+$current_dir/verify.sh ${root_directory} ${current_dir} ${role_name}

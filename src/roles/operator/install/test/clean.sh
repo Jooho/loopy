@@ -16,4 +16,6 @@ oc delete subscription ${SUBSCRIPTION_NAME} -n ${OPERATOR_NAMESPACE}
 csv_name=$(oc get csv -n ${OPERATOR_NAMESPACE} | grep ${OPERATOR_NAME}|awk '{print $1}')
 oc delete csv $csv_name -n ${OPERATOR_NAMESPACE}
 
+rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_ENV_DIR}
+
 success "Clean up $role_name test"

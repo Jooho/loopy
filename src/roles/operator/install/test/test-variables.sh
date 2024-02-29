@@ -15,6 +15,10 @@ export INSTALL_APPROVAL=Automatic
 export OPERATOR_NAME=opendatahub-operator
 export CATALOGSOURCE_NAME=community-operators
 export CATALOGSOURCE_NAMESPACE=openshift-marketplace
+# export OPERATOR_VERSION="2.5.0"
+export OPERATOR_VERSION="latest"
+export OPERATOR_LABEL="name=error"
+export OPERATOR_POD_PREFIX="opendatahub"
 
 ###############################
 # Export these values to environmental variable.

@@ -154,7 +154,8 @@ wait_for_pods_ready() {
       echo
       oc get pods -l $pod_selector -n $pod_namespace
       error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
-      exit 1
+      echo 1
+      return
     fi
 
     wait_counter=$((wait_counter + 1))
@@ -171,6 +172,7 @@ wait_for_pod_name_ready() {
   if [[ $? != 0 ]]
   then
     error "Cluster is not accessiable"
+    echo 1
     return 
   fi
 
@@ -178,9 +180,11 @@ wait_for_pod_name_ready() {
   oc wait --for=condition=ready pod/${pod_name} -n $pod_namespace --timeout=300s
   if [[ $? == 0 ]]; then
     echo "The pod($pod_name) in '$pod_namespace' namespace are running and ready."
+    return
   else
     error "Timed out after 300s waiting for pod($pod_name)"
-    exit 1
+    echo 1
+    return
   fi
 }
 

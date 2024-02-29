@@ -1,7 +1,34 @@
 role:
   name: operator-install
+  description: |
+    This role primarily creates a Subscription to install operators using OLM (Operator Lifecycle Manager). If the namespace where the installation occurs is not "openshift-operators," it automatically creates an OperatorGroup before creating the Subscription. Additionally, if the CATALOGSOURCE_IMAGE variable is set, it is determined that a custom CatalogSource is needed, and the role creates the corresponding CatalogSource.
+    
+    (Example)
+    ---
+    - unit:
+      name: install-rhoai-operator
+      input_env:
+        CATALOGSOURCE_NAME: rhods-catalog-dev 
+        CHANNEL: fast 
+        OPERATOR_VERSION: v2.8.0-incubation 
+        CATALOGSOURCE_IMAGE: quay.io/opendatahub/opendatahub-operator-catalog:v2.8.0-incubation
+
+    - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: rhods-operator
+        OPERATOR_NAMESPACE: redhat-ods-operator
+        OPERATOR_NAME: rhods-operator
+        OPERATOR_LABEL: "name=rhods-operator"
+        OPERATOR_VERSION: v2.8.0-incubation 
+        CHANNEL: fast 
+        CATALOGSOURCE_NAME: rhods-catalog-dev 
+        CATALOGSOURCE_IMAGE: quay.io/opendatahub/opendatahub-operator-catalog:v2.8.0-incubation
+    ---    
   created_date: 20240215
-  # output_filename: operator-install-output.sh
+  tags:
+  - rhoai
+  - operator
   manifests:
     subscription: commons/manifests/kubernetes/subscription.yaml
     operatorgroup: commons/manifests/kubernetes/operatorgroup.yaml

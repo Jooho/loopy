@@ -30,10 +30,11 @@ index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 og_manifests=$(yq e '.role.manifests.operatorgroup' $current_dir/config.yaml)
 og_manifests_path=$root_directory/$og_manifests
+echo "TEST: $og_manifests"
 
 subs_manifests=$(yq e '.role.manifests.subscription' $current_dir/config.yaml)
 subs_manifests_path=$root_directory/$subs_manifests
-
+echo "TEST: $subs_manifests_path"
 catalogsource_manifests=$(yq e '.role.manifests.catalogsource' $current_dir/config.yaml)
 catalogsource_manifests_path=$root_directory/$catalogsource_manifests
 
@@ -72,13 +73,14 @@ sed -e \
 
 if [[ ${OPERATOR_VERSION} != 'latest' ]]
 then
+  echo "TEST"
   sed -e \
-  "s+%operator-version%+$OPERATOR_VERSION+g" -i ${ROLE_DIR}/$(basename $subs_manifests_path)
+  "s+%operator-version%+.$OPERATOR_VERSION+g" -i ${ROLE_DIR}/$(basename $subs_manifests_path)
 else
   sed -i '/startingCSV/d' ${ROLE_DIR}/$(basename $subs_manifests_path)
 fi
 
-## config env
+## Set Config env for subscription
 if [[ z${CONFIG_ENV} != z ]]
 then
   IFS='=' read -r name value <<< "$CONFIG_ENV"
@@ -112,7 +114,7 @@ then
   exit 1
 fi
 
-
+# Create final subscription
 oc apply -f ${ROLE_DIR}/$(basename $subs_manifests_path)
 if [[ $? != 0 ]]
 then
@@ -121,6 +123,7 @@ then
 fi
 
 ############# VERIFY #############
+goOrStop=0 # go=0, stop=1
 if [[ z$OPERATOR_POD_PREFIX != z ]]
 then
   wait_counter=0
@@ -129,23 +132,35 @@ then
     if [[ $pod_name == "" ]]
     then
       wait_counter=$((wait_counter + 1))
-      echo " Waiting 5 secs ..."
-      sleep 5
-      if [[ $wait_counter -ge 12 ]]; then
+      echo " Waiting 10 secs ..."
+      sleep 10
+      if [[ $wait_counter -ge 1 ]]; then
         echo
         oc get pods -n $OPERATOR_NAMESPACE
-        die "Timed out after $((5 * wait_counter / 12)) minutes waiting for pod with prefix: $OPERATOR_POD_PREFIX"
+        error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with prefix: $OPERATOR_POD_PREFIX"
+        goOrStop="1"
+        break
       fi
     else 
       echo "Detected a new pod name: ${pod_name}"
       break
     fi
   done
-  wait_for_pod_name_ready $pod_name $OPERATOR_NAMESPACE
+  # goOrStop=$(wait_for_pod_name_ready $pod_name $OPERATOR_NAMESPACE | tail -n 1)
 else
-  wait_for_pods_ready ${OPERATOR_LABEL} ${OPERATOR_NAMESPACE}
+  goOrStop=$(wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1)
 fi
 
+if [[ $goOrStop == "1" ]]
+then
+  info "There are some errors in the role"
+  if [[ ${STOPWHENFAILED} == "0" ]]
+  then
+    die "STOPWHENFAILED(${STOPWHENFAILED}) is set and there are some errors detected so stop all process"
+  else
+    info "STOPWHENFAILED(${STOPWHENFAILED}) is NOT set so skip this error."
+  fi
+fi  
 ############# OUTPUT #############
 
 

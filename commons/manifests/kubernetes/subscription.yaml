@@ -11,4 +11,4 @@ spec:
   name: %operator-name%
   source: %catalogsource-name%
   sourceNamespace: %catalogsource-namespace%
-  startingCSV: %operator-name%.%operator-version%
+  startingCSV: %operator-name%%operator-version%

@@ -1,9 +1,10 @@
+# fmt: off
 import os
 import click
 import utils
 import yaml
 from component import Role, Get_default_input_value, Get_required_input_keys
-from colorama import Fore, Style, Back
+from colorama import Fore, Style
 
 role_list = utils.initialize("./src/roles","role")
 
@@ -43,14 +44,13 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
     # role command specific validation
     verify_role_exist(role_name)
     verify_if_param_exist_in_role(params, role_name)
-    # default_vars = utils.get_default_vars(ctx)
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)
+    
     # Params is priority. additional vars will be overwritten by params
     params=utils.update_params_with_input_file(additional_vars_from_file,params)    
 
     role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
     role.start()
-
 
 def verify_role_exist(role_name):
     for item in role_list:
@@ -85,16 +85,8 @@ def verify_if_param_exist_in_role(params, role_name):
         exit(1)
 
 
-def get_config_data(config_file_dir):
-    try:
-        with open(os.path.join(config_file_dir,"config.yaml"), 'r') as config_file:
-            config_data = yaml.safe_load(config_file)
-            return config_data
-    except FileNotFoundError:
-        click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
-
 def display_role_info(ctx, role_name,role_path):
-    role_config_data=get_config_data(role_path)['role']
+    role_config_data=utils.get_config_data_by_config_file_dir(ctx, role_path)['role']
     target_main_file=os.path.join(role_path,"main.sh")
     if not os.path.exists(target_main_file):
         target_main_file=os.path.join(role_path,"main.py")

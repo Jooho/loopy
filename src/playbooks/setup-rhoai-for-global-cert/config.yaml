@@ -38,14 +38,9 @@ playbook:
        description: add devflags for modelmesh
        input_env:
          COMMANDS: |
-           kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'"
-         
-   - role:
-       name: cert-generate
-       input_env:
-         SAN_LIST: minio.minio.svc.cluster,minio.minio.svc          
-   - role:
-       name: minio-deploy
+           kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'"         
+   - unit:
+       name: deploy-ssl-minio
        input_env:
          ENABLE_SSL: "true"
    - role:

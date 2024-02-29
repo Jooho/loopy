@@ -54,9 +54,16 @@ def parse_key_value_pairs(ctx, param, value):
 
     result = {}
     for item in value:
-        key, value = item.split("=")
-        result[key] = value
-
+        if item.count('=') >= 2:
+            value_str = str(item)
+            first_eq_index = value_str.find("=")
+            key = value_str[:first_eq_index]
+            val = value_str[first_eq_index + 1:]
+            result[key] = val
+        else:
+            key, value = item.split("=")
+            result[key] = value
+    
     return result
 
 def load_env_file_if_exist(file):

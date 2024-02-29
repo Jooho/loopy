@@ -64,7 +64,6 @@ fi
 oc apply -f ${ROLE_DIR}/$(basename $dsci_manifests_path)
 
 ############# VERIFY #############
-info "Veirfy role"
 result=1
 dsci_count=$(oc get dsci |wc -l)
 if [[ $dsci_count == 1 ]]

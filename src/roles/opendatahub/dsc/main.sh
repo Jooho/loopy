@@ -87,6 +87,7 @@ oc apply -f ${ROLE_DIR}/$(basename $dsc_manifests_path)
 
 ############# VERIFY #############
 info "Veirfy role"
+errorHappened=0 # 0 is true, s1 is false
 result=1
 if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
@@ -113,6 +114,8 @@ then
   then
     success "[SUCCESS] KNative pods are running properly" 
     knative_result=0
+  else
+    errorHappened=1
   fi
 fi
 
@@ -127,6 +130,8 @@ then
   then
     success "[SUCCESS] Successfully deployed KServe operator!"
     kserve_result=0
+  else
+    errorHappened=1  
   fi 
 fi
 
@@ -141,20 +146,35 @@ then
   then
     success "[SUCCESS] Successfully deployed ModelMesh operator!"
     modelmesh_result=0
+  else
+    errorHappened=0
   fi
 fi
 
 if [[ ${ENABLE_DASHBOARD} == "Managed" ]]
 then
-  modelmesh_result=1
+  dashboard_result=1
   info "- Checking if Modelmesh pods are running"
   wait_for_pods_ready "deployment=odh-dashboard" "${opendatahub_namespace}"
   if [[ $? == 0 ]]
   then
     success "[SUCCESS] Successfully deployed Dashboard!"
-    modelmesh_result=0
+    dashboard_result=0
+  else
+    errorHappened=0   
   fi
 fi
+
+if [[ $errorHappened == "1" ]]
+then
+  info "There are some errors in the role"
+  if [[ ${STOPWHENFAILED} == "0" ]]
+  then
+    die "STOPWHENFAILED(${STOPWHENFAILED}) is set and there are some errors detected so stop all process"
+  else
+    info "STOPWHENFAILED(${STOPWHENFAILED}) is NOT set so skip this error."
+  fi
+fi  
 ############# OUTPUT #############
 
 

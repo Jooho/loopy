@@ -123,7 +123,7 @@ then
 fi
 
 ############# VERIFY #############
-goOrStop=0 # go=0, stop=1
+errorHappened=1 # 0 is true, 1 is false
 if [[ z$OPERATOR_POD_PREFIX != z ]]
 then
   wait_counter=0
@@ -138,7 +138,7 @@ then
         echo
         oc get pods -n $OPERATOR_NAMESPACE
         error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with prefix: $OPERATOR_POD_PREFIX"
-        goOrStop="1"
+        errorHappened="0"
         break
       fi
     else 
@@ -146,12 +146,12 @@ then
       break
     fi
   done
-  # goOrStop=$(wait_for_pod_name_ready $pod_name $OPERATOR_NAMESPACE | tail -n 1)
+  # errorHappened=$(wait_for_pod_name_ready $pod_name $OPERATOR_NAMESPACE | tail -n 1)
 else
-  goOrStop=$(wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1)
+  errorHappened=$(wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1)
 fi
 
-if [[ $goOrStop == "1" ]]
+if [[ $errorHappened == "0" ]]
 then
   info "There are some errors in the role"
   if [[ ${STOPWHENFAILED} == "0" ]]

@@ -48,6 +48,11 @@ def init(default_vars):
     new_path = f"{bin_path}:{path}"
     os.environ['PATH'] = new_path
     
+    # TO-DO
+    # Set default value for STOPWHENFAILED  
+    os.environ['STOPWHENFAILED']="1"   # 0 stop when component failed, 1 do not stop even component failed.
+    
+    
 @click.group()
 def roles():
     pass

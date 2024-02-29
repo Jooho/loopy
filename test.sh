@@ -111,10 +111,20 @@
 #   fi
 # done < "reports"
 
-crt_content=/tmp/minio/minio_certs/cabundle.crt
-crt_content=$(awk '{printf "%s\\n", $0}' /tmp/minio/minio_certs/cabundle.crt)
-# crt_content=$(cat /tmp/minio/minio_certs/cabundle.crt| tr -d '\n' |sed 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\\\\n/g' |sed 's/-----E/\\\\n-----E/g')
-echo $crt_content
+# crt_content=/tmp/minio/minio_certs/cabundle.crt
+# crt_content=$(awk '{printf "%s\\n", $0}' /tmp/minio/minio_certs/cabundle.crt)
+# # crt_content=$(cat /tmp/minio/minio_certs/cabundle.crt| tr -d '\n' |sed 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\\\\n/g' |sed 's/-----E/\\\\n-----E/g')
+# echo $crt_content
 # kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' /tmp/minio/minio_certs/cabundle.crt)"'"}]'
 :
 # kubectl patch dscinitialization default-dsci --type='json' -p '{"spec":{"trustedCABundle":{"customCABundle":"|"'"${crt_content}"'"}}}'
+
+
+my_function() {
+    echo "First echo"
+    echo "Second echo"
+    echo "Third echo"
+}
+
+result=$(my_function | tail -n 1)
+echo "Result: $result"

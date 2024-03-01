@@ -30,34 +30,34 @@ spec:
 EOF
   wait_for_csv_installed servicemeshoperator istio-system
 fi
-oc get ns openshift-serverless
+oc get ns rhoai-serverless
 if [[ $? != 0 ]]
 then
 cat <<EOF| oc create -f -
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: openshift-serverless
+  name: rhoai-serverless
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
   name: serverless-operators
-  namespace: openshift-serverless
+  namespace: rhoai-serverless
 spec: {}
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
   name: serverless-operator
-  namespace: openshift-serverless
+  namespace: rhoai-serverless
 spec:
   channel: stable
   name: serverless-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace  
 EOF
-  wait_for_csv_installed serverless-operator openshift-serverless
+  wait_for_csv_installed serverless-operator rhoai-serverless
 fi
 
 oc get ns redhat-ods-operator
@@ -89,5 +89,8 @@ spec:
   source: redhat-operators
   sourceNamespace: openshift-marketplace  
 EOF
-  wait_for_csv_installed rhods-operator redhat-ods-operator
+
+wait_for_csv_installed rhods-operator redhat-ods-operator
+echo "Creating default dsci"
+oc apply -f $root_directory/commons/manifests/opendatahub/dsci.yaml
 fi

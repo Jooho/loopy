@@ -192,17 +192,17 @@ def get_output_env_file_path(index,output_dir,role_config_dir_path,param_output_
         if "output_env" in target_component_vars["role"]:            
             if "output_filename" in target_component_vars["role"]:
                 if index is not None:
-                    target_output_file_path=f"{index}.{target_component_vars['role']['output_filename']}"
+                    target_output_file_path=os.path.join(output_dir,f"{index}.{target_component_vars['role']['output_filename']}")
                 else:
-                    target_output_file_path=target_component_vars["role"]["output_filename"]
+                    target_output_file_path=os.path.join(output_dir,target_component_vars["role"]["output_filename"])
                 
         if param_output_env_file is not None:
             target_output_file_path=param_output_env_file
         else:
             if index is not None:
-                target_output_file_path=f"{index}.{target_component_vars['role']['name']}-output.sh"
+                target_output_file_path=os.path.join(output_dir,f"{index}.{target_component_vars['role']['name']}-output.sh")
             else:                
-                target_output_file_path=target_component_vars["role"]["name"] +"-output.sh"
-    return output_dir+"/"+ target_output_file_path
+                target_output_file_path=os.path.join(output_dir,target_component_vars["role"]["name"] +"-output.sh")
+    return target_output_file_path
 
     

@@ -32,18 +32,11 @@ source $root_directory/commons/scripts/utils.sh
 role_dir=$(dirname "$current_dir")
 role_name=$(yq e '.role.name' ${role_dir}/config.yaml)
 
-rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_ENV_DIR}
-mkdir -p ${ROLE_DIR}
-touch ${ROLE_DIR}/${OUTPUT_ENV_FILE}
+rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_DATE}
+mkdir -p ${ROLE_DIR} 
+mkdir -p ${OUTPUT_DIR}
 touch ${REPORT_FILE}
-
-if [[ z${CLUSTER_TOKEN} != z ]]
-then
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else  
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
-fi
-check_oc_status
+touch ${OUTPUT_ENV_FILE}
 
 # Prerequisite script
 oc get ns istio-system openshift-serverless redhat-ods-operator
@@ -54,7 +47,6 @@ fi
 
 # Target Script
 ${role_dir}/main.sh
-exit 1
 
 # Verify Script
 result=$($current_dir/verify.sh ${root_directory} ${current_dir} ${role_name})

@@ -31,6 +31,7 @@ role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 minio_deployment_manifests=$(yq e '.role.manifests.minio_deployment' $current_dir/config.yaml)
 minio_deployment_manifests_path=$current_dir/$minio_deployment_manifests
 
+errorHappened=1 # 0 is true, 1 is false
 if [[ z${CLUSTER_TOKEN} != z ]]
 then
   oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
@@ -63,12 +64,14 @@ then
   oc create secret generic minio-tls --from-file="${ROLE_DIR}/minio.key" --from-file="${ROLE_DIR}/minio.crt" --from-file="${ROLE_DIR}/root.crt" -n ${MINIO_NAMESPACE}
 
   yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelmesh/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
-fi  
-
+else
+ error "So we set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
+ errorHappened=0
+fi
 oc apply -f ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
 ############# VERIFY #############
-wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE}
+errorHappened=$(wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE})
 oc wait --for=condition=ready pod -l app=minio -n ${MINIO_NAMESPACE} --timeout=10s
 
 result=$?
@@ -78,8 +81,19 @@ then
   result=0
 else
   error "[FAIL] MINIO is NOT running"
+  errorHappened=0
 fi
 
+if [[ $errorHappened == "0" ]]
+then
+  info "There are some errors in the role"
+  if [[ ${STOPWHENFAILED} == "0" ]]
+  then
+    die "STOPWHENFAILED(${STOPWHENFAILED}) is set and there are some errors detected so stop all process"
+  else
+    info "STOPWHENFAILED(${STOPWHENFAILED}) is NOT set so skip this error."
+  fi
+fi  
 ############# OUTPUT #############
 echo "MINIO_S3_SVC_URL=http://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >> ${OUTPUT_ENV_FILE}
 echo "MINIO_DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}" >> ${OUTPUT_ENV_FILE}

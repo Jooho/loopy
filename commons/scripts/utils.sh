@@ -22,7 +22,7 @@ die() {
   color_yellow='\e[33m'
   color_reset='\e[0m'
   printf "${color_red}FATAL:${color_yellow} $*${color_reset}\n" 1>&2
-  exit 10
+  exit 1
 }
 
 info() {
@@ -301,7 +301,8 @@ function is_positive(){
   then
     echo 1
   else
-    die "${input_val} is not allowed text"
+    die "Input value(${input_val}) is not allowed text to check positive or not"
+    echo 2
   fi
 }
 

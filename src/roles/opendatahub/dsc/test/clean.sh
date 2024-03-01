@@ -12,8 +12,14 @@ role_name=$3
 source $current_dir/test-variables.sh
 source $root_directory/commons/scripts/utils.sh
 
-oc delete subscription ${SUBSCRIPTION_NAME} -n ${OPERATOR_NAMESPACE}
-csv_name=$(oc get csv -n ${OPERATOR_NAMESPACE} | grep ${OPERATOR_NAME}|awk '{print $1}')
-oc delete csv $csv_name -n ${OPERATOR_NAMESPACE}
+oc delete dsc dsc-test --all --force --grace-period=0
+
+oc delete isvc,servingruntime,pod --all -n kserve-demo --force
+oc delete ns kserve-demo minio --force --grace-period=0
+oc delete all --all --force --grace-period=0 -n opendatahub
+oc delete dsci,dsc --all --force
+oc delete subs serverless-operator -n rhoai-serverless
+oc delete subs servicemeshoperator -n openshift-operators 
+oc delete subs opendatahub-operator -n openshift-operators
 
 success "Clean up $role_name test"

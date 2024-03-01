@@ -30,13 +30,14 @@ index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 og_manifests=$(yq e '.role.manifests.operatorgroup' $current_dir/config.yaml)
 og_manifests_path=$root_directory/$og_manifests
-echo "TEST: $og_manifests"
 
 subs_manifests=$(yq e '.role.manifests.subscription' $current_dir/config.yaml)
 subs_manifests_path=$root_directory/$subs_manifests
-echo "TEST: $subs_manifests_path"
+
 catalogsource_manifests=$(yq e '.role.manifests.catalogsource' $current_dir/config.yaml)
 catalogsource_manifests_path=$root_directory/$catalogsource_manifests
+
+errorHappened=1 # 0 is true, 1 is false
 
 if [[ z${CLUSTER_TOKEN} != z ]]
 then
@@ -73,7 +74,6 @@ sed -e \
 
 if [[ ${OPERATOR_VERSION} != 'latest' ]]
 then
-  echo "TEST"
   sed -e \
   "s+%operator-version%+.$OPERATOR_VERSION+g" -i ${ROLE_DIR}/$(basename $subs_manifests_path)
 else
@@ -96,7 +96,8 @@ else
 
   if [[ -z ${CATALOGSOURCE_IMAGE} ]];
   then
-    die "catalogsource image is required. please provide it"
+    error "catalogsource image is required. please provide it"
+    exit 1
   fi
 
   sed -e \
@@ -123,7 +124,6 @@ then
 fi
 
 ############# VERIFY #############
-errorHappened=1 # 0 is true, 1 is false
 if [[ z$OPERATOR_POD_PREFIX != z ]]
 then
   wait_counter=0
@@ -146,7 +146,6 @@ then
       break
     fi
   done
-  # errorHappened=$(wait_for_pod_name_ready $pod_name $OPERATOR_NAMESPACE | tail -n 1)
 else
   errorHappened=$(wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1)
 fi

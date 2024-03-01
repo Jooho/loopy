@@ -1,6 +1,11 @@
 role:
   created_date: 20240215
   name: kserve-caikit-test
+  description: |
+    This is a Role designed for testing the Caikit runtime. Currently, only the Caikit TGIS runtime is deployed for testing. Support for standalone Caikit will be available in the future. Before executing this Role, it is essential to ensure that RHOAI KServe (serverless) is up and running on the OpenShift cluster and functioning properly.
+
+    (Example)
+    
   # output_filename: operator-install-output.sh
   manifests:
     storage_config_json: ./manifests/kserve/storage-config-secret-json.yaml
@@ -18,12 +23,19 @@ role:
   input_env:
     - name: MINIO_S3_SVC_URL
       required: true
+      descrption: The minio url that contains test models
+
     - name: MINIO_DEFAULT_BUCKET_NAME
       required: true
+      descrption: The minio bucket name that contains test models
+
     - name: MINIO_ACCESS_KEY_ID
       required: true
+      descrption: The minio id that contains test models
+
     - name: MINIO_SECRET_ACCESS_KEY
       required: true    
+      descrption: The minio password that contains test models
 
     - name: CAIKIT_ARCH_TYPE
       description: caikit supports 2 architectures (caikit_tgis, caikit_standalone ) - caikit_standalone is tbd
@@ -38,7 +50,8 @@ role:
       description: kserve support 2 storage-config secret types(json,annotation)
 
     - name: TEST_NAMESPACE
-      
+      description: The namespace where the caikit runtime is running
+
     - name: CLUSTER_API_URL
       description: openshift api url
       required: true

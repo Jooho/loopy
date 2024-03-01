@@ -17,7 +17,7 @@ if [[ $? == 0 ]]
 then
   success "[SUCCESS] Role($role_name) sanity test"
   info "Start to clean up"
-  $current_dir/clean.sh ${root_directory}  ${current_dir} ${role_name}
+  # $current_dir/clean.sh ${root_directory}  ${current_dir} ${role_name}
 else
   error "[FAIL] Role($role_name) sanity test"
 fi

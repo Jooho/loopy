@@ -150,10 +150,10 @@ wait_for_pods_ready() {
       echo -n "Pods found with selector '$pod_selector' in '$pod_namespace' namespace are not ready yet."
     fi
 
-    if [[ $wait_counter -ge 10 ]]; then
+    if [[ $wait_counter -ge 30 ]]; then
       echo
       oc get pods -l $pod_selector -n $pod_namespace
-      error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
+      error "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
       echo 1
       return
     fi

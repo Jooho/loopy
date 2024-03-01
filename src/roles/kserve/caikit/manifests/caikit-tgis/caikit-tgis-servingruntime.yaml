@@ -21,13 +21,33 @@ spec:
     - env:
         - name: RUNTIME_LOCAL_MODELS_DIR
           value: /mnt/models
+        - name: TRANSFORMERS_CACHE
+          value: /tmp/transformers_cache
+        - name: RUNTIME_GRPC_ENABLED
+          value: "false"
+        - name: RUNTIME_HTTP_ENABLED
+          value: "true"
         - name: RUNTIME_GRPC_SERVER_THREAD_POOL_SIZE
           value: "64"
       image: quay.io/opendatahub/caikit-tgis-serving@sha256:153294140ecc87839defeca317b4b67cc16e8f56ec2211f3540ed00e0efa0ae0
+      livenessProbe:
+        exec:
+          command:
+            - python
+            - -m
+            - caikit_health_probe
+            - liveness
       name: transformer-container
       ports:
         - containerPort: 8080
           protocol: TCP
+      readinessProbe:
+        exec:
+          command:
+            - python
+            - -m
+            - caikit_health_probe
+            - readiness
   multiModel: false
   supportedModelFormats:
     - autoSelect: true

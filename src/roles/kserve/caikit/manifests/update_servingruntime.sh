@@ -57,13 +57,10 @@ done
 
 for file in $(ls ${RUNTIME_DIR}); do
     filename=$(basename "$file")
-    echo ${current_dir}
-    echo $filename
     if [[ "$filename" == "caikit-tgis-runtime.yaml" ]]; then
-    echo "test1"
         cp "${RUNTIME_DIR}/$file" "${current_dir}/caikit-tgis/caikit-tgis-servingruntime.yaml"
     elif [[ "$filename" == "tgis-grpc-runtime.yaml" ]]; then
-        echo "test2"
+
         cp "${RUNTIME_DIR}/$file" "${current_dir}/caikit-standalone/tgis-servingruntime.yaml"
     fi
 done

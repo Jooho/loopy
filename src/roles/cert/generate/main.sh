@@ -64,10 +64,11 @@ result=1
 echo "Verify certicate"
 openssl x509 -in ${ROLE_DIR}/${CERT_NAME} -text
 openssl verify -CAfile ${ROLE_DIR}/${ROOT_CA_CERT_NAME} ${ROLE_DIR}/${CERT_NAME}
-if [[ $? == "0 " ]]
+if [[ $? == "0" ]]
 then
   result=0
 else 
+  error "openssl verify failed"
   errorHappened=0
 fi
 

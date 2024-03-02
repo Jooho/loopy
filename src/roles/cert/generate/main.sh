@@ -35,11 +35,21 @@ openssl_san_file_path=$current_dir/$openssl_san_file
 
 cp $openssl_san_file_path  ${ROLE_DIR}/$(basename $openssl_san_file_path)
 
-IFS=',' read -ra new_dns_entries <<< "${SAN_LIST}"
+errorHappened=1 # 0 is true, 1 is false
+
+IFS=',' read -ra new_dns_entries <<< "${SAN_DNS_LIST}"
 
 index=${#new_dns_entries[@]}
 for dns_entry in "${new_dns_entries[@]}"; do
     sed -i "/^\[alt_names\]/a DNS.$index = $dns_entry" ${ROLE_DIR}/$(basename $openssl_san_file_path)
+    ((index--))
+done
+
+IFS=',' read -ra new_ip_entries <<< "${SAN_IP_LIST}"
+
+index=${#new_ip_entries[@]}
+for ip_entry in "${new_ip_entries[@]}"; do
+    sed -i "/^\[alt_names\]/a IP.$index = $ip_entry" ${ROLE_DIR}/$(basename $openssl_san_file_path)
     ((index--))
 done
 
@@ -57,10 +67,24 @@ openssl verify -CAfile ${ROLE_DIR}/${ROOT_CA_CERT_NAME} ${ROLE_DIR}/${CERT_NAME}
 if [[ $? == "0 " ]]
 then
   result=0
+else 
+  errorHappened=0
 fi
 
+if [[ $errorHappened == "0" ]]
+then
+  info "There are some errors in the role"
+  if [[ ${STOPWHENFAILED} == "0" ]]
+  then
+    die "STOPWHENFAILED(${STOPWHENFAILED}) is set and there are some errors detected so stop all process"
+  else
+    info "STOPWHENFAILED(${STOPWHENFAILED}) is NOT set so skip this error."
+  fi
+fi  
+
 ############# OUTPUT #############
-echo "ROOT_CA_FILE_PATH=${ROLE_DIR}/${ROOT_CA_CERT_NAME}" >> ${OUTPUT_ENV_FILE}
+echo "ROOT_CA_CERT_FILE_PATH=${ROLE_DIR}/${ROOT_CA_CERT_NAME}" >> ${OUTPUT_ENV_FILE}
+echo "ROOT_CA_KEY_FILE_PATH=${ROLE_DIR}/${ROOT_CA_KEY_NAME}" >> ${OUTPUT_ENV_FILE}
 echo "CERT_FILE_PATH=${ROLE_DIR}/${CERT_NAME}" >> ${OUTPUT_ENV_FILE}
 echo "KEY_FILE_PATH=${ROLE_DIR}/${KEY_NAME}" >> ${OUTPUT_ENV_FILE}
 

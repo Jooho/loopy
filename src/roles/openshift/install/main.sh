@@ -38,8 +38,8 @@ role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 
 cluster_console_url=https://console-openshift-console.apps.rosa.jooho.chbf.p3.openshiftapps.com
 cluster_api_url=https://api.jooho.chbf.p3.openshiftapps.com:443
-cluster_admin_id=joe
-cluster_admin_pw=Redhat_0123456
+cluster_admin_id=admin
+cluster_admin_pw=password
 cluster_token=sha256~2RD73aTiUJdDK-XgDyqbKLxuJmzAQ6xgxQwC_KNVB-s
 cluster_type=ROSA
 ############# OUTPUT #############

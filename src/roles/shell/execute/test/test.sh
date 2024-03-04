@@ -30,17 +30,17 @@ fi
 source $current_dir/test-variables.sh
 source $root_directory/commons/scripts/utils.sh
 
-rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_ENV_DIR}
-mkdir -p ${ROLE_DIR}
-touch ${ROLE_DIR}/${OUTPUT_ENV_FILE}
-touch ${REPORT_FILE}
-echo "${ROLE_DIR}/${OUTPUT_ENV_FILE}"
-echo "$REPORT_FILE"
-
 role_dir=$(dirname "$current_dir")
 echo ${role_dir}
 role_name=$(yq e '.role.name' ${role_dir}/config.yaml)
 
+rm -rf ${OUTPUT_ROOT_DIR}/${OUTPUT_DATE}
+mkdir -p ${ROLE_DIR} 
+mkdir -p ${OUTPUT_DIR}
+touch ${REPORT_FILE}
+touch ${OUTPUT_ENV_FILE}
+
+echo  "Report file: ${REPORT_FILE}"
 # Target Script
 python ${role_dir}/main.py
 # Verify Script

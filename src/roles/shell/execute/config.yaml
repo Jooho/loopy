@@ -3,6 +3,6 @@ role:
   created_date: 20240221
   input_env:
     - name: COMMANDS
-      description: command list (ex "oc get pod, ls")
+      description: Set command list (ex "oc get pod %% ls")
       required: true
       

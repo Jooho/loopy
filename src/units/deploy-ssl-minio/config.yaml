@@ -2,11 +2,12 @@ unit:
   created_date: 20240221
   name: deploy-ssl-minio
   description: Generate certificate and apply it to Minio
+  support: "true"
   steps:
   - role:
       name: cert-generate
       input_env:
-        SAN_LIST: minio.minio.svc.cluster,minio.minio.svc          
+        SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc          
   - role:
       name: minio-deploy
       input_env:

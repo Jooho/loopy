@@ -51,13 +51,13 @@ enable_ssl=$(is_positive ${ENABLE_SSL})
 if [[ ${enable_ssl} == "0" ]]
 then
   info "MINIO SSL Enabled"
-  echo "${ROOT_CA_FILE_PATH}"
-  if [[ ! -n ${ROOT_CA_FILE_PATH} || ! -n ${CERT_FILE_PATH} || ! -n ${KEY_FILE_PATH} ]]
+  echo "${ROOT_CA_CERT_FILE_PATH}"
+  if [[ ! -n ${ROOT_CA_CERT_FILE_PATH} || ! -n ${CERT_FILE_PATH} || ! -n ${KEY_FILE_PATH} ]]
   then
-    echo "Required values(ROOT_CA_FILE_PATH,CERT_FILE_PATH,KEY_FILE_PATH) are NOT inputed."
+    echo "Required values(ROOT_CA_CERT_FILE_PATH,CERT_FILE_PATH,KEY_FILE_PATH) are NOT provided."
     exit 1
   fi
-  cp ${ROOT_CA_FILE_PATH} ${ROLE_DIR}/root.crt
+  cp ${ROOT_CA_CERT_FILE_PATH} ${ROLE_DIR}/root.crt
   cp ${CERT_FILE_PATH} ${ROLE_DIR}/minio.crt
   cp ${KEY_FILE_PATH} ${ROLE_DIR}/minio.key
 

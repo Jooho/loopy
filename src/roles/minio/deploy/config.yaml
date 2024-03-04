@@ -33,27 +33,28 @@ role:
       description: Minio does not use region so you don't need to set this. This is to align with the standard protocol of S3
     
     - name: ENABLE_SSL
-    - name: ROOT_CA_FILE_PATH
+      description: Set True if you want to deploy ssl minio(You must provide ROOT_CA_CERT_FILE_PATH,CERT_FILE_PATH, KEY_FILE_PATH)
+    - name: ROOT_CA_CERT_FILE_PATH
+      description: root ca certificate file to apply ssl for minio
     - name: CERT_FILE_PATH
+      description: server certificate file to apply ssl for minio
     - name: KEY_FILE_PATH
-    
-    
+      description: server certificate key file to apply ssl for minio
+        
     # - name: ENABLE_CONSOLE
 
     - name: CLUSTER_API_URL
       description: openshift api url
       required: true
-
     - name: CLUSTER_ADMIN_ID
       description: openshift cluster user id
       required: true
-
     - name: CLUSTER_ADMIN_PW
       description: openshift cluster user password
       required: true
-
     - name: CLUSTER_TOKEN  
       description: openshift cluster login token
+      
   output_env:
     - name: MINIO_S3_SVC_URL
       required: true

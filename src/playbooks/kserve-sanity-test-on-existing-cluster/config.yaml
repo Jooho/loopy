@@ -1,10 +1,10 @@
 playbook:
   created_date: 20240215
   name: kserve-sanity-test-on-existing-cluster
-  description: 
-  # input_env_file: /tmp/abc
-  # input_env:
-  #     MACHINE_POOL_TYPE: m5.4xlarge
+  description: >
+    This is a playbook for kserve end to end test. It installs required operators(serverless/ossm) then install RHOAI the latest version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+
+    (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
   steps:
    - unit:
        name: install-serverless-stable-operator         

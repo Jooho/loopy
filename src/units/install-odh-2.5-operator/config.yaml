@@ -1,6 +1,7 @@
 unit:
   created_date: 20240215
   name: install-odh-2.5-operator
+  description: This unit install specific version(2.5) of opendatahub operator. This use OPERATOR_POD_PREFIX because the odh operator does not have unique label.
   role:
     name: operator-install
     input_env:

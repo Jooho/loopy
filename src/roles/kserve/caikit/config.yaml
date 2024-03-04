@@ -8,6 +8,7 @@ role:
     
   # output_filename: operator-install-output.sh
   manifests:
+    data_connection_secret: ./manifests/kserve/data-connection-secret.yaml
     storage_config_json: ./manifests/kserve/storage-config-secret-json.yaml
     storage_config_annotation: ./manifests/kserve/storage-config-secret-annotation.yaml
     storage_config_serviceaccount: ./manifests/kserve/storage-config-serviceaccount.yaml
@@ -48,6 +49,9 @@ role:
 
     - name: STORAGE_CONFIG_TYPE
       description: kserve support 2 storage-config secret types(json,annotation)
+
+    - name: USE_DATA_CONNECTION
+      description: By default, the storage-config secret will be created by data-conneciton. So creating data connection would be the right way to get `storage-config` json style of secret.
 
     - name: TEST_NAMESPACE
       description: The namespace where the caikit runtime is running

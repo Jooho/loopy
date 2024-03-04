@@ -40,6 +40,7 @@ kserve:
   storage_config_type: json
   default_bucket_name: modelmesh-example-models
   minio_region: "us-east-1"
+  use_data_connection: "true"
 
 cert:
   root_ca_cert_name: root.crt

@@ -48,29 +48,41 @@ fi
 check_oc_status
 
 # Deploy a sample model
-oc get ns ${TEST_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${TEST_NAMESPACE} > /dev/null 2>&1 
+oc get ns ${TEST_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${TEST_NAMESPACE} > /dev/null 2>&1
 
-if [[ ${STORAGE_CONFIG_TYPE} == "json" ]] 
-then  
-  sed -e \
-  "s+%minio_access_key_id%+$MINIO_ACCESS_KEY_ID+g; \
-  s+%minio_secret_access_key%+$MINIO_SECRET_ACCESS_KEY+g; \
-  s+%minio_s3_svc_url%+$MINIO_S3_SVC_URL+g; \
-  s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g; \
-  s+%minio_region%+$MINIO_REGION+g" $storage_config_json_manifests_path > ${ROLE_DIR}/$(basename $storage_config_json_manifests_path)
+use_data_connection=$(is_positive ${USE_DATA_CONNECTION})
+if [[ ${use_data_connection} == "0" ]]
+then
+   sed -e \
+    "s+%minio_access_key_id%+$MINIO_ACCESS_KEY_ID+g; \
+    s+%minio_secret_access_key%+$MINIO_SECRET_ACCESS_KEY+g; \
+    s+%minio_s3_svc_url%+$MINIO_S3_SVC_URL+g; \
+    s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g; \
+    s+%minio_region%+$MINIO_REGION+g" $data_connection_secret_manifests_path > ${ROLE_DIR}/$(basename $data_connection_secret_manifests_path)
 
-  oc apply -f ${ROLE_DIR}/$(basename $storage_config_json_manifests_path)
+    oc apply -f ${ROLE_DIR}/$(basename $data_connection_secret_manifests_path)
 else
-  sed -e \
-  "s+%minio_access_key_id%+$MINIO_ACCESS_KEY_ID+g; \
-  s+%minio_secret_access_key%+$MINIO_SECRET_ACCESS_KEY+g; \
-  s+%minio_s3_svc_url%+$MINIO_S3_SVC_URL+g; \
-  s+%minio_region%+$MINIO_REGION+g" $storage_config_annotation_manifests_path > ${ROLE_DIR}/$(basename $storage_config_annotation_manifests_path)
+  if [[ ${STORAGE_CONFIG_TYPE} == "json" ]] 
+  then  
+    sed -e \
+    "s+%minio_access_key_id%+$MINIO_ACCESS_KEY_ID+g; \
+    s+%minio_secret_access_key%+$MINIO_SECRET_ACCESS_KEY+g; \
+    s+%minio_s3_svc_url%+$MINIO_S3_SVC_URL+g; \
+    s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g; \
+    s+%minio_region%+$MINIO_REGION+g" $storage_config_json_manifests_path > ${ROLE_DIR}/$(basename $storage_config_json_manifests_path)
 
-  oc apply -f ${ROLE_DIR}/$(basename $storage_config_annotation_manifests_path)
-  oc apply -f ${ROLE_DIR}/$(basename $storage_config_serviceaccount_manifests_path)
+    oc apply -f ${ROLE_DIR}/$(basename $storage_config_json_manifests_path)
+  else
+    sed -e \
+    "s+%minio_access_key_id%+$MINIO_ACCESS_KEY_ID+g; \
+    s+%minio_secret_access_key%+$MINIO_SECRET_ACCESS_KEY+g; \
+    s+%minio_s3_svc_url%+$MINIO_S3_SVC_URL+g; \
+    s+%minio_region%+$MINIO_REGION+g" $storage_config_annotation_manifests_path > ${ROLE_DIR}/$(basename $storage_config_annotation_manifests_path)
+
+    oc apply -f ${ROLE_DIR}/$(basename $storage_config_annotation_manifests_path)
+    oc apply -f ${ROLE_DIR}/$(basename $storage_config_serviceaccount_manifests_path)
+  fi
 fi
-
 caikit_type=$(echo ${CAIKIT_ARCH_TYPE}|sed 's/-/_/g')
 
 servingruntime_manifests=$(eval "echo \${${caikit_type}_serving_runtime_manifests_path}")

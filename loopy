@@ -18,56 +18,63 @@ from roles import list_roles, show_role, test_role, run_role
 from units import list_units, show_unit, run_unit
 from playbooks import list_playbooks, show_playbook, run_playbook
 
+
 def init(default_vars):
     # Create default dirs
-    root_dir=default_vars['cli']['output_root_dir']
+    root_dir = default_vars["cli"]["output_root_dir"]
     now = datetime.now()
 
     # "2024-02-05_1430"
-    date_dir = os.path.join(root_dir,now.strftime("%Y%m%d_%H%M"))
-    output_dir=os.path.join(date_dir,default_vars['cli']['output_env_dir'])
-    artifacts_dir=os.path.join(date_dir,default_vars['cli']['output_artifacts_dir'])
-    report_file=os.path.join(date_dir,default_vars['cli']['output_report_file'])
+    date_dir = os.path.join(root_dir, now.strftime("%Y%m%d_%H%M"))
+    output_dir = os.path.join(date_dir, default_vars["cli"]["output_env_dir"])
+    artifacts_dir = os.path.join(date_dir, default_vars["cli"]["output_artifacts_dir"])
+    report_file = os.path.join(date_dir, default_vars["cli"]["output_report_file"])
+    stop_when_failed = default_vars["cli"]["stop_when_failed"]
 
-    os.makedirs(output_dir, exist_ok=True) 
-    os.makedirs(artifacts_dir, exist_ok=True) 
-    
-    with open(report_file, 'w') as file:
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(artifacts_dir, exist_ok=True)
+
+    with open(report_file, "w") as file:
         file.write("# This is a report.\n")
-        
-    update_config('output_dir', output_dir)        
-    os.environ['OUTPUT_DIR']=output_dir
-    update_config('artifacts_dir', artifacts_dir)        
-    os.environ['ARTIFACTS_DIR']=artifacts_dir
-    update_config('report_file', report_file)               
-    os.environ['REPORT_FILE']=report_file
+
+    update_config("output_dir", output_dir)
+    os.environ["OUTPUT_DIR"] = output_dir
+    update_config("artifacts_dir", artifacts_dir)
+    os.environ["ARTIFACTS_DIR"] = artifacts_dir
+    update_config("report_file", report_file)
+    os.environ["REPORT_FILE"] = report_file
+    update_config("stop_when_failed", stop_when_failed)
     
     # Update PATH to add ./bin dir
-    path = os.environ['PATH']
-    bin_path = os.path.join(os.getcwd(), 'bin')
+    path = os.environ["PATH"]
+    bin_path = os.path.join(os.getcwd(), "bin")
     new_path = f"{bin_path}:{path}"
-    os.environ['PATH'] = new_path
-    
+    os.environ["PATH"] = new_path
+
     # TO-DO
-    # Set default value for STOPWHENFAILED  
-    os.environ['STOPWHENFAILED']="1"   # 0 stop when component failed, 1 do not stop even component failed.
-    
-    
+    # Set default value for STOP_WHEN_FAILED
+    os.environ["STOP_WHEN_FAILED"] = "1"  # 0 stop when component failed, 1 do not stop even component failed.
+
+
 @click.group()
 def roles():
     pass
+
 
 @click.group()
 def units():
     pass
 
+
 @click.group()
 def playbooks():
     pass
 
+
 @click.group()
 def cli():
     pass
+
 
 roles.add_command(list_roles)
 roles.add_command(show_role)
@@ -94,9 +101,7 @@ with open("./config.yaml", "r") as file:
 with open(config_data["default_vars_file"], "r") as file:
     default_vars = yaml.safe_load(file)
 
-main_context_settings = dict(
-    config={"default_vars": default_vars, "config_data": config_data}
-)
+main_context_settings = dict(config={"default_vars": default_vars, "config_data": config_data})
 
 init(default_vars)
 

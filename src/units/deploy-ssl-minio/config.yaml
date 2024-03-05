@@ -4,12 +4,12 @@ unit:
   description: Generate certificate and apply it to Minio
   support: "true"
   steps:
-  - role:
-      name: cert-generate
-      input_env:
-        SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc          
-  - role:
-      name: minio-deploy
-      input_env:
-        ENABLE_SSL: "true"
-      
+    - role:
+        name: cert-generate
+        input_env:
+          SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
+          STOP_WHEN_FAILED: "True"
+    - role:
+        name: minio-deploy
+        input_env:
+          ENABLE_SSL: "true"

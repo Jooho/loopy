@@ -55,3 +55,4 @@ cli:
   output_env_dir: output
   output_artifacts_dir: artifacts
   output_report_file: report
+  stop_when_failed: "false"

@@ -75,11 +75,12 @@ fi
 if [[ $errorHappened == "0" ]]
 then
   info "There are some errors in the role"
-  if [[ ${STOPWHENFAILED} == "0" ]]
+  stop_when_failed=$(is_positive ${STOP_WHEN_FAILED})
+  if [[ ${stop_when_failed} == "0" ]]
   then
-    die "STOPWHENFAILED(${STOPWHENFAILED}) is set and there are some errors detected so stop all process"
+    die "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is set and there are some errors detected so stop all process"
   else
-    info "STOPWHENFAILED(${STOPWHENFAILED}) is NOT set so skip this error."
+    info "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is NOT set so skip this error."
   fi
 fi  
 

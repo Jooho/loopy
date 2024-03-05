@@ -1,5 +1,5 @@
 role:
-  created_date: 20240215
+  created_date: "20240215"
   name: cert-generate
   # output_filename: operator-install-output.sh
   files:

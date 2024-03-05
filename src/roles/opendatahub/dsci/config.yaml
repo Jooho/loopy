@@ -1,5 +1,5 @@
 role:
-  created_date: 20240215
+  created_date: "20240215"
   name: opendatahub-create-dsci
   description: |
     The Data Science Cluster Initialization (DSCI) serves as the main object of OpenDataHub, assisting in configuring the dependencies of KServe within the OpenShift Service Mesh (OSSM). When the OpenDataHub operator is installed, DSCI is automatically installed unless explicitly disabled by adding CONFIG_ENV: "name=DISABLE_DSC_CONFIG" to the subscription's environment. This role enables the enablement or disablement of Monitoring and Service Mesh, and allows for the specification of the opendatahub_type as either "opendatahub" or "rhoai", thereby altering the target namespace.

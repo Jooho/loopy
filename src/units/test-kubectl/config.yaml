@@ -1,11 +1,12 @@
 unit:
-  created_date: 20240221
+  created_date: "20240221"
   name: test-kubectl
   description: This unit is to explain how to use shell-execute role.
-  role:
-    name: shell-execute
-    input_env:
-      COMMANDS: |
-         oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
-#(example)
-        # kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname
+  steps:
+    - role:
+        name: shell-execute
+        input_env:
+          COMMANDS: |
+            oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
+    #(example)
+            # kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname

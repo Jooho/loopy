@@ -1,5 +1,5 @@
 unit:
-  created_date: 20240221
+  created_date: "20240221"
   name: deploy-ssl-minio
   description: Generate certificate and apply it to Minio
   support: "true"

@@ -1,0 +1,58 @@
+type: object
+properties:
+  role:
+    type: object
+    properties:
+      support:
+        type: string
+      tags:
+        properties:
+          key:
+            type: string            
+        additionalProperties: true
+      output_filename:
+        type: string  
+      created_date:
+        type: string
+        pattern: '^[0-9]{8}$'  # YYYYMMDD
+      name:
+        type: string
+      description:
+        type: string
+      manifests:
+        type: object
+        properties:
+          key:
+            type: string
+        additionalProperties: true
+      files:
+        type: object
+        properties:
+          key:
+            type: string            
+        additionalProperties: true
+      input_env:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            required:
+              type: boolean
+      output_env:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            required:
+              type: boolean
+    required:
+    - created_date
+    additionalProperties: false
+required:
+- role

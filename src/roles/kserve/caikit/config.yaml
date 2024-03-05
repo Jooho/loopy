@@ -1,5 +1,5 @@
 role:
-  created_date: 20240215
+  created_date: "20240215"
   name: kserve-caikit-test
   description: |
     This is a Role designed for testing the Caikit runtime. Currently, only the Caikit TGIS runtime is deployed for testing. Support for standalone Caikit will be available in the future. Before executing this Role, it is essential to ensure that RHOAI KServe (serverless) is up and running on the OpenShift cluster and functioning properly.

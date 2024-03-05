@@ -1,13 +1,14 @@
 unit:
-  created_date: 20240215
+  created_date: "20240215"
   name: test-kserve-caikit-tgis-rest
   description: This deploy kserve caikit tgis runtime. Prequisites to work this unit is minio(quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5) that has the related models.
-  role:
-    name: kserve-caikit-test
-    input_env:
-      CAIKIT_ARCH_TYPE: caikit-tgis
-      PROTOCOL: rest
-      ISVC_STORAGE_PATH_TYPE: storage
-      TEST_NAMESPACE: kserve-demo
-      STORAGE_CONFIG_TYPE: json
+  steps:
+    - role:
+        name: kserve-caikit-test
+        input_env:
+          CAIKIT_ARCH_TYPE: caikit-tgis
+          PROTOCOL: rest
+          ISVC_STORAGE_PATH_TYPE: storage
+          TEST_NAMESPACE: kserve-demo
+          STORAGE_CONFIG_TYPE: json
       

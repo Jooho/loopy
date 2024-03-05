@@ -1,0 +1,120 @@
+# type: object
+# properties:
+#   playbook:
+#     type: object
+#     properties:
+#       support:
+#         type: string
+#       tags:
+#         type: array
+#         items:
+#           type: object
+#           properties:
+#             key:
+#               type: string
+#       output_filename:
+#         type: string
+#       created_date:
+#         type: string
+#         pattern: '^[0-9]{8}$'  # YYYYMMDD
+#       name:
+#         type: string
+#       description:
+#         type: string
+#       steps:
+#         type: array
+#         items:
+#           type: object
+#           properties:
+#             unit:
+#               type: object
+#               properties:
+#                 name:
+#                   type: string
+#                 description:
+#                   type: string
+#                 input_env:
+#                   type: object  
+#                   additionalProperties:
+#                     type: string    
+#           type: object
+#           properties:
+#             role:
+#               type: object
+#               properties:
+#                 name:
+#                   type: string
+#                 description:
+#                   type: string
+#                 input_env:
+#                   type: object  
+#                   additionalProperties:
+#                     type: string           
+#           additionalProperties: false
+#         required:
+#           - role
+#           - unit
+#     required:
+#       - steps
+#     additionalProperties: false
+# required:
+#   - playbook
+type: object
+properties:
+  playbook:
+    type: object
+    properties:
+      support:
+        type: string
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+      output_filename:
+        type: string
+      created_date:
+        type: string
+        pattern: '^[0-9]{8}$'  # YYYYMMDD
+      name:
+        type: string
+      description:
+        type: string
+      steps:
+        type: array
+        items:
+          type: object
+          properties:
+            unit:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                input_env:
+                  type: object  
+                  additionalProperties:
+                    type: string    
+            role:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                input_env:
+                  type: object  
+                  additionalProperties:
+                    type: string           
+          additionalProperties: false
+        required:
+          - role
+          - unit
+    required:
+      - steps
+    additionalProperties: false
+required:
+  - playbook

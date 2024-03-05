@@ -2,6 +2,12 @@ import os
 import yaml
 import re
 import click
+from jsonschema import Draft7Validator
+from colorama import Fore, Style
+
+ROLE_SCHEMA_FILE_PATH = "./src/schema/role.yaml"
+UNIT_SCHEMA_FILE_PATH = "./src/schema/unit.yaml"
+PLAYBOOK_SCHEMA_FILE_PATH = "./src/schema/playbook.yaml"
 
 def initialize(directory, type):
     item_list = []
@@ -9,8 +15,18 @@ def initialize(directory, type):
     for root, dirs, files in os.walk(directory):
         if "config.yaml" in files:
             config_path = os.path.join(root, "config.yaml")
+
+            file_errors = validate_role_yaml(config_path,type)
+            if file_errors:
+                for error in file_errors:
+                    print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
+                    print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
+                    print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
+                    exit(1)      
+           
             with open(config_path, "r") as config_file:
                 config_data = yaml.safe_load(config_file)
+                
                 if config_data:
                     if type == "unit":
                         path = os.path.abspath(root)
@@ -133,3 +149,38 @@ def get_first_role_name_in_unit_by_unit_name(unit_name, list):
     for unit in list:
         if unit_name == unit["name"]:
             return unit["role_name"]
+
+
+def validate_role_yaml(yaml_file, type):
+    schema=None
+    schema_file_path=None
+    # Load schema file
+    if type == "role":        
+       schema_file_path=ROLE_SCHEMA_FILE_PATH
+    elif type == "unit":        
+        schema_file_path=UNIT_SCHEMA_FILE_PATH
+    elif type == "playbook": 
+        schema_file_path=PLAYBOOK_SCHEMA_FILE_PATH       
+
+    with open(schema_file_path, "r") as schema_file:
+        schema = yaml.safe_load(schema_file)
+        
+    # Load Target yaml file 
+    try:
+        with open(yaml_file, "r") as f:
+            yaml_data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
+        exit(1)
+        
+    # Create validator
+    validator = Draft7Validator(schema)
+
+    # Validate YAML Data
+    errors = []
+    for error in validator.iter_errors(yaml_data):
+        errors.append({
+            "message": error.message,
+            "path": list(error.path)
+        })    
+    return errors

@@ -1,5 +1,5 @@
 role:
-  created_date: 20240215
+  created_date: "20240215"
   name: minio-deploy
   description: |
     MinIO is an open-source, high-performance object storage server built for cloud-native and containerized environments. It is compatible with Amazon S3 APIs, making it easy to integrate with existing S3-compatible applications and tools. MinIO is designed to be lightweight, scalable, and highly available, making it suitable for storing unstructured data such as images, videos, log files, backups, and more. It is often used as a standalone object storage solution or as part of a larger data infrastructure stack.

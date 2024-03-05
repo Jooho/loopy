@@ -1,5 +1,5 @@
 role:
-  created_date: 20240215
+  created_date: "20240215"
   name: opendatahub-create-dsc
   description: |
     The Data Science Cluster (DSC) serves as the main object within OpenDataHub, aiding in the configuration of serverless settings dependent on KServe. It enables the installation and uninstallation of each component of RHOAI. While verification is included for kserve/modelmesh/dashboard components, currently other components are not verified.

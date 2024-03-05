@@ -1,20 +1,17 @@
 playbook:
   name: template
-  description: 
-  # input_env_file: /tmp/abc
-  # input_env:
-  #     MACHINE_POOL_TYPE: m5.4xlarge
+  description: template
   steps:
-   - role:
-       name: openshift-install
-       input_env:
-         OSIA_CONFIGURATION_KEY_PATH: "/tmp/"
-   - unit:
-       name: install-odh-2.5-operator      
-   - role:
-       name: operator-install
-       input_env:
-         SUBSCRIPTION_NAME: serverless-operator
-         OPERATOR_NAMESPACE: openshift-serverless
-         OPERATOR_NAME: serverless-operator
-         CATALOGSOURCE_NAME: redhat-operators
+    - role:
+        name: openshift-install
+        input_env:
+          OSIA_CONFIGURATION_KEY_PATH: "/tmp/"
+    - unit:
+        name: install-odh-2.5-operator      
+    - role:
+        name: operator-install
+        input_env:
+          SUBSCRIPTION_NAME: serverless-operator
+          OPERATOR_NAMESPACE: openshift-serverless
+          OPERATOR_NAME: serverless-operator
+          CATALOGSOURCE_NAME: redhat-operators

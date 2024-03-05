@@ -1,4 +1,5 @@
 role:
+  created_date: "20240205"
   name: openshift-install
   output_filename: openshift-cluster-output.sh
   input_env:

@@ -1,7 +1,7 @@
 playbook:
-  created_date: 20240215
+  created_date: "20240215"
   name: kserve-raw-deployment-on-existing-cluster
-  description: 
+  description: rawDeployment
   # input_env_file: /tmp/abc
   # input_env:
   #     MACHINE_POOL_TYPE: m5.4xlarge

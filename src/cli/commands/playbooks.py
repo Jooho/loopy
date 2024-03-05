@@ -22,13 +22,14 @@ def list_playbooks():
 
 @click.command(name="show")
 @click.argument("playbook_name")
+@click.option("-v", "--detail-information",is_flag=True)
 @click.pass_context
-def show_playbook(ctx, playbook_name):
+def show_playbook(ctx, playbook_name, detail_information):
     verify_playbook_exist(playbook_name)
     for item in playbook_list:
         if playbook_name == item["name"]:
             playbook_path = item["path"]
-    display_playbook_info(ctx, playbook_name, playbook_path)
+    display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
 
 
 @click.command(name="run")
@@ -143,7 +144,7 @@ def get_config_data(config_file_dir):
         click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
 
 
-def display_playbook_info(ctx, playbook_name, playbook_path):
+def display_playbook_info(ctx, playbook_name, playbook_path, detail_information):
     playbook_config_data = get_config_data(playbook_path)["playbook"]
     steps = playbook_config_data["steps"]
 
@@ -165,6 +166,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path):
                 role_name = role["name"]
         role_config_data = get_config_data(role_path)["role"]
 
+    required_role_input_keys = Get_required_input_keys(ctx, role_path, role_name)
     target_main_file = os.path.join(role_path, "main.sh")
     if not os.path.exists(target_main_file):
         target_main_file = os.path.join(role_path, "main.py")
@@ -172,83 +174,92 @@ def display_playbook_info(ctx, playbook_name, playbook_path):
     click.echo(f"{Fore.BLUE}Type:{Style.RESET_ALL} Playbook")
     click.echo(f"{Fore.BLUE}Name:{Style.RESET_ALL} {playbook_name}")
     click.echo(f"{Fore.BLUE}Description:{Style.RESET_ALL} {playbook_config_data.get('description','')}")
+    click.echo(f"{Fore.BLUE}Playbook Config File:{Style.RESET_ALL} {playbook_path}/config.yaml")
     click.echo(f"{Fore.BLUE}Example Command:{Style.RESET_ALL}{Fore.RED} loopy playbooks run {playbook_name}{Style.RESET_ALL}")
-    if "unit" in steps[0]:
-        click.echo(f"{Fore.BLUE}  Type:{Style.RESET_ALL} Unit")
-        click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {unit_name}")
-        click.echo(f"{Fore.BLUE}  Description:{Style.RESET_ALL} {unit_config_data.get('description','')}")
-        click.echo(f"{Fore.BLUE}  Example Command:{Style.RESET_ALL}{Fore.RED} loopy units run {unit_name}{Style.RESET_ALL}")
-        click.echo(f"{Fore.BLUE}    Type:{Style.RESET_ALL} Role")
-        click.echo(f"{Fore.BLUE}    Name:{Style.RESET_ALL} {role_name}")
-        click.echo(f"{Fore.BLUE}    Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
-        click.echo(f"{Fore.BLUE}    Main File Path:{Style.RESET_ALL} {target_main_file}")
-    else:
-        click.echo(f"{Fore.BLUE}Type:{Style.RESET_ALL} Role")
-        click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")
-        click.echo(f"{Fore.BLUE}  Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
-        click.echo(f"{Fore.BLUE}  Main File Path:{Style.RESET_ALL} {target_main_file}")
+    
+    click.echo(f"{Fore.BLUE}Playbook Steps:{Style.RESET_ALL}")
+    for step in steps:       
+        if "role" in step:
+            click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['name']}{Style.RESET_ALL}")
+        else:
+            click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['name']}{Style.RESET_ALL}")
+            
+    if detail_information:
+        if "unit" in steps[0]:
+            click.echo(f"{Fore.BLUE}First Unit:{Style.RESET_ALL}")
+            click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {unit_name}")
+            click.echo(f"{Fore.BLUE}  Description:{Style.RESET_ALL} {unit_config_data.get('description','')}")
+            click.echo(f"{Fore.BLUE}  Example Command:{Style.RESET_ALL}{Fore.RED} loopy units run {unit_name}{Style.RESET_ALL}")
+            click.echo(f"{Fore.BLUE}    Type:{Style.RESET_ALL} Role")
+            click.echo(f"{Fore.BLUE}    Name:{Style.RESET_ALL} {role_name}")
+            click.echo(f"{Fore.BLUE}    Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
+            click.echo(f"{Fore.BLUE}    Main File Path:{Style.RESET_ALL} {target_main_file}")
+        else:
+            click.echo(f"{Fore.BLUE}First Role:{Style.RESET_ALL}")
+            click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")
+            click.echo(f"{Fore.BLUE}  Description:{Style.RESET_ALL} {role_config_data.get('description','')}")
+            click.echo(f"{Fore.BLUE}  Main File Path:{Style.RESET_ALL} {target_main_file}")
 
-    if "unit" in steps[0]:
-        py_unit_env_list = steps[0]["unit"].get("input_env", {})
-        required_role_input_keys = Get_required_input_keys(ctx, role_path, role_name)
+        if "unit" in steps[0]:
+            py_unit_env_list = steps[0]["unit"].get("input_env", {})            
+            click.echo(f"{Fore.BLUE}    Input:{Style.RESET_ALL}")
 
-        click.echo(f"{Fore.BLUE}    Input:{Style.RESET_ALL}")
-
-        no_value_keys_in_py = []
-        # Process required input keys with input values in playbook unit
-        for required_role_input_key in required_role_input_keys:
-            if required_role_input_key in py_unit_env_list:
-                unit_input_env = py_unit_env_list[required_role_input_key]
-            else:
-                no_value_keys_in_py.append(required_role_input_key)
-                continue
-
-            if unit_input_env:
-                click.echo(f"    - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {unit_input_env}")
-        # Process required input keys without values in unit input values
-        if len(no_value_keys_in_py) > 0:
-            unit_env_list = unit_config_data["role"].get("input_env", {})
-            required_role_input_keys = Get_required_input_keys(
-                ctx, role_path, role_name
-            )
-            final_no_value_keys = []
-            for required_role_input_key_without_value in no_value_keys_in_py:
-                if required_role_input_key_without_value in unit_env_list:
-                    role_input_env = unit_env_list[required_role_input_key_without_value]
+            no_value_keys_in_py = []
+            # Process required input keys with input values in playbook unit
+            for required_role_input_key in required_role_input_keys:
+                if required_role_input_key in py_unit_env_list:
+                    unit_input_env = py_unit_env_list[required_role_input_key]
                 else:
-                    final_no_value_keys.append(required_role_input_key_without_value)
+                    no_value_keys_in_py.append(required_role_input_key)
                     continue
 
+                if unit_input_env:
+                    click.echo(f"    - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {unit_input_env}")
+            # Process required input keys without values in unit input values
+            final_no_value_keys = []
+            if len(no_value_keys_in_py) > 0:
+                unit_env_list = unit_config_data["role"].get("input_env", {})
+                for required_role_input_key_without_value in no_value_keys_in_py:
+                    if required_role_input_key_without_value in unit_env_list:
+                        role_input_env = unit_env_list[required_role_input_key_without_value]
+                    else:
+                        final_no_value_keys.append(required_role_input_key_without_value)
+                        continue
+
+                    if role_input_env:
+                        click.echo(f"    - {Fore.GREEN}{required_role_input_key_without_value:<20}:{Style.RESET_ALL} {role_input_env}")
+
+            # Process required input keys without values
+            for no_value_key in final_no_value_keys:
+                click.echo(f"    - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'")
+        else:
+            py_role_input_env_list = steps[0].get("role", {}).get("input_env", {})
+
+            click.echo(f"{Fore.BLUE}  Input:{Style.RESET_ALL}")
+            no_value_keys_in_py = []
+            # Process required input keys and their values
+            for required_role_input_key in required_role_input_keys:
+                if required_role_input_key in py_role_input_env_list:
+                    role_input_env = py_role_input_env_list[required_role_input_key]
+                else:
+                    # click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} 'no specified'")
+                    no_value_keys_in_py.append(required_role_input_key)
+                    continue
                 if role_input_env:
-                    click.echo(f"    - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {role_input_env}")
-
-        # Process required input keys without values
-        for no_value_key in final_no_value_keys:
-            click.echo(f"    - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'")
-    else:
-        py_role_input_env_list = steps[0].get("role", {}).get("input_env", {})
-        role_input_env_list = role_config_data.get("input_env", {})
-        required_role_input_keys = Get_required_input_keys(ctx, role_path, role_name)
-
-        click.echo(f"{Fore.BLUE}  Input:{Style.RESET_ALL}")
-
-        # Process required input keys and their values
-        for required_role_input_key in required_role_input_keys:
-            if required_role_input_key in py_role_input_env_list:
-                role_input_env = py_role_input_env_list[required_role_input_key]
-                click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {role_input_env}")
-            else:
-                click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} 'no specified'")
-
-        # Process default input variables and their values
-        for input_item in role_input_env_list:
-            input_name = input_item.get("name", "")
-            if input_name not in py_role_input_env_list:
-                default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name)
-                click.echo(f"  - {Fore.GREEN}{input_name:<20}:{Style.RESET_ALL} {default_input_value}")
-
-        # Process input keys with no specified values
-        for input_item in role_input_env_list:
-            input_name = input_item.get("name", "")
-            if input_name not in py_role_input_env_list and input_name not in [item.get("name", "") for item in role_input_env_list]:
-                click.echo(f"  - {Fore.GREEN}{input_name:<20}:{Style.RESET_ALL} 'no specified'")
+                    click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {role_input_env}")
+            
+            # Process default input variables and their values
+            final_no_value_keys = []
+            if len(no_value_keys_in_py) > 0:
+                role_env_list = role_config_data.get("input_env", {})
+                for required_role_input_key_without_value in no_value_keys_in_py:
+                    if required_role_input_key_without_value in role_env_list:
+                        input_name = required_role_input_key_without_value.get("name", "")
+                        default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name)
+                        click.echo(f"  - {Fore.GREEN}{input_name:<20}:{Style.RESET_ALL} {default_input_value}")
+                    else:
+                        final_no_value_keys.append(required_role_input_key_without_value)
+                        continue
+                            
+            for no_value_key in final_no_value_keys:
+                click.echo(f"    - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'")

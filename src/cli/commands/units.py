@@ -20,14 +20,15 @@ def list_units():
 
 @click.command(name="show")
 @click.argument("unit_name")
+@click.option("-v", "--detail-information",is_flag=True)
 @click.pass_context
-def show_unit(ctx, unit_name):
+def show_unit(ctx, unit_name,detail_information):
     verify_unit_exist(unit_name)
     for item in unit_list:
         if unit_name == item["name"]:
             unit_path = item["path"]
             role_name = item["role_name"]
-    display_unit_info(ctx, unit_name, unit_path, role_name)
+    display_unit_info(ctx, unit_name, unit_path, role_name,detail_information)
 
 
 @click.command(name="run")
@@ -90,7 +91,7 @@ def verify_if_param_exist_in_unit(params, unit_name, unit_list):
                 roles.verify_if_param_exist_in_role( params, unit_config_vars["unit"]["role"]["name"] )
 
 
-def display_unit_info(ctx, unit_name, unit_path, role_name):
+def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):
     unit_config_data = utils.get_config_data_by_config_file_dir(ctx, unit_path)["unit"]
     for role in role_list:
         if role_name == role["name"]:
@@ -103,29 +104,35 @@ def display_unit_info(ctx, unit_name, unit_path, role_name):
     click.echo(f"{Fore.BLUE}Type:{Style.RESET_ALL} Unit")
     click.echo(f"{Fore.BLUE}Name:{Style.RESET_ALL} {unit_name}")
     click.echo( f"{Fore.BLUE}Description:{Style.RESET_ALL} {unit_config_data.get('description','')}" )
+    click.echo(f"{Fore.BLUE}Unit Config File:{Style.RESET_ALL} {unit_path}/config.yaml")
     click.echo( f"{Fore.BLUE}Example Command:{Style.RESET_ALL}{Fore.RED} loopy units run {unit_name}{Style.RESET_ALL}" )
-    click.echo(f"{Fore.BLUE}Role:{Style.RESET_ALL}")
-    click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")
-    click.echo( f"{Fore.BLUE}  Description:{Style.RESET_ALL} {role_config_data.get('description','')}" )
-    click.echo(f"{Fore.BLUE}  Main File Path:{Style.RESET_ALL} {target_main_file}")
-    if "steps" in unit_config_data:
-        unit_env_list = unit_config_data["steps"][0]["role"].get("input_env", {})
-    else:
-        unit_env_list = unit_config_data["role"].get("input_env", {})
-    required_input_keys = Get_required_input_keys(ctx, role_path, role_name)
-
-    click.echo(f"{Fore.BLUE}  Input:{Style.RESET_ALL}")
-    no_value_keys = []
-    for required_input_key in required_input_keys:
-        if required_input_key in unit_env_list:
-            unit_input_env = unit_env_list[required_input_key]
+    click.echo(f"{Fore.BLUE}Unit Steps:{Style.RESET_ALL}")
+    for step in unit_config_data["steps"]:       
+        click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['name']}{Style.RESET_ALL}")
+    
+    if detail_info:
+        click.echo(f"{Fore.BLUE}First Role:{Style.RESET_ALL}")
+        click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")
+        click.echo( f"{Fore.BLUE}  Description:{Style.RESET_ALL} {role_config_data.get('description','')}" )
+        click.echo(f"{Fore.BLUE}  Main File Path:{Style.RESET_ALL} {target_main_file}")
+        if "steps" in unit_config_data:
+            unit_env_list = unit_config_data["steps"][0]["role"].get("input_env", {})
         else:
-            no_value_keys.append(required_input_key)
-            continue
+            unit_env_list = unit_config_data["role"].get("input_env", {})
+        required_input_keys = Get_required_input_keys(ctx, role_path, role_name)
 
-        if unit_input_env:
-            click.echo( f"  - {Fore.GREEN}{required_input_key:<20}:{Style.RESET_ALL} {unit_input_env}" )
+        click.echo(f"{Fore.BLUE}  Input:{Style.RESET_ALL}")
+        no_value_keys = []
+        for required_input_key in required_input_keys:
+            if required_input_key in unit_env_list:
+                unit_input_env = unit_env_list[required_input_key]
+            else:
+                no_value_keys.append(required_input_key)
+                continue
 
-    if len(no_value_keys) > 0:
-        for no_value_key in no_value_keys:
-            click.echo( f"  - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'" )
+            if unit_input_env:
+                click.echo( f"  - {Fore.GREEN}{required_input_key:<20}:{Style.RESET_ALL} {unit_input_env}" )
+
+        if len(no_value_keys) > 0:
+            for no_value_key in no_value_keys:
+                click.echo( f"  - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'" )

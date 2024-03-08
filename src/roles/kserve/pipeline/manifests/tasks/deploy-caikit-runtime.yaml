@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-caikit-runtime-task
+spec:
+  workspaces:
+    - name: source
+  results:
+    - name: output
+      description: Generic output you can use as a result
+  params:
+    - name: PROTOCOL
+      description: Protocol enabled in the CaiKit Runtime, defaults to http.
+      type: string
+      default: http
+    - name: PYTHON_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+    - name: CLUSTER_API_ENDPOINT
+      type: string
+    - name: TOKEN
+      type: string
+    - name: WORKING_NAMESPACE
+      type: string
+  steps:
+    - name: deploy-caikit-runtime
+      image: $(params.PYTHON_IMAGE)
+      script: |
+        cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
+        pip install -r requirements-runtime.txt
+        echo "executing python deploy-caikit-runtime.py -p $(params.PROTOCOL) -e $(params.CLUSTER_API_ENDPOINT) -t $(params.TOKEN)"
+        python deploy-caikit-runtime.py -p $(params.PROTOCOL) -e $(params.CLUSTER_API_ENDPOINT) -t $(params.TOKEN) -n $(params.WORKING_NAMESPACE)
+      resources: {}

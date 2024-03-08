@@ -1,0 +1,231 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: caikit-e2e-inference-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  params:
+    - name: GIT_URL
+      default: https://github.com/spolti/rhoai-model-pipeline.git
+      description: url of the git repo for the code of deployment
+    - name: GIT_REVISION
+      default: main
+      description: revision to be used from repo of the code for deployment
+    - name: CLUSTER_API_URL
+      default: https://api.example.com:6443
+      description: target cluster to deploy, can be obtained through ui or "oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'"
+    - name: CLUSTER_TOKEN
+      default: sha256~mykey
+      description: the token to access the cluster, can be obtained through ui or with "oc whoami -t"
+    - name: MINIO_ACCESS_KEY_ID
+      default: test
+      description: the user to access minio storage.
+    - name: MINIO_SECRET_ACCESS_KEY
+      default: test
+      description: the password to access minio storage.
+    - name: MINIO_S3_SVC_URL
+      default: test
+      description: the endpoint to access minio storage.
+    - name: WORKING_NAMESPACE
+      default: pipeline-test
+      description: The namespace where the the ServingRuntime and the InferenceService will be created at.
+    - name: PYTHON_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+      default: registry.redhat.io/ubi9/python-39:latest
+    - name: OC_IMAGE
+      description: OpenShift CLI Container image.
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+    - name: ISVC_DEPLOYMENT_VERBOSE
+      description: Enables the verbose output for the isvc deployment.
+      type: string
+      default: "true"
+  tasks:
+    - name: clean-namespace-begin
+      description: Make sure there is no previous deployment related to this pipeline
+      params:
+        - name: OC_IMAGE
+          value: $(params.OC_IMAGE)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: delete-resources-task
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+        - name: deleteExisting
+          value: "true"
+        - name: revision
+          value: $(params.GIT_REVISION)
+      runAfter:
+        - clean-namespace-begin
+    - name: deploy-minio-storage-config
+      params:
+        - name: MINIO_ACCESS_KEY_ID
+          value: $(params.MINIO_ACCESS_KEY_ID)
+        - name: MINIO_SECRET_ACCESS_KEY
+          value: $(params.MINIO_SECRET_ACCESS_KEY)
+        - name: MINIO_S3_SVC_URL
+          value: $(params.MINIO_S3_SVC_URL)
+        - name: OC_IMAGE
+          value: $(params.OC_IMAGE)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: deploy-storage-config-task
+      runAfter:
+        - clean-namespace-begin
+    - name: deploy-caikit-runtime-http
+      params:
+        - name: PROTOCOL
+          value: http
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+        - name: CLUSTER_API_ENDPOINT
+          value: $(params.CLUSTER_API_URL)
+        - name: TOKEN
+          value: $(params.CLUSTER_TOKEN)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: deploy-caikit-runtime-task
+      runAfter:
+        - fetch-repository
+        - deploy-minio-storage-config
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: deploy-caikit-runtime-grpc
+      params:
+        - name: PROTOCOL
+          value: grpc
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+        - name: CLUSTER_API_ENDPOINT
+          value: $(params.CLUSTER_API_URL)
+        - name: TOKEN
+          value: $(params.CLUSTER_TOKEN)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: deploy-caikit-runtime-task
+      runAfter:
+        - fetch-repository
+        - deploy-minio-storage-config
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: check-caikit-runtimes
+      params:
+        - name: PROTOCOL
+          value: grpc
+        - name: PYTHON_IMAGE
+          value: $(params.OC_IMAGE)
+        - name: CLUSTER_API_ENDPOINT
+          value: $(params.CLUSTER_API_URL)
+        - name: TOKEN
+          value: $(params.CLUSTER_TOKEN)
+      taskRef:
+        kind: Task
+        name: check-caikit-runtime-task
+      runAfter:
+        - deploy-caikit-runtime-grpc
+        - deploy-caikit-runtime-http
+    - name: deploy-isvc-http
+      params:
+        - name: PROTOCOL
+          value: http
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+        - name: CLUSTER_API_ENDPOINT
+          value: $(params.CLUSTER_API_URL)
+        - name: TOKEN
+          value: $(params.CLUSTER_TOKEN)
+        - name: ISVC_DEPLOYMENT_VERBOSE
+          value: $(params.ISVC_DEPLOYMENT_VERBOSE)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: deploy-isvc-task
+      runAfter:
+        - check-caikit-runtimes
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: deploy-isvc-grpc
+      params:
+        - name: PROTOCOL
+          value: grpc
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+        - name: CLUSTER_API_ENDPOINT
+          value: $(params.CLUSTER_API_URL)
+        - name: TOKEN
+          value: $(params.CLUSTER_TOKEN)
+        - name: ISVC_DEPLOYMENT_VERBOSE
+          value: $(params.ISVC_DEPLOYMENT_VERBOSE)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: deploy-isvc-task
+      runAfter:
+        - check-caikit-runtimes
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: infer-model-http
+      params:
+        - name: PROTOCOL
+          value: http
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+      taskRef:
+        kind: Task
+        name: infer-model-task
+      runAfter:
+        - deploy-isvc-http
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: infer-model-grpc
+      params:
+        - name: PROTOCOL
+          value: grpc
+        - name: PYTHON_IMAGE
+          value: $(params.PYTHON_IMAGE)
+      taskRef:
+        kind: Task
+        name: infer-model-task
+      runAfter:
+        - deploy-isvc-grpc
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: clean-namespace-end
+      description: Make sure there is no previous deployment related to this pipeline
+      params:
+        - name: OC_IMAGE
+          value: $(params.OC_IMAGE)
+        - name: WORKING_NAMESPACE
+          value: $(params.WORKING_NAMESPACE)
+      taskRef:
+        kind: Task
+        name: delete-resources-task
+      runAfter:
+        - infer-model-http
+        - infer-model-grpc

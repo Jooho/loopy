@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-storage-config-task
+spec:
+  params:
+    - name: OC_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+    - name: WORKING_NAMESPACE
+      type: string
+    - name: MINIO_ACCESS_KEY_ID
+      type: string
+    - name: MINIO_SECRET_ACCESS_KEY
+      type: string
+    - name: MINIO_S3_SVC_URL
+      type: string
+  steps:
+    - name: deploy-secret
+      image: $(params.OC_IMAGE)
+      script: |
+        # add the storage-config secret for minio credentials
+        oc apply -n $(params.WORKING_NAMESPACE) -f - <<YAML
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          annotations:
+            serving.kserve.io/s3-endpoint: $(params.MINIO_S3_SVC_URL)
+            serving.kserve.io/s3-usehttps: "0" # by default 1, if testing with minio you can set to 0
+            serving.kserve.io/s3-region: "us-east-1"
+            serving.kserve.io/s3-useanoncredential: "false" # omitting this is the same as false, if true will ignore provided credential and use anonymous credentials
+          name: storage-config
+        stringData:
+          "AWS_ACCESS_KEY_ID": $(params.MINIO_ACCESS_KEY_ID)
+          "AWS_SECRET_ACCESS_KEY": $(params.MINIO_SECRET_ACCESS_KEY)
+        YAML
+        
+        # deploy service account 
+        oc apply -n $(params.WORKING_NAMESPACE) -f - <<YAML
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: sa
+        secrets:
+        - name: storage-config
+        YAML
+      resources: {}

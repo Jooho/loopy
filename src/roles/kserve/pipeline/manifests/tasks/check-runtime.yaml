@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: check-caikit-runtime-task
+spec:
+  results:
+    - name: output
+      description: Generic output you can use as a result
+  params:
+    - name: PROTOCOL
+      description: Protocol enabled in the CaiKit Runtime, defaults to http.
+      type: string
+      default: http
+    - name: PYTHON_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+    - name: CLUSTER_API_ENDPOINT
+      type: string
+    - name: TOKEN
+      type: string
+  steps:
+    - name: check-runtime
+      image: $(params.PYTHON_IMAGE)
+      script: |
+        #oc login --token=$(params.TOKEN) --server=$(params.CLUSTER_API_ENDPOINT)
+        # http runtime
+        oc get ServingRuntime caikit-tgis-runtime
+        t1=$?
+        if [ $t1 -ne 0 ]; then
+          echo "CaiKit Runtime HTTP not found, aborting..."
+          exit $t1
+        fi
+        
+        #grpc runtime
+        oc get ServingRuntime caikit-tgis-runtime-grpc
+        t2=$?
+        if [ $t2 -ne 0 ]; then
+          echo "CaiKit Runtime GRPC not found, aborting..."
+          exit $t1
+        fi
+      resources: {}

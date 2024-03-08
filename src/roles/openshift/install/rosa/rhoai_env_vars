@@ -1,0 +1,4 @@
+OSIA_CONFIGURATION_KEY_PATH=/path/to/osia-configuration.key
+ROSA_CONFIGURATION_KEY_PATH=/path/to/rosa-configuration.key
+CLUSTER_NAME=<your cluster name>
+MACHINE_POOL_TYPE=m6i.2xlarge

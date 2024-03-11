@@ -3,18 +3,29 @@ role:
   name: openshift-install
   output_filename: openshift-cluster-output.sh
   input_env:
+    - name: CLUSTER_TYPE
+      description: Type of cluster
+      required: true
+    # FIPS Enabled cluster - missing mandatory parameters will be checked by the script so thois config file
+    # be reused for rosa and psi options
+    - name: JENKINS_USER
+      description: Jenkins username
+    - name: JENKINS_TOKEN
+      description: Jenkins token
+    - name: JENKINS_JOB_URL
+      description: URL of Jenkins job
+    - name: EXTRA_PARAMS
+      description: Extra parameters for for installing the fips enabled cluster, for all available use -h
+      example: -em email@test.com -n clustername
+    # end of FIPS enabled cluster
     - name: OSIA_CONFIGURATION_KEY_PATH
       description: private key for osai repository
-      required: true
-
     - name: CLUSTER_NAME
       description: openshift cluster name
       default: model-serving-test-cluster
-
     - name: MACHINE_POOL_TYPE
       description: openshift node type
       default: m5.2xlarge
-      
   output_env:
     - name: CLUSTER_CONSOLE_URL
       description: openshift console url

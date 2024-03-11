@@ -207,8 +207,11 @@ while true; do
     new_build_logs=$(curl -k -s "${BUILD_URL}/${job_id}/consoleText" -u "$USER:$TOKEN")
 
     # Print the new lines
-    echo "${new_build_logs:$((${#build_logs}+1))}"
-
+    # Check if new logs are different from the previous logs
+    if [[ "$new_build_logs" != "$build_logs" ]]; then
+      # Print the new lines
+      echo "${new_build_logs:$((${#build_logs}+1))}"
+    fi
     # Update the build logs
     build_logs="$new_build_logs"
 

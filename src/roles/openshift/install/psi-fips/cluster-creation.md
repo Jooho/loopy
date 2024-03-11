@@ -8,7 +8,7 @@ To use this pipeline, you need to have a user in the given Jenkins Instance so y
 Here is a small example of how to use the pipeline:
 
 ```bash
-./install.sh -u <JENKINS_USER> -t <JENKINS_USER_TOKEN> -j <JOB_URL>
+./install.sh -u <JENKINS_USER> -t <JENKINS_TOKEN> -j <JENKINS_JOB_URL>
 ```
 
 To see all options:
@@ -27,13 +27,13 @@ This should be possible to retrieve this information by querying the hive.
 We can also build a specific build from brew, to do so, you can use the following command:
 
 ```bash
-./deploy-fips-enabled.sh -u <JENKINS_USER> -t <JENKINS_USER_TOKEN> -j <JOB_URL> -b <ODS_BUILD_URL>
+./install.sh -u <JENKINS_USER> -t <JENKINS_TOKEN> -j <JENKINS_JOB_URL> -b <ODS_BUILD_URL>
 ```
 
 ## Cluster Deletion
 
 ```bash
-./uninstall -u <JENKINS_USER> -t <JENKINS_USER_TOKEN> -j <JOB_URL> -n <CLUSTER_NAME> -e <CLUSTER_CONSOLE_URL>
+./uninstall -u <JENKINS_USER> -t <JENKINS_TOKEN> -j <JENKINS_JOB_URL> -n <CLUSTER_NAME> -e <CLUSTER_CONSOLE_URL>
 }
 ```
 

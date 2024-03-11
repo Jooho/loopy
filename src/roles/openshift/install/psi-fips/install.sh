@@ -3,13 +3,13 @@
 # First step, grab your token in the Jenkins instance.
 # - go to User/Configure/Add new Token, copy then save.
 # To run this script use:
-# ./deploy-fips-enabled.sh <JENKINS_USER> <JENKINS_USER_TOKEN> <USER_EMAIL>
+# ./install.sh <JENKINS_USER> <JENKINS_TOKEN> <JENKINS_JOB_URL>
 
 # Check if yq command exists
 if ! command -v yq &> /dev/null
 then
     echo "yq could not be found"
-    exit
+    exit 1
 fi
 
 # Default values for parameters
@@ -30,16 +30,16 @@ OPERATOR_TYPE="RHODS Operator V2"
 JENKINS_USER_EMAIL="email"
 RHODS_BUILD_NUMBER=""
 JENKINS_BASE_URL=""
-USER=""
-TOKEN=""
+JENKINS_USER=""
+JENKINS_TOKEN=""
 JENKINS_USER_EMAIL=""
 
 # Function to display help menu
 display_help() {
     echo "Usage: $0 [option...]" >&2
     echo
-    echo "   -u, --user                         Set Jenkins USER"
-    echo "   -t, --token                        Set Jenkins USER TOKEN"
+    echo "   -u, --user                         Set JENKINS_USER"
+    echo "   -t, --token                        Set Jenkins JENKINS_TOKEN"
     echo "   -j, --job-url                      Set Jenkins JENKINS_JOB_URL - the full job url, including the job name, usually ends with /build."
     echo "   -p, --product                      Set PRODUCT - Available options are ODH and RHODS, default to ODH"
     echo "   -a, --args                         Set ODS_CI_RUN_SCRIPT_ARGS"
@@ -66,16 +66,16 @@ display_help() {
 while (( "$#" )); do
   case "$1" in
     -u|--user)
-      USER="$2"
-      if [ -z "$USER" ]; then
+      JENKINS_USER="$2"
+      if [ -z "$JENKINS_USER" ]; then
         echo "Jenkins user must be set."
         exit 1
       fi
       shift 2
       ;;
     -t|--token)
-      TOKEN="$2"
-      if [ -z "$TOKEN" ]; then
+      JENKINS_TOKEN="$2"
+      if [ -z "$JENKINS_TOKEN" ]; then
         echo "Jenkins token must be set."
         exit 1
       fi
@@ -176,7 +176,7 @@ done
 eval set -- "$PARAMS"
 
 # Check if variables are set
-if [ -z "$USER" ] || [ -z "$TOKEN" ] || [ -z "$JENKINS_JOB_URL" ]; then
+if [ -z "$JENKINS_USER" ] || [ -z "$JENKINS_TOKEN" ] || [ -z "$JENKINS_JOB_URL" ]; then
     echo "All Jenkins parameters must be set."
     exit 1
 fi
@@ -218,14 +218,14 @@ for parameter in "${parameters_array[@]}"; do
 done
 
 # Get the Jenkins crumb
-CRUMB=$(curl -s -k "$JENKINS_BASE_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)" -u $USER:$TOKEN)
+CRUMB=$(curl -s -k "$JENKINS_BASE_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)" -u $JENKINS_USER:$JENKINS_TOKEN)
 if [ -z "$CRUMB" ]; then
     echo "Failed to get Jenkins crumb."
     exit 1
 fi
 
 # Trigger the Jenkins build job, the url should end with "build"
-response=$(curl -k -s -i -vv -X POST "${JENKINS_JOB_URL}WithParameters?${PARAMETERS}" -H "$CRUMB" -u "$USER:$TOKEN")
+response=$(curl -k -s -i -vv -X POST "${JENKINS_JOB_URL}WithParameters?${PARAMETERS}" -H "$CRUMB" -u "$JENKINS_USER:$JENKINS_TOKEN")
 
 # Extract the queue location from the response headers
 queue_location=$(echo "$response" | grep -Fi Location: | awk '{print $2}' | tr -d '\r')
@@ -240,7 +240,7 @@ fi
 # # Wait for the job to start and get the job ID
 while true; do
     # Get the JSON data for the queued item
-    queue_data=$(curl -k -s "${queue_location}api/json" -u "$USER:$TOKEN")
+    queue_data=$(curl -k -s "${queue_location}api/json" -u "$JENKINS_USER:$JENKINS_TOKEN")
 
     # Check if the job has started
     if [ "$(echo "$queue_data" | jq -r .executable.url)" != "null" ]; then
@@ -256,7 +256,7 @@ done
 echo "Job ID: $job_id"
 BUILD_URL="${JENKINS_BASE_URL}/job/rhods/job/rhods-smoke"
 # Get the initial console output
-build_logs=$(curl -k -s "${BUILD_URL}/${job_id}/consoleText" -u "$USER:$TOKEN")
+build_logs=$(curl -k -s "${BUILD_URL}/${job_id}/consoleText" -u "$JENKINS_USER:$JENKINS_TOKEN")
 
 # Print the initial console output
 echo "$build_logs"
@@ -264,24 +264,12 @@ echo "$build_logs"
 # Poll the console output until the job is finished
 while true; do
     # Get the job status
-    job_status=$(curl -k -s "${BUILD_URL}/${job_id}/api/json" -u "$USER:$TOKEN" | jq -r .result)
+    job_status=$(curl -k -s "${BUILD_URL}/${job_id}/api/json" -u "$JENKINS_USER:$JENKINS_TOKEN" | jq -r .result)
 
     # Break the loop if the job is finished
     if [ "$job_status" == "SUCCESS" ]; then
         # Download the file to a specific directory
-        curl -k -s -O "/tmp/test-variables.yaml" "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$USER:$TOKEN"
-        // TODO filter the OCP Console and password based in the cluster name $TEST_CLUSTER
-        # Read the file
-        file_content=$(cat /tmp/test-variables.yml)
-
-        # Extract the values
-        ocp_admin_user=$(echo "$file_content" | yq -r ".OCP_ADMIN_USER.USERNAME")
-        ocp_admin_pwd=$(echo "$file_content" | yq -r ".OCP_ADMIN_USER.PASSWORD")
-        ocp_console_url=$(echo "$file_content" | yq -r ".OCP_CONSOLE_URL")
-
-        echo "OCP_CONSOLE_URL: $ocp_console_url"
-        echo "OCP_ADMIN_USER: $ocp_admin_user/$ocp_admin_pwd"
-
+        curl -k -s -O "/tmp/test-variables.yaml" "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN"
         break
     elif [ "$job_status" != "null" ]; then
         echo "Job failed"
@@ -289,14 +277,16 @@ while true; do
     fi
 
     # Get the new console output
-    new_build_logs=$(curl -k -s "${BUILD_URL}/${job_id}/consoleText" -u "$USER:$TOKEN")
+    new_build_logs=$(curl -k -s "${BUILD_URL}/${job_id}/consoleText" -u "$JENKINS_USER:$JENKINS_TOKEN")
 
-    # Print the new lines
-    echo "${new_build_logs:$((${#build_logs}+1))}"
-
+    # Check if new logs are different from the previous logs
+    if [[ "$new_build_logs" != "$build_logs" ]]; then
+      # Print the new lines
+      echo "${new_build_logs:$((${#build_logs}+1))}"
+    fi
     # Update the build logs
     build_logs="$new_build_logs"
-
+    echo ${build_logs} >> ${REPORT_FILE}
     # Wait before polling the logs again
     sleep 2
 done

@@ -20,6 +20,8 @@ metadata:
   name: minio
   namespace: %minio_namespace%
 spec:
+  securityContext:
+    allowPrivilegeEscalation: false
   containers:
     - args:
         - server

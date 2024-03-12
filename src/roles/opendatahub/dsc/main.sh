@@ -58,6 +58,7 @@ then
   fi
 
   # Wait for istio pods are running
+  oc get ns istio-system > /dev/null 2>&1 ||  oc new-project istio-system > /dev/null 2>&1
   info "Wait for istio pods are running"
   wait_for_pods_ready "app=istiod" "istio-system"
   wait_for_pods_ready "app=istio-ingressgateway" "istio-system"

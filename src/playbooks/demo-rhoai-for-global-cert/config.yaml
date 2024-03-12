@@ -1,0 +1,89 @@
+playbook:
+  created_date: "20240221"
+  name: demo-rhoai-for-global-cert
+  support: "false"
+  description: Install dependent operators/Create DSCi with global cert/Generate certificate and apply it to Minio/Deploy KServe model. This playbook will show full steps how to use central ca to pull an model.
+  steps:
+   - unit:
+       name: install-serverless-stable-operator 
+   - unit:
+       name: install-ossm-stable-operator       
+   - unit:
+       name: install-odh-stable-operator
+       input_env:
+         CATALOGSOURCE_NAME: rhods-catalog-dev 
+         CHANNEL: fast 
+         OPERATOR_VERSION: v2.8.0-incubation 
+         CATALOGSOURCE_IMAGE: quay.io/opendatahub/opendatahub-operator-catalog:v2.8.0-incubation
+         OPERATOR_POD_PREFIX: "NONE"
+   - role: 
+       name: opendatahub-create-dsci
+   - role:
+       name: opendatahub-create-dsc
+       input_env:
+         ENABLE_KSERVE: Managed      
+         ENABLE_MODELMESH: Managed 
+         ENABLE_DASHBOARD: Managed       
+   - role:
+       name: shell-execute
+       description: add devflags for kserve
+       input_env:
+         DATASCIENCECLUSTER_NAME: rhoai    
+         COMMANDS: |
+          kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "https://github.com/jooho/kserve/tarball/test-manifests"},{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'
+   - role:
+       name: shell-execute
+       description: add devflags for modelmesh
+       input_env:
+         COMMANDS: |
+           kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'           
+   - unit:
+       name: deploy-ssl-minio
+       input_env:
+         ENABLE_SSL: "true"
+   - role:
+       name: shell-execute
+       description: Update DSCI for customCABundle that is root.crt for minio
+       input_env:
+         COMMANDS: |
+          kubectl patch DSCInitialization ${DSCI_NAME} --type=json -p="[{'op': 'replace', 'path': '/spec/trustedCABundle', 'value': {'managementState': 'Managed', 'customCABundle': \"${ROOT_CA_CERT_FILE_PATH}\"}}]"      
+   - role:
+       name: shell-execute
+       description: create kserve-demo ns and add labels for data science ns
+       input_env:
+         COMMANDS: |
+          oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
+   - role:
+       name: kserve-caikit-test
+       input_env:
+         MINIO_S3_SVC_URL: https://minio.minio.svc:9000 
+         MINIO_DEFAULT_BUCKET_NAME: modelmesh-example-models
+         MINIO_ACCESS_KEY_ID: admin 
+         MINIO_SECRET_ACCESS_KEY: password
+
+   - role:
+       name: shell-execute
+       description: deploy modelmesh 
+       input_env:
+         COMMANDS: |
+          oc label namespace kserve-demo modelmesh-enabled=true --overwrite=true %%
+          oc apply -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/main/Kserve/docs/Common/manifests/openvino-serving-runtime.yaml -n kserve-demo %%
+          oc patch servingruntime/ovms-1.x -p '{"spec":{"replicas":1}}' --type=merge -n kserve-demo %%
+          cat <<EOF| oc apply -f -
+          apiVersion: serving.kserve.io/v1beta1
+          kind: InferenceService
+          metadata:
+            name: example-onnx-mnist
+            namespace: kserve-demo
+            annotations:
+              serving.kserve.io/deploymentMode: ModelMesh
+          spec:
+            predictor:
+              model:
+                modelFormat:
+                  name: onnx
+                runtime: ovms-1.x
+                storage:
+                  key: aws-connection-minio
+                  path: onnx/mnist.onnx
+          EOF

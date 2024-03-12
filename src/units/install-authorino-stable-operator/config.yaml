@@ -1,0 +1,13 @@
+unit:
+  created_date: "20240311"
+  name: install-authorino-stable-operator      
+  description: This unit install the latest verion of Authorino operator using stable channel. 
+  steps:
+  - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: authorino-operator
+        OPERATOR_NAMESPACE: openshift-operators
+        OPERATOR_NAME: authorino-operator
+        CATALOGSOURCE_NAME: community-operators
+        OPERATOR_LABEL: "control-plane=authorino-operator"

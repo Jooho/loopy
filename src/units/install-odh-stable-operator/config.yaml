@@ -1,0 +1,13 @@
+unit:
+  created_date: "20240311"
+  name: install-odh-stable-operator
+  description: This unit install stable channel of opendatahub operator. This use OPERATOR_POD_PREFIX because the odh operator does not have unique label.
+  steps:
+  - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: opendatahub-operator
+        OPERATOR_NAMESPACE: openshift-operators
+        OPERATOR_NAME: opendatahub-operator
+        OPERATOR_LABEL: "name=error"
+        OPERATOR_POD_PREFIX: "opendatahub"

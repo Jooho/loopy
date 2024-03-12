@@ -2,11 +2,33 @@ unit:
   created_date: "20240221"
   name: test-kubectl
   description: This unit is to explain how to use shell-execute role.
-  steps:
-    - role:
-        name: shell-execute
-        input_env:
-          COMMANDS: |
-            oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
+  steps:    
+   - role:
+       name: shell-execute
+       description: deploy modelmesh 
+       input_env:
+         COMMANDS: |
+          oc label namespace kserve-demo modelmesh-enabled=true --overwrite=true %%
+          oc apply -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/main/Kserve/docs/Common/manifests/openvino-serving-runtime.yaml -n kserve-demo %%
+          oc patch servingruntime/ovms-1.x -p '{"spec":{"replicas":1}}' --type=merge -n kserve-demo %%
+          cat <<EOF| oc apply -f -
+          apiVersion: serving.kserve.io/v1beta1
+          kind: InferenceService
+          metadata:
+            name: example-onnx-mnist
+            namespace: kserve-demo
+            annotations:
+              serving.kserve.io/deploymentMode: ModelMesh
+          spec:
+            predictor:
+              model:
+                modelFormat:
+                  name: onnx
+                runtime: ovms-1.x
+                storage:
+                  key: aws-connection-minio
+                  path: onnx/mnist.onnx
+          EOF
     #(example)
-            # kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname
+    #       oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
+    #       kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname

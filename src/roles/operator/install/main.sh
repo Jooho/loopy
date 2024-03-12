@@ -124,7 +124,7 @@ then
 fi
 
 ############# VERIFY #############
-if [[ z$OPERATOR_POD_PREFIX != z ]]
+if [[ z$OPERATOR_POD_PREFIX != z && $OPERATOR_POD_PREFIX != "NONE" ]]
 then
   wait_counter=0
   while true; do
@@ -134,10 +134,10 @@ then
       wait_counter=$((wait_counter + 1))
       echo " Waiting 10 secs ..."
       sleep 10
-      if [[ $wait_counter -ge 1 ]]; then
+      if [[ $wait_counter -ge 30 ]]; then
         echo
         oc get pods -n $OPERATOR_NAMESPACE
-        error "Timed out after $((10 * wait_counter / 60)) minutes waiting for pod with prefix: $OPERATOR_POD_PREFIX"
+        error "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with prefix: $OPERATOR_POD_PREFIX"
         errorHappened="0"
         break
       fi

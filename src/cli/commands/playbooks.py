@@ -75,7 +75,6 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
 
             unit = Unit(unit_name)
             unit_config_data = utils.get_config_data_by_name( ctx, unit_name, "unit", unit_list )["unit"]
-
             # When Unit have multiple roles
             if "steps" in unit_config_data:
                 for index, step in enumerate(unit_config_data["steps"]):
@@ -87,7 +86,8 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                     if index == 0:
                         merged_unit_input_env_in_py_with_role_input_env = {**unit_input_env_in_playbook, **additional_input_env} if unit_input_env_in_playbook and additional_input_env else (unit_input_env_in_playbook or additional_input_env or {})
                         role = Role( ctx, index, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
-                    role = Role( ctx, index, role_list, role_name, params, None, additional_input_env )
+                    else:
+                        role = Role( ctx, index, role_list, role_name, params, None, additional_input_env )
                     unit.add_component(role)
             # When Unit have single role
             else:
@@ -147,23 +147,32 @@ def get_config_data(config_file_dir):
 def display_playbook_info(ctx, playbook_name, playbook_path, detail_information):
     playbook_config_data = get_config_data(playbook_path)["playbook"]
     steps = playbook_config_data["steps"]
-
+    role_path=""
+    role_name=""
+    unit_path=""
+    unit_name=""
+    # If the first step is role
     if "role" in steps[0]:
         for role in role_list:
             if steps[0]["role"]["name"] == role["name"]:
                 role_path = role["path"]
                 role_name = role["name"]
         role_config_data = get_config_data(role_path)["role"]
+    # If the first step is not role    
     else:
         for unit in unit_list:
             if steps[0]["unit"]["name"] == unit["name"]:
                 unit_path = unit["path"]
                 unit_name = unit["name"]
+        # Get the first unit config data        
         unit_config_data = get_config_data(unit_path)["unit"]
+        # Get steps for role in the first unit
+        unit_steps=unit_config_data['steps']
         for role in role_list:
-            if unit_config_data["role"]["name"] == role["name"]:
+            # Get the first role in the unit steps
+            if unit_steps[0]["role"]["name"] == role["name"]:
                 role_path = role["path"]
-                role_name = role["name"]
+                role_name = role["name"]    
         role_config_data = get_config_data(role_path)["role"]
 
     required_role_input_keys = Get_required_input_keys(ctx, role_path, role_name)
@@ -180,9 +189,15 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
     click.echo(f"{Fore.BLUE}Playbook Steps:{Style.RESET_ALL}")
     for step in steps:       
         if "role" in step:
-            click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['name']}{Style.RESET_ALL}")
+            if 'description' in step['role']:
+                click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['description']}{Style.RESET_ALL}")
+            else:
+                click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['name']}{Style.RESET_ALL}")
         else:
-            click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['name']}{Style.RESET_ALL}")
+            if 'description' in step['unit']:
+                click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['description']}{Style.RESET_ALL}")
+            else:                
+                click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['name']}{Style.RESET_ALL}")
             
     if detail_information:
         if "unit" in steps[0]:
@@ -218,7 +233,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
             # Process required input keys without values in unit input values
             final_no_value_keys = []
             if len(no_value_keys_in_py) > 0:
-                unit_env_list = unit_config_data["role"].get("input_env", {})
+                unit_env_list = unit_config_data['steps'][0]["role"].get("input_env", {})
                 for required_role_input_key_without_value in no_value_keys_in_py:
                     if required_role_input_key_without_value in unit_env_list:
                         role_input_env = unit_env_list[required_role_input_key_without_value]

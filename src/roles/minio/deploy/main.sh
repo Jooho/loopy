@@ -41,6 +41,10 @@ fi
 check_oc_status
 
 oc get ns ${MINIO_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${MINIO_NAMESPACE} > /dev/null 2>&1 
+oc label namespace ${MINIO_NAMESPACE} pod-security.kubernetes.io/enforce=baseline --overwrite
+oc label namespace ${MINIO_NAMESPACE} pod-security.kubernetes.io/warn=baseline --overwrite
+oc label namespace ${MINIO_NAMESPACE} pod-security.kubernetes.io/audit=baseline  --overwrite
+
 sed -e \
 "s+%access_key_id%+$ACCESS_KEY_ID+g; \
  s+%secret_access_key%+$SECRET_ACCESS_KEY+g; \

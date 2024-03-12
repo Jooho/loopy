@@ -269,7 +269,7 @@ while true; do
     # Break the loop if the job is finished
     if [ "$job_status" == "SUCCESS" ]; then
         # Download the file to a specific directory
-        curl -k -s -O "/tmp/test-variables.yaml" "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN"
+        curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
         break
     elif [ "$job_status" != "null" ]; then
         echo "Job failed"

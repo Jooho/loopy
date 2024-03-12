@@ -87,4 +87,4 @@ echo "CLUSTER_TOKEN=${cluster_token}" >> ${OUTPUT_ENV_FILE}
 echo "CLUSTER_TYPE=${cluster_type}" >> ${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
-echo ${role_name}::${OPERATOR_NAME}::$? >> ${REPORT_FILE}
+echo ${role_name}::${install-clusetr}::$? >> ${REPORT_FILE}

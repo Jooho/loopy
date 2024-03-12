@@ -30,14 +30,6 @@ We can also build a specific build from brew, to do so, you can use the followin
 ./install.sh -u <JENKINS_USER> -t <JENKINS_TOKEN> -j <JENKINS_JOB_URL> -b <ODS_BUILD_URL>
 ```
 
-## Cluster Deletion
-
-```bash
-./uninstall -u <JENKINS_USER> -t <JENKINS_TOKEN> -j <JENKINS_JOB_URL> -n <CLUSTER_NAME> -e <CLUSTER_CONSOLE_URL>
-}
-```
 
 TODO: improvements:
 - find a way to query if the cluster is already running.
-- find a way to delete the cluster after the tests are done (For how long can we have the cluster running?)
-- add uninstall script to delete the cluster

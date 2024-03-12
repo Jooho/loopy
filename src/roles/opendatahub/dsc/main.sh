@@ -89,7 +89,7 @@ oc apply -f ${ROLE_DIR}/$(basename $dsc_manifests_path)
 ############# VERIFY #############
 info "Veirfy role"
 errorHappened=0 # 0 is true, s1 is false
-result=1
+result=0
 if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
   knative_result=1
@@ -117,6 +117,7 @@ then
     knative_result=0
   else
     errorHappened=1
+    result=1
   fi
 fi
 
@@ -132,7 +133,8 @@ then
     success "[SUCCESS] Successfully deployed KServe operator!"
     kserve_result=0
   else
-    errorHappened=1  
+    errorHappened=1
+    result=1  
   fi 
 fi
 
@@ -148,7 +150,8 @@ then
     success "[SUCCESS] Successfully deployed ModelMesh operator!"
     modelmesh_result=0
   else
-    errorHappened=0
+    errorHappened=1
+    result=1
   fi
 fi
 
@@ -162,7 +165,8 @@ then
     success "[SUCCESS] Successfully deployed Dashboard!"
     dashboard_result=0
   else
-    errorHappened=0   
+    errorHappened=1
+    result=1   
   fi
 fi
 
@@ -182,3 +186,20 @@ fi
 
 ############# REPORT #############
 echo ${index_role_name}::create-dsc::$result >> ${REPORT_FILE}
+
+if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Managed" ]]
+then
+  echo ${index_role_name}::create-dsc::knative::$knative_result >> ${REPORT_FILE}
+fi
+if [[ ${ENABLE_KSERVE} == "Managed" ]]
+then
+  echo ${index_role_name}::create-dsc::kserve::$kserve_result >> ${REPORT_FILE}
+fi
+if [[ ${ENABLE_MODELMESH} == "Managed" ]]
+then
+  echo ${index_role_name}::create-dsc::modelmesh::$modelmesh_result >> ${REPORT_FILE}
+fi
+if [[ ${ENABLE_DASHBOARD} == "Managed" ]]
+then
+  echo ${index_role_name}::create-dsc::dashboard::$dashboard_result >> ${REPORT_FILE}
+fi

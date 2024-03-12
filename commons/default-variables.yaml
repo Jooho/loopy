@@ -6,6 +6,7 @@ operator:
   catalogsource_displayname: custom catalogsource
   catalogsource_publisher: custom catalogsource
   operator_version: latest
+  operator_pod_prefix: NONE
 openshift:
   type: psi  
 

@@ -16,7 +16,7 @@ playbook:
             oc delete mutatingwebhookconfiguration inferenceservice.serving.kserve.io     %%
 
             # Test NS
-            oc delete pod,isvc,servingruntime --force --grace-period=0 -n kserve-demo     %%
+            oc delete pod,isvc,servingruntime --all --force --grace-period=0 -n kserve-demo     %%
             oc patch ns kserve-demo -p '{"metadata": {"finalizers": []}}' --type=merge    %%
             oc delete ns kserve-demo --force --grace-period=0                             %%
 
@@ -45,6 +45,7 @@ playbook:
             oc patch ns rhoai-serverless -p '{"metadata": {"finalizers": []}}' --type=merge %%
             oc patch ns knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %%
             oc patch ns knative-eventing -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc delete pod,deployment,all --all -n knative-serving  --force --grace-period=0  %%
             oc patch knativeservings.operator.knative.dev knative-serving -n knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %% 
             oc delete knativeservings.operator.knative.dev --all -n knative-serving --force --grace-period=0 %%
 
@@ -58,10 +59,18 @@ playbook:
             oc patch ns opendatahub -p '{"metadata": {"finalizers": []}}' --type=merge      %% 
             oc delete ns opendatahub --force --grace-period=0                               %%
 
-            sm_csv_name=$(oc get csv -n openshift-operators | grep servicemeshoperator|awk '{print $1}')  %%
-            oc delete csv $sm_csv_name -n openshift-operators %%
+            # openshift-operators
+            oc delete sub opendatahub-operator --force --grace-period=0 -n openshift-operators   %%
+            oc delete csv -n openshift-operators $(oc get csv -n openshift-operators |grep opendatahub|awk '{print $1}') %%
 
-            sl_csv_name=$(oc get csv -n openshift-operators | grep serverless-operator|awk '{print $1}')  %%
-            oc delete csv $sm_csv_name -n openshift-serverless %%
+            oc delete sub authorino-operator --force --grace-period=0 -n openshift-operators   %%
+            oc delete csv -n openshift-operators $(oc get csv -n openshift-operators |grep authorino-operator|awk '{print $1}') %%
+            
+            oc delete sub servicemeshoperator --force --grace-period=0 -n openshift-operators   %%
+            
+            oc delete csv $(oc get csv -n openshift-operators | grep servicemeshoperator|awk '{print $1}') -n openshift-operators %%
+
+            oc delete sub serverless-operator --force --grace-period=0 -n openshift-operators  %%
+            oc delete csv $(oc get csv -n openshift-operators | grep serverless-operator|awk '{print $1}') -n openshift-serverless %%
 
             oc delete csv OperatorGroup serverless-operators -n openshift-serverless  %%

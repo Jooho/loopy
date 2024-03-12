@@ -56,12 +56,12 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                 steps = playbook_config_vars["playbook"]["steps"]
 
     playbook = Playbook(playbook_name)
-    for index, step in enumerate(steps):
+    for py_index, step in enumerate(steps):
         if list(step)[0] == "role":
             role_name = step["role"]["name"]
             additional_input_env = utils.get_input_env_from_config_data(step["role"])
             role = Role(
-                ctx, index, role_list, role_name, params, None, additional_input_env
+                ctx, py_index, role_list, role_name, params, None, additional_input_env
             )
             if additional_input_env is not None:
                 unit = Unit(role_name + "-unit")
@@ -85,9 +85,9 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                     additional_input_env = utils.get_input_env_from_config_data( step["role"] )
                     if index == 0:
                         merged_unit_input_env_in_py_with_role_input_env = {**unit_input_env_in_playbook, **additional_input_env} if unit_input_env_in_playbook and additional_input_env else (unit_input_env_in_playbook or additional_input_env or {})
-                        role = Role( ctx, index, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
+                        role = Role( ctx, py_index+index, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
                     else:
-                        role = Role( ctx, index, role_list, role_name, params, None, additional_input_env )
+                        role = Role( ctx, py_index+index, role_list, role_name, params, None, additional_input_env )
                     unit.add_component(role)
             # When Unit have single role
             else:

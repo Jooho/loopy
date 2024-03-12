@@ -154,6 +154,7 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
                 echo 0
                 return 
             else
+                info "return code is not 200. retry"
                 sleep $interval
             fi
         done

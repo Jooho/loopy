@@ -205,6 +205,7 @@ def get_output_env_file_path(index,output_dir,role_config_dir_path,param_output_
         else:
             if index is not None:
                 target_output_file_path=os.path.join(output_dir,f"{index}.{target_component_vars['role']['name']}-output.sh")
+                print(f"{target_output_file_path}")
             else:                
                 target_output_file_path=os.path.join(output_dir,target_component_vars["role"]["name"] +"-output.sh")
     return target_output_file_path

@@ -41,6 +41,8 @@ else
 fi
 check_oc_status
 
+oc get ns istio-system > /dev/null 2>&1 ||  oc new-project istio-system > /dev/null 2>&1
+
 if [[ ${OPENDATAHUB_TYPE} == "rhoai" ]]
 then
   opendatahub_namespace="redhat-ods-applications"

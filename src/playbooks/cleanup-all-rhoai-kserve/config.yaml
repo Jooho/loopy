@@ -1,0 +1,67 @@
+playbook:
+  created_date: "20240311"
+  support: "false"
+  description: Clean up all objects related for kserve/rhoai.
+  steps:
+   - role:
+       name: shell-execute
+       input_env:
+         COMMANDS: |
+            # webhook
+            oc delete validatingwebhookconfiguration inferencegraph.serving.kserve.io     %%
+            oc delete validatingwebhookconfiguration inferenceservice.serving.kserve.io   %%
+            oc delete validatingwebhookconfiguration modelmesh-servingruntime.serving.kserve.io   %%
+            oc delete validatingwebhookconfiguration servingruntime.serving.kserve.io     %%
+            oc delete validatingwebhookconfiguration trainedmodel.serving.kserve.io       %%
+            oc delete mutatingwebhookconfiguration inferenceservice.serving.kserve.io     %%
+
+            # Test NS
+            oc delete pod,isvc,servingruntime --force --grace-period=0 -n kserve-demo     %%
+            oc patch ns kserve-demo -p '{"metadata": {"finalizers": []}}' --type=merge    %%
+            oc delete ns kserve-demo --force --grace-period=0                             %%
+
+            oc delete pod --all --force --grace-period=0                                  %%
+            oc delete ns minio --force --grace-period=0                                   %%
+
+            # Delete Kserve
+            oc patch dsc rhoai -p '{"metadata": {"finalizers": []}}' --type=merge         %%
+            oc patch dsci default-dsci -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc delete dsc --all --force --grace-period=0                                  %%
+            oc delete dsci --all --force --grace-period=0                                 %%
+            sleep 10                                                                      %%
+            oc delete pods -n redhat-ods-applications --all --force --grace-period=0      %%
+            oc delete ns redhat-ods-applications --force --grace-period=0                 %%
+
+            # Delete redhat-ods-operator
+            oc delete sub,pod --all --force --grace-period=0 -n redhat-ods-operator        %% 
+            oc patch ns redhat-ods-operator -p '{"metadata": {"finalizers": []}}' --type=merge  %%
+            oc delete ns redhat-ods-operator redhat-ods-monitoring --force --grace-period=0 %%
+
+            # Dependences
+            oc delete ServiceMeshControlPlane,pod --all -n istio-system --force --grace-period=0  -n istio-system %%
+            oc delete smmr,smm --all --force --grace-period=0  -n istio-system %%
+
+            oc delete KnativeServing,pod --all -n rhoai-serverless --force --grace-period=0 %%
+            oc patch ns rhoai-serverless -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc patch ns knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %%
+            oc patch ns knative-eventing -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc patch knativeservings.operator.knative.dev knative-serving -n knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %% 
+            oc delete knativeservings.operator.knative.dev --all -n knative-serving --force --grace-period=0 %%
+
+            oc delete ns rhoai-serverless knative-serving knative-eventing                  %%
+ 
+            oc patch ns istio-system -p '{"metadata": {"finalizers": []}}' --type=merge     %%
+            oc delete ns istio-system                                                       %%
+
+            # OPENDATAHUB
+            oc delete sub,pod --all --force --grace-period=0 -n opendatahub                 %%
+            oc patch ns opendatahub -p '{"metadata": {"finalizers": []}}' --type=merge      %% 
+            oc delete ns opendatahub --force --grace-period=0                               %%
+
+            sm_csv_name=$(oc get csv -n openshift-operators | grep servicemeshoperator|awk '{print $1}')  %%
+            oc delete csv $sm_csv_name -n openshift-operators %%
+
+            sl_csv_name=$(oc get csv -n openshift-operators | grep serverless-operator|awk '{print $1}')  %%
+            oc delete csv $sm_csv_name -n openshift-serverless %%
+
+            oc delete csv OperatorGroup serverless-operators -n openshift-serverless  %%

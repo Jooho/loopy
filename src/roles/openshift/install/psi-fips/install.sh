@@ -263,16 +263,15 @@ echo "$build_logs"
 
 # Poll the console output until the job is finished
 while true; do
-    # Get the job status
-    job_status=$(curl -k -s "${BUILD_URL}/${job_id}/api/json" -u "$JENKINS_USER:$JENKINS_TOKEN" | jq -r .result)
+    # Get the job status, ignore errors in case the response is not valid
+    job_status=$(curl -k -s "${BUILD_URL}/${job_id}/api/json" -u "$JENKINS_USER:$JENKINS_TOKEN" | jq -r .result 2>/dev/null)
 
     # Break the loop if the job is finished
     if [ "$job_status" == "SUCCESS" ]; then
-        # Download the file to a specific directory
-        curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
+        echo "Job finished successfully"
         break
-    elif [ "$job_status" != "null" ]; then
-        echo "Job failed"
+    elif [ "$job_status" != "null" ] && [ "$job_status" != "SUCCESS" ]; then
+        echo "Job failed with status ${job_status}"
         exit 1
     fi
 
@@ -290,3 +289,8 @@ while true; do
     # Wait before polling the logs again
     sleep 2
 done
+
+# Download the file to a specific directory
+echo "Downloading the test-variables.yml file...."
+curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
+

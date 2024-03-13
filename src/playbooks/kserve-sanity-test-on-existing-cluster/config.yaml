@@ -8,11 +8,13 @@ playbook:
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
   steps:
    - unit:
+       name: install-authorino-stable-operator             
+   - unit:
+       name: install-rhoai-stable-operator      
+   - unit:
        name: install-serverless-stable-operator         
    - unit:
        name: install-ossm-stable-operator                
-   - unit:
-       name: install-rhoai-stable-operator      
    - unit:
        name: deploy-rhoai-kserve
    - role:

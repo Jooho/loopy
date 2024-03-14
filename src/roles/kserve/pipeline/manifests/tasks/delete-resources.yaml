@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: delete-resources-task
+spec:
+  results:
+    - name: output
+      description: Generic output you can use as a result
+  params:
+    - name: OC_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+    - name: WORKING_NAMESPACE
+      type: string
+  steps:
+    - name: clean
+      image: $(params.OC_IMAGE)
+      script: |
+        # delete runtimes
+        # add the storage-config secret for minio credentials
+        oc delete InferenceService,ServingRuntime,Secrets --selector=pipeline=caikit-pipeline-test -n $(params.WORKING_NAMESPACE) --wait=true --timeout=60s --ignore-not-found
+      resources: {}

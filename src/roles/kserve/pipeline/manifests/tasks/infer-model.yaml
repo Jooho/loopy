@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: infer-model-task
+spec:
+  workspaces:
+    - name: source
+  results:
+    - name: output
+      description: Generic output you can use as a result
+  params:
+    - name: PROTOCOL
+      description: Protocol enabled in the CaiKit Runtime, defaults to http.
+      type: string
+      default: https
+    - name: PYTHON_IMAGE
+      description: Image to be used for the CaiKit Runtime, defaults to python:3.9.
+      type: string
+  steps:
+    - name: deploy-caikit-runtime
+      image: $(params.PYTHON_IMAGE)
+      script: |
+        cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
+        pip install -r requirements-infer.txt
+        echo "########################################################################"
+        echo "executing python infer-model.py -p $(params.PROTOCOL)"
+        # the endpoint parameter should be provided by configuration file from previous task (deploy-isvc)
+        python infer-model.py -p $(params.PROTOCOL)
+      resources: {}

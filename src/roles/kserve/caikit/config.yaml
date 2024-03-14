@@ -51,7 +51,7 @@ role:
       description: kserve support 2 storage-config secret types(json,annotation)
 
     - name: USE_DATA_CONNECTION
-      description: By default, the storage-config secret will be created by data-conneciton. So creating data connection would be the right way to get `storage-config` json style of secret.
+      description: By default, the storage-config secret will be created by data-connection. So creating data connection would be the right way to get `storage-config` json style of secret.
 
     - name: TEST_NAMESPACE
       description: The namespace where the caikit runtime is running

@@ -1,0 +1,3 @@
+kserve==0.11.2
+kubernetes
+jproperties

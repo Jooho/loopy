@@ -51,7 +51,6 @@ role:
     
     - name: CHANNEL
       description: Subscription channel
-      default: stable
     
     - name: INSTALL_APPROVAL
       description: Upgrade plan approval (Automatic/Manual)
@@ -74,11 +73,9 @@ role:
 
     - name: OPERATORGROUP_CREATE
       description: Set false, the namespace already have operator group. Automatically it will set to false if OPERATOR_NAMESPACE is `openshift-operators`
-      default: "true"
 
     - name: CONFIG_ENV
       description: Set this, if you want to add config.env.(ex "name=DISABLE_DSC_CONFIG")
-      default: ""
       
     - name: CLUSTER_API_URL
       description: openshift api url

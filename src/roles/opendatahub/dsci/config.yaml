@@ -13,10 +13,10 @@ role:
       description: The name of dsc object
 
     - name: ENABLE_SERVICEMESH
-      descrption: Install OSSM (Managed,Removed)
+      description: Install OSSM (Managed,Removed)
 
     - name: ENABLE_MONITORING
-      descrption: Install monitoring (Managed,Removed)
+      description: Install monitoring (Managed,Removed)
       
     - name: CLUSTER_TYPE
       description: openshift platform

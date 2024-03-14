@@ -24,19 +24,19 @@ role:
   input_env:
     - name: MINIO_S3_SVC_URL
       required: true
-      descrption: The minio url that contains test models
+      description: The minio url that contains test models
 
     - name: MINIO_DEFAULT_BUCKET_NAME
       required: true
-      descrption: The minio bucket name that contains test models
+      description: The minio bucket name that contains test models
 
     - name: MINIO_ACCESS_KEY_ID
       required: true
-      descrption: The minio id that contains test models
+      description: The minio id that contains test models
 
     - name: MINIO_SECRET_ACCESS_KEY
       required: true    
-      descrption: The minio password that contains test models
+      description: The minio password that contains test models
 
     - name: CAIKIT_ARCH_TYPE
       description: caikit supports 2 architectures (caikit_tgis, caikit_standalone ) - caikit_standalone is tbd

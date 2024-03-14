@@ -13,7 +13,7 @@ role:
       description: The name of dsc object
 
     - name: ENABLE_CODEFLARE
-      descrption: Deploy code flare (Removed, Managed)
+      description: Deploy code flare (Removed, Managed)
 
     - name: ENABLE_DASHBOARD
       description: Deploy dashboard (Removed, Managed)
@@ -28,7 +28,7 @@ role:
       description: Deploy serverless dependencies
 
     - name: ENABLE_MODELMESH
-      desription: Deploy modelmesh (Removed, Managed)
+      description: Deploy modelmesh (Removed, Managed)
 
     - name: ENABLE_RAY
       description: Deploy ray (Removed, Managed)

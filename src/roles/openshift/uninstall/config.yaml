@@ -10,7 +10,6 @@ role:
     # be reused for rosa and psi options
     - name: TEST_CLUSTERS
       description: List of clusters to test (optional), comma separated, defaults to ods-ci-fips-ms
-      default: ods-ci-fips-ms
     - name: JENKINS_JOB_URL
       description: Jenkins Job URL.
     - name: JENKINS_USER
@@ -18,7 +17,6 @@ role:
     - name: JENKINS_TOKEN
       description: Jenkins Token
     - name: EXTRA_PARAMS
-      description: Extra parameters for for installing the fips enabled cluster, for all available use -h
-      example: -em email@test.com -n clustername
+      description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"
     # end of FIPS enabled cluster
 

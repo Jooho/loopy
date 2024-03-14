@@ -6,9 +6,18 @@ operator:
   catalogsource_displayname: custom catalogsource
   catalogsource_publisher: custom catalogsource
   operator_version: latest
-  operator_pod_prefix: NONE
+  operattor_group_create: "true"
+  config_env: ""
+  csv_delete: "true"
+  catalogsource_delete: "false"
+
 openshift:
-  type: psi  
+  # install
+  type: psi
+  cluster_name: model-serving-test-cluster
+  machine_pool_type: m5.2xlarge
+  # uninstall
+  test_clusters: ods-ci-fips-ms
 
 opendatahub:
   opendatahub_type: opendatahub
@@ -57,3 +66,12 @@ cli:
   output_artifacts_dir: artifacts
   output_report_file: report
   stop_when_failed: "false"
+
+pipeline:
+  git_url: https://github.com/JooHo/loopy.git
+  git_revision: main
+  working_namespace: pipeline-test
+  python_image: registry.redhat.io/ubi9/python-39:latest
+  oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+  isvc_deployment_verbose: "true"
+  keep_namespace: "false"

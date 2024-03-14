@@ -17,7 +17,6 @@ role:
       
     - name: CSV_DELETE
       description: Set false, if you want to leave CSV.
-      default: "true"
 
     - name: CATALOGSOURCE_NAME
       description: The catalog source name that contains the target operator
@@ -27,7 +26,6 @@ role:
 
     - name: CATALOGSOURCE_DELETE
       description: Set 'true' to delete catalogsource
-      default: "false"
       
     - name: CLUSTER_API_URL
       description: openshift api url

@@ -33,7 +33,9 @@ if [ ${CLUSTER_TYPE} = "FIPS" ]; then
   if [ "${EXTRA_PARAMS}" = "-h" ]; then
     ${current_dir}/psi-fips/uninstall.sh -h
     exit 0
-  fi
+fi
+  echo "asd $TEST_CLUSTERS"
+  exit 1
 
   # call the install.sh script
   echo "Calling the uninstall.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} -n ${TEST_CLUSTERS} ${EXTRA_PARAMS}"

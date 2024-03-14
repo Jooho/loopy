@@ -41,7 +41,8 @@ properties:
             description:
               type: string
             required:
-              type: boolean
+              type: boolean          
+          additionalProperties: false    
       output_env:
         type: array
         items:

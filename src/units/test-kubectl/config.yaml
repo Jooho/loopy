@@ -5,6 +5,7 @@ unit:
   steps: 
     - role:
         name: cert-generate
+        description: "generate certificate"
         input_env:
           SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
           STOP_WHEN_FAILED: "True"
@@ -17,8 +18,8 @@ unit:
           echo ${crt_content}  %%
           export crt_content=${ROOT_CA_CERT_FILE_PATH}           %%
           echo ${ROOT_CA_CERT_FILE_PATH} %%
-          echo ${crt_content}  %%
-          kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $crt_content)"'"}]' %%
+          echoe ${crt_content}  %%
+          # kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $crt_content)"'"}]' %%
           # oc delete pod --all -n kserve-demo %%
 
           # oc label namespace kserve-demo modelmesh-enabled=true --overwrite=true %%

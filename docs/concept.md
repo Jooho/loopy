@@ -1,7 +1,8 @@
 # Loopy Concept
 Loopy is TEST Framework that anybody can create a test script simply with your favorite language. Loopy is using environment variable to pass information between tests. The main concept is similar to ansible. Role is the smallest component and Unit will include Role with specific input data. The playbook can 
 
-
+Requirement:
+- python 3.10
 
 Loopy is using 3 components:
 - role

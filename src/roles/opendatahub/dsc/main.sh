@@ -98,7 +98,6 @@ then
   wait_for_pods_ready "app=net-istio-controller" "knative-serving"
   wait_for_pods_ready "app=net-istio-webhook" "knative-serving"
   wait_for_pods_ready "app=autoscaler-hpa" "knative-serving"
-  wait_for_pods_ready "app=domain-mapping" "knative-serving"
   wait_for_pods_ready "app=webhook" "knative-serving"
   wait_for_pods_ready "app=activator" "knative-serving"
   wait_for_pods_ready "app=autoscaler" "knative-serving"
@@ -107,7 +106,6 @@ then
   oc wait --for=condition=ready pod -l app=net-istio-controller -n knative-serving --timeout=10s
   oc wait --for=condition=ready pod -l app=net-istio-webhook -n knative-serving --timeout=10s
   oc wait --for=condition=ready pod -l app=autoscaler-hpa -n knative-serving --timeout=10s
-  oc wait --for=condition=ready pod -l app=domain-mapping -n knative-serving --timeout=10s
   oc wait --for=condition=ready pod -l app=webhook -n knative-serving --timeout=10s
   oc wait --for=condition=ready pod -l app=activator -n knative-serving --timeout=10s
   oc wait --for=condition=ready pod -l app=autoscaler -n knative-serving --timeout=10s
@@ -116,6 +114,7 @@ then
     success "[SUCCESS] KNative pods are running properly" 
     knative_result=0
   else
+    error "[FAIL] Failed to deploy KNative pods" 
     errorHappened=1
     result=1
   fi
@@ -124,15 +123,18 @@ fi
 if [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
   kserve_result=1
-  info "- Checking if KServer pod is running"
+  info "- Checking if KServe pod is running"
   wait_for_pods_ready "control-plane=kserve-controller-manager" "${opendatahub_namespace}"
   kserve_result=$?
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
-  if [[ kserve_result == 0 && $? == 0 ]]
+  odh-model-controller_result=$?
+  if [[ kserve_result != 1 && odh-model-controller_result != 1 ]]
   then
-    success "[SUCCESS] Successfully deployed KServe operator!"
+    success "[SUCCESS] Successfully deployed KServe//odh-model-controller operator!"
     kserve_result=0
   else
+    error "KServe: ${kserve_result}/ odh-model-controller: ${odh-model-controller_result}"
+    error "[FAIL] Failed to deploy KServe operator!"
     errorHappened=1
     result=1  
   fi 
@@ -145,11 +147,14 @@ then
   wait_for_pods_ready "control-plane=modelmesh-controller" "${opendatahub_namespace}"
   modelmesh_result=$?
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
-  if [[ modelmesh_result == 0 && $? == 0 ]]
+  odh-model-controller_result=$?
+  if [[ modelmesh_result != 1 && odh-model-controller_result != 1 ]]
   then
-    success "[SUCCESS] Successfully deployed ModelMesh operator!"
+    success "[SUCCESS] Successfully deployed ModelMesh/odh-model-controller operator!"
     modelmesh_result=0
   else
+    error "KServe: ${kserve_result}/ odh-model-controller: ${odh-model-controller_result}"
+    error "[FAIL] Failed to deploy ModelMesh operator!"
     errorHappened=1
     result=1
   fi
@@ -158,13 +163,14 @@ fi
 if [[ ${ENABLE_DASHBOARD} == "Managed" ]]
 then
   dashboard_result=1
-  info "- Checking if Modelmesh pods are running"
+  info "- Checking if Dashboard pods are running"
   wait_for_pods_ready "deployment=odh-dashboard" "${opendatahub_namespace}"
   if [[ $? == 0 ]]
   then
     success "[SUCCESS] Successfully deployed Dashboard!"
     dashboard_result=0
   else
+    error "[FAIL] Failed to deploy Dashboard!"
     errorHappened=1
     result=1   
   fi
@@ -185,21 +191,21 @@ fi
 
 
 ############# REPORT #############
-echo ${index_role_name}::create-dsc::$result >> ${REPORT_FILE}
+echo ${index_role_name}::$result >> ${REPORT_FILE}
 
 if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
-  echo ${index_role_name}::create-dsc::knative::$knative_result >> ${REPORT_FILE}
+  echo "#${index_role_name}::knative::$knative_result" >> ${REPORT_FILE}
 fi
 if [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
-  echo ${index_role_name}::create-dsc::kserve::$kserve_result >> ${REPORT_FILE}
+  echo "#${index_role_name}::kserve::$kserve_result" >> ${REPORT_FILE}
 fi
 if [[ ${ENABLE_MODELMESH} == "Managed" ]]
 then
-  echo ${index_role_name}::create-dsc::modelmesh::$modelmesh_result >> ${REPORT_FILE}
+  echo "#${index_role_name}::modelmesh::$modelmesh_result" >> ${REPORT_FILE}
 fi
 if [[ ${ENABLE_DASHBOARD} == "Managed" ]]
 then
-  echo ${index_role_name}::create-dsc::dashboard::$dashboard_result >> ${REPORT_FILE}
+  echo "#${index_role_name}::dashboard::$dashboard_result" >> ${REPORT_FILE}
 fi

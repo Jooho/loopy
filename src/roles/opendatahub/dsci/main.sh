@@ -67,7 +67,7 @@ oc apply -f ${ROLE_DIR}/$(basename $dsci_manifests_path)
 
 ############# VERIFY #############
 result=1
-dsci_count=$(oc get dsci |wc -l)
+dsci_count=$(oc get dsci --no-headers|wc -l)
 if [[ $dsci_count == 1 ]]
 then
   result=0
@@ -77,4 +77,4 @@ fi
 
 
 ############# REPORT #############
-echo ${index_role_name}::create-dsci::$result >> ${REPORT_FILE}
+echo ${index_role_name}::$result >> ${REPORT_FILE}

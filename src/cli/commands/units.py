@@ -13,6 +13,7 @@ role_list = utils.initialize("./src/roles", "role")
 
 @click.command(name="list")
 def list_units():
+    utils.summary()
     click.echo("Available utils:")
     for unit in unit_list:
         click.echo(f" - {unit['name']}")
@@ -22,7 +23,7 @@ def list_units():
 @click.argument("unit_name")
 @click.option("-v", "--detail-information",is_flag=True)
 @click.pass_context
-def show_unit(ctx, unit_name,detail_information):
+def show_unit(ctx, unit_name,detail_information):    
     verify_unit_exist(unit_name)
     for item in unit_list:
         if unit_name == item["name"]:
@@ -40,8 +41,8 @@ def show_unit(ctx, unit_name,detail_information):
 def run_unit(
     ctx, unit_name, params=None, output_env_file_name=None, input_env_file=None
 ):
-    click.echo(f"Running unit {unit_name} with input file: {input}")
-
+    utils.print_logo()
+    click.echo(f"Running unit {unit_name}")
     verify_unit_exist(unit_name)
     verify_if_param_exist_in_unit(params, unit_name, unit_list)
 
@@ -51,13 +52,11 @@ def run_unit(
 
     # Create Unit component
     unit = Unit(unit_name)
-    unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)[
-        "unit"
-    ]
+    unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)
 
     # When Unit have multiple roles
-    if "steps" in unit_config_data:
-        for index, step in enumerate(unit_config_data["steps"]):
+    if "steps" in unit_config_data['unit']:
+        for index, step in enumerate(unit_config_data['unit']["steps"]):
             if list(step)[0] != "role":
                 click.echo("Unit can not include another unit in the steps")
                 exit(1)
@@ -65,12 +64,13 @@ def run_unit(
             additional_input_env = utils.get_input_env_from_config_data(step["role"])
             role = Role( ctx, index, role_list, role_name, params, None, additional_input_env )
             unit.add_component(role)
-    # When Unit have single role
+    # When Unit have single role(Deprecated)
     else:
         additional_input_env = utils.get_input_env_from_config_data( unit_config_data["role"] )
         role = Role( ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name(unit_name, unit_list), params, output_env_file_name, additional_input_env )
         unit.add_component(role)
     unit.start()
+    utils.summary(ctx, "unit", unit_config_data,unit_list)
 
 
 def verify_unit_exist(unit_name):

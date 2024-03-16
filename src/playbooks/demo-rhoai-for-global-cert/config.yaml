@@ -35,6 +35,7 @@ playbook:
        name: shell-execute
        description: add devflags for modelmesh
        input_env:
+         DATASCIENCECLUSTER_NAME: rhoai   
          COMMANDS: |
            kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'           
    - unit:

@@ -5,5 +5,5 @@ unit:
   - role:
       name: opendatahub-create-dsc
       input_env:
-        OPENDATAHUB_TYPE: rhoai
+        OPENDATAHUB_TYPE: opendatahub
     

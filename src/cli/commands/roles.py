@@ -31,6 +31,7 @@ def show_role(ctx, role_name):
 @click.argument("role_name")
 def test_role(role_name):
     click.echo(f"Running tests for role: {role_name}")
+    click.echo(f"THIS COMMAND is not implemented")
     # Add your implementation here
 
 
@@ -41,6 +42,7 @@ def test_role(role_name):
 @click.option("-i", "--input-env-file")
 @click.pass_context
 def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_file=None):
+    utils.print_logo()
     # role command specific validation
     verify_role_exist(role_name)
     verify_if_param_exist_in_role(params, role_name)
@@ -51,6 +53,7 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
 
     role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
     role.start()
+    utils.summary(ctx, "role", None,None)
 
 def verify_role_exist(role_name):
     for item in role_list:

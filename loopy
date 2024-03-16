@@ -4,7 +4,7 @@ import os
 import sys
 import yaml
 from datetime import datetime
-from config import update_config
+from config import update_config,reset_config,reset_summary
 
 # main.py path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +20,10 @@ from playbooks import list_playbooks, show_playbook, run_playbook
 
 
 def init(default_vars):
+    # Reset config_dict,summary_dict
+    reset_config()
+    reset_summary()
+    
     # Create default dirs
     root_dir = default_vars["cli"]["output_root_dir"]
     now = datetime.now()

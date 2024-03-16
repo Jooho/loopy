@@ -38,7 +38,8 @@ def show_playbook(ctx, playbook_name, detail_information):
 @click.option("-i", "--input-env-file")
 @click.pass_context
 def run_playbook(ctx, playbook_name, params, input_env_file=None):
-    click.echo(f"Running playbook {playbook_name} with input file: {input}")
+    utils.print_logo()
+    click.echo(f"Running playbook {playbook_name}")
     verify_playbook_exist(playbook_name)
     verify_if_param_exist_in_playbook(params, playbook_name, playbook_list)
 
@@ -97,7 +98,7 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
 
             playbook.add_component(unit)
     playbook.start()
-
+    utils.summary(ctx,"playbook",playbook_config_vars,unit_list)
 
 def merge_unit_input_env_in_py_with_first_role_in_unit(unit_name, playbook_unit_input_env):
     for unit in unit_list:
@@ -134,18 +135,8 @@ def verify_if_param_exist_in_playbook(params, playbook_name, playbook_list):
                 elif first_comp_type == "unit":
                     units.verify_if_param_exist_in_unit( params, first_comp_info["unit"]["name"], unit_list, role_list )
 
-
-def get_config_data(config_file_dir):
-    try:
-        with open(os.path.join(config_file_dir, "config.yaml"), "r") as config_file:
-            config_data = yaml.safe_load(config_file)
-            return config_data
-    except FileNotFoundError:
-        click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
-
-
 def display_playbook_info(ctx, playbook_name, playbook_path, detail_information):
-    playbook_config_data = get_config_data(playbook_path)["playbook"]
+    playbook_config_data = utils.get_config_data_by_config_file_dir(ctx,playbook_path)["playbook"]
     steps = playbook_config_data["steps"]
     role_path=""
     role_name=""
@@ -157,7 +148,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
             if steps[0]["role"]["name"] == role["name"]:
                 role_path = role["path"]
                 role_name = role["name"]
-        role_config_data = get_config_data(role_path)["role"]
+        role_config_data = utils.get_config_data_by_config_file_dir(ctx,role_path)["role"]
     # If the first step is not role    
     else:
         for unit in unit_list:
@@ -165,7 +156,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
                 unit_path = unit["path"]
                 unit_name = unit["name"]
         # Get the first unit config data        
-        unit_config_data = get_config_data(unit_path)["unit"]
+        unit_config_data = utils.get_config_data_by_config_file_dir(ctx,unit_path)["unit"]
         # Get steps for role in the first unit
         unit_steps=unit_config_data['steps']
         for role in role_list:
@@ -173,7 +164,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
             if unit_steps[0]["role"]["name"] == role["name"]:
                 role_path = role["path"]
                 role_name = role["name"]    
-        role_config_data = get_config_data(role_path)["role"]
+        role_config_data = utils.get_config_data_by_config_file_dir(ctx,role_path)["role"]
 
     required_role_input_keys = Get_required_input_keys(ctx, role_path, role_name)
     target_main_file = os.path.join(role_path, "main.sh")
@@ -257,7 +248,6 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
                 if required_role_input_key in py_role_input_env_list:
                     role_input_env = py_role_input_env_list[required_role_input_key]
                 else:
-                    # click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} 'no specified'")
                     no_value_keys_in_py.append(required_role_input_key)
                     continue
                 if role_input_env:

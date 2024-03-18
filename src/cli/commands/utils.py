@@ -342,8 +342,6 @@ def summary(ctx, type, config_data, unit_list):
 def getDescription(ctx, role_name, index, py_config_data, unit_list):
     description = ""
     steps = py_config_data["playbook"]["steps"]
-    print(f"role_name: {role_name}")
-    print(f"index: {index}")
 
     for step_index, step in enumerate(steps):
         if "unit" in step:
@@ -356,8 +354,6 @@ def getDescription(ctx, role_name, index, py_config_data, unit_list):
                         description = role["description"]
                         break
         else:
-            print(f"step_index: {step_index}")
-            print(f"step['role']['name'] = {step['role']['name']}")
             if step["role"]["name"] == role_name and index == step_index:
                 if "description" in step["role"]:
                     description = step["role"]["description"]

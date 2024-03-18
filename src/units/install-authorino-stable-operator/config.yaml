@@ -11,4 +11,4 @@ unit:
           OPERATOR_NAME: authorino-operator
           CATALOGSOURCE_NAME: community-operators
           OPERATOR_LABEL: "control-plane=authorino-operator"
-          OPERATOR_VERSION: "v0.10.0"
+          # OPERATOR_VERSION: "v0.10.0"

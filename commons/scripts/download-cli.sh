@@ -68,3 +68,8 @@ if [[ $? != '0' ]]
 then
   sudo dnf -y install openssl
 fi
+
+# TKN
+wget https://github.com/tektoncd/cli/releases/download/v0.36.0/tkn_0.36.0_Linux_x86_64.tar.gz
+tar xvf tkn_0.36.0_Linux_x86_64.tar.gz
+mv tkn  ${root_directory}/bin/.

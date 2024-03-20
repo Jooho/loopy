@@ -2,6 +2,11 @@ role:
   created_date: "20240215"
   name: cert-generate
   # output_filename: operator-install-output.sh
+  description: |
+    This role help to generate self singed certificate. The default execution create a SAN certificate for minio
+
+    (Example)
+    ./loopy roles run cert-generate -p SAN_DNS_LIST=minio.minio.svc.cluster
   files:
     openssl-san: ./files/openssl-san.config
   input_env:

@@ -92,6 +92,14 @@ cp $servingruntime_manifests  ${ROLE_DIR}/.
 sed -e \
 "s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g" $inferenceservice_manifests > ${ROLE_DIR}/$(basename $inferenceservice_manifests)
 
+if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]
+then
+  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.serving.knative.openshift.io/enablePassthrough'
+  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.sidecar.istio.io/inject'
+  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.sidecar.istio.io/rewriteAppHTTPProbers'
+  yq w -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.serving.kserve.io/deploymentMode' RawDeployment
+fi
+
 if [[ ${STORAGE_CONFIG_TYPE} != "json" ]]
 then
   yq -i  ".spec.predictor.serviceAccountName=\"sa\""  ${ROLE_DIR}/$(basename $inferenceservice_manifests)
@@ -100,13 +108,13 @@ fi
 echo "oc apply -f ${ROLE_DIR}/$(basename $servingruntime_manifests) -n ${TEST_NAMESPACE}"
 echo "oc apply -f ${ROLE_DIR}/$(basename $inferenceservice_manifests) -n ${TEST_NAMESPACE}"
 oc apply -f ${ROLE_DIR}/$(basename $servingruntime_manifests) -n ${TEST_NAMESPACE}
-if [[ $? != "0 " ]]
+if [[ $? != "0" ]]
 then
   errorHappened=0
 fi
 
 oc apply -f ${ROLE_DIR}/$(basename $inferenceservice_manifests) -n ${TEST_NAMESPACE}
-if [[ $? != "0 " ]]
+if [[ $? != "0" ]]
 then
   errorHappened=0
 fi
@@ -151,29 +159,39 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
             result=$("${cmd[@]}")
             if [[ $result == "200" ]]; then
                 eval "$result_var=\"$result\""
-                echo 0
-                return 
+                return 0
             else
                 info "return code is not 200. retry"
                 sleep $interval
             fi
         done
         eval "$result_var=\"$result\""
-        echo 1
-        return
+        return 1
     }
-
-    export ISVC_HOSTNAME=$(oc get isvc ${CAIKIT_ARCH_TYPE}-example-isvc-${PROTOCOL} -n ${TEST_NAMESPACE} -o jsonpath='{.status.url}' | cut -d'/' -f3)
-
+    if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]
+    then
+      export ISVC_HOSTNAME="http://localhost:8080"
+      deployment_name=$(oc get deploy -n ${TEST_NAMESPACE} --no-headers|awk '{print $1}')
+      oc port-forward deploy/${deployment_name} 8080:8080 &
+    else
+      export ISVC_HOSTNAME="https://$(oc get isvc ${CAIKIT_ARCH_TYPE}-example-isvc-${PROTOCOL} -n ${TEST_NAMESPACE} -o jsonpath='{.status.url}' | cut -d'/' -f3)"
+    fi
+    
     info "Testing all token in a single call"
-    retry $max_retries $retry_interval single_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "https://${ISVC_HOSTNAME}/api/v1/task/text-generation"
+    retry $max_retries $retry_interval single_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "${ISVC_HOSTNAME}/api/v1/task/text-generation"
     
     info "Testing streams of token"
-    retry $max_retries $retry_interval streaming_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "https://${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
+    retry $max_retries $retry_interval streaming_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
 
     # show return value
     echo "Single call result: $single_call_result"
     echo "Streaming call result: $streaming_call_result"
+
+    if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]
+    then
+      port_forward_pid=$(ps aux | grep "port-forward" | grep -v grep | awk '{print $2}')
+      sudo kill -9 $port_forward_pid
+    fi
 
     # Save output to log file
     curl -s -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' https://${ISVC_HOSTNAME}/api/v1/task/text-generation -o ${ROLE_DIR}/server-single-text-generation.out
@@ -208,4 +226,4 @@ fi
 ############# OUTPUT #############
 
 ############# REPORT #############
-echo "${index_role_name}::$?" >> ${REPORT_FILE}
+echo "${index_role_name}::$result" >> ${REPORT_FILE}

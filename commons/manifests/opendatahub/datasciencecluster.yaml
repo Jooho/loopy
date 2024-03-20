@@ -17,6 +17,7 @@ spec:
     datasciencepipelines:
       managementState: %enable_datasciencepipelines%
     kserve:
+      defaultDeploymentMode: %default_deploymentmode%
       managementState: %enable_kserve%
       serving:
         ingressGateway:

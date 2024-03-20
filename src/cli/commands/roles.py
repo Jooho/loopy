@@ -4,7 +4,7 @@ import click
 import utils
 import yaml
 from component import Role, Get_default_input_value, Get_required_input_keys
-from colorama import Fore, Style
+from colorama import Fore, Style, Back
 
 role_list = utils.initialize("./src/roles","role")
 
@@ -84,7 +84,7 @@ def verify_if_param_exist_in_role(params, role_name):
     if input_exist:
         return
     else:
-        print(f"no input enviroment name exist: {target_param}")
+        print(f"{Fore.RED}no input enviroment name exist:{Back.BLUE} {target_param} {Style.RESET_ALL}")
         exit(1)
 
 

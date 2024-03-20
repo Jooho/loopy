@@ -41,7 +41,10 @@ else
 fi
 check_oc_status
 
-oc get ns istio-system > /dev/null 2>&1 ||  oc new-project istio-system > /dev/null 2>&1
+if [[ ${ENABLE_SERVICEMESH} == "Managed" ]]
+then
+  oc get ns istio-system > /dev/null 2>&1 ||  oc new-project istio-system > /dev/null 2>&1
+fi
 
 if [[ ${OPENDATAHUB_TYPE} == "rhoai" ]]
 then
@@ -50,6 +53,7 @@ else
   opendatahub_namespace="opendatahub"
 fi
 yq -i ".spec.applicationsNamespace = \"${opendatahub_namespace}\"" ${ROLE_DIR}/$(basename $dsci_manifests_path)
+oc get ns $opendatahub_namespace > /dev/null 2>&1 ||  oc new-project $opendatahub_namespace > /dev/null 2>&1
 
 ############# Logic ############
 info "Create DSCI"

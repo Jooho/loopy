@@ -47,6 +47,7 @@ else
   opendatahub_namespace="opendatahub"
 fi
 
+oc get ns $opendatahub_namespace > /dev/null 2>&1 ||  oc new-project $opendatahub_namespace > /dev/null 2>&1
 ############# Logic ############
 if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]]
 then
@@ -74,6 +75,7 @@ fi
 info "Create DSC"
 
 sed -e "s+%datasciencecluster_name%+$DATASCIENCECLUSTER_NAME+g; \
+        s+%default_deploymentmode%+$DEFAULT_DEPLOYMENTMODE+g; \
         s+%enable_codeflare%+$ENABLE_CODEFLARE+g; \
         s+%enable_dashboard%+$ENABLE_DASHBOARD+g; \
         s+%enable_datasciencepipelines%+$ENABLE_DATASCIENCEPIPELINES+g; \
@@ -123,17 +125,18 @@ fi
 if [[ ${ENABLE_KSERVE} == "Managed" ]]
 then
   kserve_result=1
+  odh_model_controller_result=1
   info "- Checking if KServe pod is running"
   wait_for_pods_ready "control-plane=kserve-controller-manager" "${opendatahub_namespace}"
   kserve_result=$?
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
-  odh-model-controller_result=$?
-  if [[ kserve_result != 1 && odh-model-controller_result != 1 ]]
+  odh_model_controller_result=$?
+  if [[ kserve_result != 1 && odh_model_controller_result != 1 ]]
   then
     success "[SUCCESS] Successfully deployed KServe//odh-model-controller operator!"
     kserve_result=0
   else
-    error "KServe: ${kserve_result}/ odh-model-controller: ${odh-model-controller_result}"
+    error "KServe: ${kserve_result}/ odh-model-controller: ${odh_model_controller_result}"
     error "[FAIL] Failed to deploy KServe operator!"
     errorHappened=1
     result=1  
@@ -143,17 +146,18 @@ fi
 if [[ ${ENABLE_MODELMESH} == "Managed" ]]
 then
   modelmesh_result=1
+  odh_model_controller_result=1
   info "- Checking if Modelmesh pods are running"
   wait_for_pods_ready "control-plane=modelmesh-controller" "${opendatahub_namespace}"
   modelmesh_result=$?
   wait_for_pods_ready "control-plane=odh-model-controller" "${opendatahub_namespace}"
-  odh-model-controller_result=$?
-  if [[ modelmesh_result != 1 && odh-model-controller_result != 1 ]]
+  odh_model_controller_result=$?
+  if [[ modelmesh_result != 1 && odh_model_controller_result != 1 ]]
   then
     success "[SUCCESS] Successfully deployed ModelMesh/odh-model-controller operator!"
     modelmesh_result=0
   else
-    error "KServe: ${kserve_result}/ odh-model-controller: ${odh-model-controller_result}"
+    error "KServe: ${kserve_result}/ odh-model-controller: ${odh_model_controller_result}"
     error "[FAIL] Failed to deploy ModelMesh operator!"
     errorHappened=1
     result=1

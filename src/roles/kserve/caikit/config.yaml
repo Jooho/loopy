@@ -47,6 +47,9 @@ role:
     - name: ISVC_STORAGE_PATH_TYPE
       description: kserve support various storage path types (storage, storageuri) - storageuri is tbd
 
+    - name: ISVC_DEPLOYMENT_MODE
+      description: kserve support Serverless and RawDeployment to deploy a model (Serverless, RawDeployment)
+
     - name: STORAGE_CONFIG_TYPE
       description: kserve support 2 storage-config secret types(json,annotation)
 

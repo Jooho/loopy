@@ -117,10 +117,23 @@ fi
 
 # Create final subscription
 oc apply -f ${ROLE_DIR}/$(basename $subs_manifests_path)
+if [[ $INSTALL_APPROVAL == "Manual" ]]
+then
+  sleep 5
+  oc::wait::return::true "oc get installplan -n $OPERATOR_NAMESPACE |grep ${OPERATOR_NAME} |grep ${OPERATOR_VERSION}|grep ${INSTALL_APPROVAL} |grep 'false'" 5 3
+  
+  install_plan=$(oc get installplan -n $OPERATOR_NAMESPACE |grep ${OPERATOR_NAME} |grep ${OPERATOR_VERSION}|grep ${INSTALL_APPROVAL} |grep 'false' | awk '{print $1}')
+  oc patch installplan $install_plan -n $OPERATOR_NAMESPACE -p '{"spec":{"approved": true}}' --type=merge
+  if [[ $? != "0" ]]
+  then
+    errorHappened=0
+  fi
+fi
+
 if [[ $? != 0 ]]
 then
-  error "[FAIL] It failed to apply the subscription(${ROLE_DIR}/$(basename $subs_manifests_path) " 
-  exit 1
+  error "[FAIL] It failed to apply the subscription(${ROLE_DIR}/$(basename $subs_manifests_path)" 
+  errorHappened=0
 fi
 
 ############# VERIFY #############
@@ -147,7 +160,8 @@ then
     fi
   done
 else
-  errorHappened=$(wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1)
+  wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1
+  errorHappened=
 fi
 
 if [[ $errorHappened == "0" ]]

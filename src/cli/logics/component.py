@@ -61,7 +61,7 @@ class Role:
 
         print(f"{Fore.BLUE}Role '{self.name}': Gathering environment and setting environment variables{Style.RESET_ALL}")
         aggregated_input_vars, required_envs = get_aggregated_input_vars(self.ctx, self.role_config_dir_path, self.name, self.params, self.additional_input_vars)
-        export_env_variables(aggregated_input_vars)
+        export_env_variables(self.ctx, aggregated_input_vars)
         verify_required_env_exist(required_envs)
         print(f"{Fore.BLUE}Role '{self.name}': Executing bash script{Style.RESET_ALL}\n")
         print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Style.RESET_ALL}")
@@ -163,7 +163,12 @@ def release_exported_env_variables(input_variabels):
     print(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Style.RESET_ALL}")
 
     
-def export_env_variables(input_variabels):
+def export_env_variables(ctx, input_variabels):
+    enabled_print_input_env=ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
+    if enabled_print_input_env:
+        print(f"{Back.RED} [DEBUG] Input Environmental Variables {Style.RESET_ALL}")
+        print(f"{Fore.GREEN} \u21B3 {input_variabels} {Style.RESET_ALL}")
+        
     if "STOP_WHEN_FAILED" not in input_variabels:
         # Set default value of stop_when_failed when it is not specified in the role/unit input_env or params
         os.environ["STOP_WHEN_FAILED"] = config_dict["stop_when_failed"]

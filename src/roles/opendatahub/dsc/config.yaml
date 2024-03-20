@@ -11,7 +11,10 @@ role:
 
     - name: DATASCIENCECLUSTER_NAME
       description: The name of dsc object
-
+    
+    - name: DEFAULT_DEPLOYMENTMODE
+      description: Set default deploymentMode for KServe (Serverless, RawDeployment)
+      
     - name: ENABLE_CODEFLARE
       description: Deploy code flare (Removed, Managed)
 

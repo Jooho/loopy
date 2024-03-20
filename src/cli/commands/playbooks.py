@@ -40,6 +40,7 @@ def show_playbook(ctx, playbook_name, detail_information):
 def run_playbook(ctx, playbook_name, params, input_env_file=None):
     utils.print_logo()
     click.echo(f"Running playbook {playbook_name}")
+    
     verify_playbook_exist(playbook_name)
     verify_if_param_exist_in_playbook(params, playbook_name, playbook_list)
 
@@ -131,9 +132,9 @@ def verify_if_param_exist_in_playbook(params, playbook_name, playbook_list):
                 first_comp_info = playbook_config_vars["playbook"]["steps"][0]
                 first_comp_type = list(first_comp_info.keys())[0]
                 if first_comp_type == "role":
-                    roles.verify_if_param_exist_in_role( params, first_comp_info["role"]["name"], role_list )
+                    roles.verify_if_param_exist_in_role( params, first_comp_info["role"]["name"])
                 elif first_comp_type == "unit":
-                    units.verify_if_param_exist_in_unit( params, first_comp_info["unit"]["name"], unit_list, role_list )
+                    units.verify_if_param_exist_in_unit( params, first_comp_info["unit"]["name"], unit_list, role_list)
 
 def display_playbook_info(ctx, playbook_name, playbook_path, detail_information):
     playbook_config_data = utils.get_config_data_by_config_file_dir(ctx,playbook_path)["playbook"]

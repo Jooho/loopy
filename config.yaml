@@ -1,2 +1,2 @@
 default_vars_file: ./commons/default-variables.yaml
-
+enable_print_input_env: fasle

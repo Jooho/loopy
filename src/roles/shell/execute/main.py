@@ -49,6 +49,7 @@ if os.environ["REPORT_FILE"] == "":
 else:
     REPORT_FILE = os.environ["REPORT_FILE"]
 ## INIT END ##
+
 #################################################################
 index_role_name = os.path.basename(ROLE_DIR)
 role_name = config_data.get("role", {}).get("name", "")

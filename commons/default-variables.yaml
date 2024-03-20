@@ -31,6 +31,7 @@ opendatahub:
   enable_ray: Removed
   enable_trustyai: Removed
   enable_workbenches: Removed
+  default_deploymentmode: Serverless
 
 minio:
   minio_namespace: minio
@@ -46,6 +47,7 @@ kserve:
   caikit_arch_type: caikit-tgis
   protocol: rest
   isvc_storage_path_type: storage
+  isvc_deployment_mode: Serverless
   test_namespace: kserve-demo
   storage_config_type: json
   default_bucket_name: modelmesh-example-models

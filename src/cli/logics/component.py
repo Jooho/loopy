@@ -126,6 +126,7 @@ class Unit:
         for component in self.components:
             component.start()
 
+
 class Playbook:
     def __init__(self, name):
         self.name = name
@@ -156,19 +157,20 @@ def create_dir_if_does_not_exist(directory_path):
         except OSError as e:
             print(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Style.RESET_ALL}")
 
+
 def release_exported_env_variables(input_variabels):
     for input_var in input_variabels:
         os.environ.pop(input_var)
 
     print(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Style.RESET_ALL}")
 
-    
+
 def export_env_variables(ctx, input_variabels):
-    enabled_print_input_env=ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
-    if enabled_print_input_env:
+    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
+    if enabled_print_input_env.lower() == "true":
         print(f"{Back.RED} [DEBUG] Input Environmental Variables {Style.RESET_ALL}")
         print(f"{Fore.GREEN} \u21B3 {input_variabels} {Style.RESET_ALL}")
-        
+
     if "STOP_WHEN_FAILED" not in input_variabels:
         # Set default value of stop_when_failed when it is not specified in the role/unit input_env or params
         os.environ["STOP_WHEN_FAILED"] = config_dict["stop_when_failed"]
@@ -225,7 +227,9 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
                 if input_env["name"].lower() == param.lower():
                     aggregated_input_vars[input_env["name"]] = params[param]
 
-    print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Style.RESET_ALL}")
+    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
+    if enabled_print_input_env.lower() == "true":
+        print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Style.RESET_ALL}")
     return aggregated_input_vars, required_envs
 
 

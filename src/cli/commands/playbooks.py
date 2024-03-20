@@ -16,7 +16,7 @@ playbook_list = utils.initialize("./src/playbooks", "playbook")
 @click.command(name="list")
 def list_playbooks():
     click.echo("Available playbooks:")
-    for playbook in playbook_list:
+    for playbook in sorted(playbook_list, key=lambda x: x["name"]):
         click.echo(f" - {playbook['name']}")
 
 

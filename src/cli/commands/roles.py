@@ -11,7 +11,7 @@ role_list = utils.initialize("./src/roles","role")
 @click.command(name="list")
 def list_roles():
     click.echo("Available roles:")
-    for item in role_list:
+    for item in sorted(role_list, key=lambda x: x["name"]):
         click.echo(f" - {item['name']}")
 
 

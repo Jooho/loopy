@@ -100,7 +100,12 @@ then
   fi
 fi  
 ############# OUTPUT #############
-echo "MINIO_S3_SVC_URL=http://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >> ${OUTPUT_ENV_FILE}
+if [[ ${enable_ssl} == "0" ]]
+then
+  echo "MINIO_S3_SVC_URL=https://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >> ${OUTPUT_ENV_FILE}
+else 
+  echo "MINIO_S3_SVC_URL=http://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >> ${OUTPUT_ENV_FILE}
+fi
 echo "MINIO_DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}" >> ${OUTPUT_ENV_FILE}
 echo "MINIO_ACCESS_KEY_ID=${ACCESS_KEY_ID}" >> ${OUTPUT_ENV_FILE}
 echo "MINIO_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}" >> ${OUTPUT_ENV_FILE}

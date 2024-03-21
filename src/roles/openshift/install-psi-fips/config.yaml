@@ -1,0 +1,54 @@
+role:
+  created_date: "20240320"
+  name: openshift-fips-install
+  description: |
+    This role install the FIPS Enabled Cluster we do rely on the QE Jenkins rhods-smoke pipeline.        
+    The default cluster name is `ods-ci-fips-ms`. This should be possible to retrieve this information by querying the hive.
+
+    (Example)
+    loopy roles run openshift-fips-install -p JENKINS_USER=XX -p JENKINS_TOKEN=XX -p JENKINS_JOB_URL=XX 
+
+    (Example output)
+    CLUSTER_CONSOLE_URI=https://XXX.com
+    CLUSTER_API_URL=https://XXXX.com
+    CLUSTER_ADMIN_ID=admin
+    CLUSTER_ADMIN_PW=password
+    CLUSTER_TOKEN=sha~XXX
+  input_env:
+    - name: CLUSTER_TYPE
+      description: Type of cluster
+      default: PSI
+
+    - name: JENKINS_USER
+      description: Jenkins username
+      required: true
+
+    - name: JENKINS_TOKEN
+      description: Jenkins token
+      required: true
+
+    - name: JENKINS_JOB_URL
+      description: URL of Jenkins job
+      required: true
+
+    - name: EXTRA_PARAMS
+      description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"
+
+  output_env:
+    - name: CLUSTER_CONSOLE_URL
+      description: openshift console url
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+
+    - name: CLUSTER_TYPE
+      description: openshift cluster type (PSI, ROSA)
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token

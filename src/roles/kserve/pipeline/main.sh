@@ -96,6 +96,18 @@ else
   result="0"
 fi
 
+if [[ $errorHappened == "0" ]]
+then
+  info "There are some errors in the role"
+  stop_when_failed=$(is_positive ${STOP_WHEN_FAILED})
+  if [[ ${stop_when_failed} == "0" ]]
+  then
+    die "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is set and there are some errors detected so stop all process"
+  else
+    info "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is NOT set so skip this error."
+  fi
+fi 
+
 ############# OUTPUT #############
 if [ "${KEEP_NAMESPACE}" = "true" ]; then
   echo "Keeping the namespace ${WORKING_NAMESPACE}"

@@ -105,6 +105,7 @@ def load_env_file_if_exist(file):
             exit(1)
     return additional_vars
 
+
 def set_env_vars_if_file_exist(file):
     if file is not None:
         if os.path.exists(file):
@@ -293,15 +294,13 @@ def summary(ctx, type, config_data, unit_list):
             line = line.strip()  # Delete enter
             if not line or line.startswith("#"):  # Skip # part
                 continue
-            if summary_dict["first_component_type"] == "Role":  # Role run does not have index in the report.
+            index, report_data = line.split("-", 1)
+            if not (index >= "0" and index <= "9"):
                 if prev_index is None:
                     index = "0"
                     report_data = line
                 else:
                     sub_index = sub_index + 1
-            else:
-                if "-" in line:
-                    index, report_data = line.split("-", 1)
             result_data = report_data.split("::")  # separate data by "::""
             role_name = result_data[0]
             result = result_data[-1]
@@ -328,7 +327,7 @@ def summary(ctx, type, config_data, unit_list):
                     description = steps[int(index)]["role"]["description"]
             if type == "playbook":
                 description = getDescription(ctx, role_name, int(index), config_data, unit_list)
-                
+
             table.add_row(
                 [
                     final_index.strip(),
@@ -340,6 +339,7 @@ def summary(ctx, type, config_data, unit_list):
             )
 
         print(table)
+
 
 def getDescription(ctx, role_name, index, py_config_data, unit_list):
     description = ""

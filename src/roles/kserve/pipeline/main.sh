@@ -30,6 +30,7 @@ fi
 ## INIT END ##
 
 ## Parameters Preparation #######################################
+index_role_name=$(basename $ROLE_DIR)
 
 # Define the environment variables
 if [ "${CLUSTER_TOKEN}" = "" ]; then
@@ -90,9 +91,9 @@ tkn pipeline start caikit-e2e-inference-pipeline  \
 
 ############# VERIFY #############
 if [ $? -ne 0 ]; then
-  result="FAIL"
+  result="1"
 else
-  result="PASS"
+  result="0"
 fi
 
 ############# OUTPUT #############
@@ -106,4 +107,4 @@ else
   oc delete project ${WORKING_NAMESPACE}
 fi
 ############# REPORT #############
-echo ${role_name}::${caikit-pipeline}::$result >> ${REPORT_FILE}
+echo ${index_role_name}::${caikit-pipeline}::$result >> ${REPORT_FILE}

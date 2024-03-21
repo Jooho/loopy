@@ -1,21 +1,10 @@
 role:
   created_date: "20240215"
-  name: pipeline
-  description: This role is to test the caikit runtime with kserve, it requires RHOAI Operator installed without ModelMesh Serving
+  name: kserve-caikit-test-using-pipeline
+  description: |
+    This role is to test the caikit runtime with kserve, it requires RHOAI Operator installed without ModelMesh Serving
+    The last task will check the model using caikit_nlp client 
   input_env:
-    - name: GIT_URL
-      description: url of the git repo for the code of deployment
-    - name: GIT_REVISION
-      description: revision to be used from repo of the code for deployment
-    - name: CLUSTER_API_URL
-      required: true
-      description: target cluster to deploy (https://api.example.com:6443), can be obtained through ui or "oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'"
-    - name: CLUSTER_TOKEN
-      description: the token to access the cluster, can be obtained through ui or with "oc whoami -t", if not specified, CLUSTER_ADMIN_ID and CLUSTER_ADMIN_PW are required
-    - name: CLUSTER_ADMIN_ID
-      description: openshift cluster user id
-    - name: CLUSTER_ADMIN_PW
-      description: openshift cluster user password
     - name: MINIO_ACCESS_KEY_ID
       required: true
       description: The minio id that contains test models
@@ -25,18 +14,28 @@ role:
     - name: MINIO_S3_SVC_URL
       required: true
       description: The minio url that contains test models
+
+    - name: GIT_URL
+      description: url of the git repo for the code of deployment
+    - name: GIT_REVISION
+      description: revision to be used from repo of the code for deployment
     - name: WORKING_NAMESPACE
-      required: true
       description: The namespace where the the ServingRuntime and the InferenceService will be created at.
     - name: PYTHON_IMAGE
       description: Image to be used for the CaiKit Runtime, default is registry.redhat.io/ubi9/python-39:latest
-      required: true
     - name: OC_IMAGE
       description: OpenShift CLI Container image. default is image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-      required: true
     - name: ISVC_DEPLOYMENT_VERBOSE
       description: Enables the verbose output for the isvc deployment. Defaults to true.
     - name: KEEP_NAMESPACE
       description: Enables the verbose output for the isvc deployment. Defaults to false.
 
-      
+    - name: CLUSTER_API_URL
+      required: true
+      description: target cluster to deploy (https://api.example.com:6443), can be obtained through ui or "oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'"
+    - name: CLUSTER_TOKEN
+      description: the token to access the cluster, can be obtained through ui or with "oc whoami -t", if not specified, CLUSTER_ADMIN_ID and CLUSTER_ADMIN_PW are required
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password

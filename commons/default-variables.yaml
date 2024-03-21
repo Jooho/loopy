@@ -44,6 +44,7 @@ minio:
   default_bucket_name: modelmesh-example-models
   
 kserve:
+  # caikit tgis runtime
   caikit_arch_type: caikit-tgis
   protocol: rest
   isvc_storage_path_type: storage
@@ -53,6 +54,14 @@ kserve:
   default_bucket_name: modelmesh-example-models
   minio_region: "us-east-1"
   use_data_connection: "true"
+  # pipeline
+  git_url: https://github.com/JooHo/loopy.git
+  git_revision: main
+  working_namespace: pipeline-test
+  python_image: registry.redhat.io/ubi9/python-39:latest
+  oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+  isvc_deployment_verbose: "true"
+  keep_namespace: "false"
 
 cert:
   root_ca_cert_name: root.crt
@@ -68,12 +77,3 @@ cli:
   output_artifacts_dir: artifacts
   output_report_file: report
   stop_when_failed: "false"
-
-pipeline:
-  git_url: https://github.com/JooHo/loopy.git
-  git_revision: main
-  working_namespace: pipeline-test
-  python_image: registry.redhat.io/ubi9/python-39:latest
-  oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-  isvc_deployment_verbose: "true"
-  keep_namespace: "false"

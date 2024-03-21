@@ -1,0 +1,13 @@
+unit:
+  created_date: "20240215"
+  name: install-odh-stable-operator-without-dsci
+  steps:
+  - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: opendatahub-operator
+        OPERATOR_NAMESPACE: openshift-operators
+        OPERATOR_NAME: opendatahub-operator
+        OPERATOR_LABEL: "name=error"
+        OPERATOR_POD_PREFIX: "opendatahub"
+        CONFIG_ENV: "name=DISABLE_DSC_CONFIG"

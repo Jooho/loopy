@@ -1,0 +1,46 @@
+playbook:
+  created_date: "20240320"
+  # name: kserve-raw-simple-sanity-test-on-existing-cluster
+  description: |
+    This playbook will deploy kserve rawDeployment mode with ODH 2.8.
+
+    This is a playbook for kserve rawDeployment end to end test. It installs required operators(authorino 0.10.0) and install ODH 2.8.0 version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+
+    (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
+
+    operator version:
+    - ODH 2.9.0
+    - Authorino 0.10.0
+  steps:
+    - unit:
+       name: install-authorino-stable-operator       
+       description: Install Authorino operator v0.10.0 version
+       input_env:
+            OPERATOR_VERSION: "v0.10.0"
+            INSTALL_APPROVAL: Manual
+    - unit:
+       name: install-odh-stable-operator-without-dsci
+       description: Install ODH operator 2.9.0 version
+       input_env:
+            OPERATOR_VERSION: "2.9.0"
+            INSTALL_APPROVAL: Manual
+    - role:
+        name: opendatahub-create-dsci 
+        description: Create a DSCI set servicemesh to "Removed"
+        input_env:
+            ENABLE_SERVICEMESH: Removed
+    - role:
+        name: opendatahub-create-dsc
+        description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
+        input_env:
+            ENABLE_KSERVE: Managed
+            ENABLE_KSERVE_KNATIVE: Removed         
+            DEFAULT_DEPLOYMENTMODE: RawDeployment
+    - role:
+        name: minio-deploy            
+    - unit:
+        name: test-kserve-caikit-tgis-rest
+        description: Deploy KServe Caikit Tgis Runtime with RawDeployment Mode. Then check result.
+        input_env:
+            ISVC_DEPLOYMENT_MODE: RawDeployment
+  

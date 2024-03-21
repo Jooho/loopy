@@ -1,14 +1,14 @@
 playbook:
   created_date: "20240215"
-  name: kserve-serverless-simple-sanity-test-on-existing-cluster
+  # name: kserve-serverless-simple-sanity-test-on-existing-cluster
   support: "true"
   description: >
-    This is a playbook for kserve end to end test. It installs required operators(serverless/ossm) then install RHOAI the latest version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+    This is a playbook for kserve end to end test. It installs required operators(serverless/ossm) then install ODH the latest version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
 
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
     
     Operator version:
-    - RHOAI 2.8.0
+    - ODH 2.9.0
     - Authorino 0.10.0
     - Serverless 1.32
     - OSSM 2.5.0
@@ -19,9 +19,9 @@ playbook:
          OPERATOR_VERSION: "v0.10.0"
          INSTALL_APPROVAL: Manual
    - unit:
-       name: install-rhoai-stable-operator      
+       name: install-odh-stable-operator      
        input_env:
-         OPERATOR_VERSION: "2.8.0"
+         OPERATOR_VERSION: "2.9.0"
          INSTALL_APPROVAL: Manual
    - unit:
        name: install-serverless-stable-operator         
@@ -33,8 +33,8 @@ playbook:
        input_env:
          OPERATOR_VERSION: "v2.5.0"
          INSTALL_APPROVAL: Manual              
-   - unit:
-       name: deploy-rhoai-kserve
+   - role:
+      name: opendatahub-create-dsc
    - role:
        name: minio-deploy
    - unit:

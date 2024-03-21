@@ -1,6 +1,6 @@
 playbook:
   created_date: "20240320"
-  name: kserve-raw-simple-sanity-test-on-existing-cluster
+  # name: kserve-raw-simple-sanity-test-on-existing-cluster
   description: |
     This playbook will deploy kserve rawDeployment mode with rhoai 2.8.
 

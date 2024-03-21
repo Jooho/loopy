@@ -1,0 +1,29 @@
+playbook:
+  created_date: "20240320"
+  name: kserve-full-sanity-test-on-new-fips-cluster
+  support: "false"
+  description: |
+    This playbook create a openshift cluster that fips enabled.(It takes 2 hours). After that, it will verify simple kserve santity test, pipeline test.
+
+    Required variables:
+    - JENKINS_USER
+    - JENKINS_TOKEN
+    - JENKINS_JOB_URL
+
+    Test parts:
+    - deploy simple caikit tgis runtime 
+    - deploy simple caikit tgis runtime using pipeline
+    This is tested with ODH 2.9+
+  steps:
+    - role:
+        name: openshift-fips-install
+    - role:
+        name: minio-deploy
+    - unit:
+        name: test-kserve-caikit-tgis-rest     
+    - role:
+        name: rhoai-model-pipeline-test   
+        input_env:
+          KEEP_NAMESPACE: "true"
+          WORKING_NAMESPACE: kserve-demo
+  

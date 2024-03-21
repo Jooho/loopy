@@ -1,6 +1,6 @@
 playbook:
   created_date: "20240320"
-  name: install-kserve-serverless-on-existing-cluster
+  # name: install-rhoai-kserve-serverless-on-existing-cluster
   support: "true"
   description: >
     This is a playbook to install kserve serverless mode. It installs required operators(serverless/ossm) then install RHOAI the latest version operator though stable branch. 
@@ -11,11 +11,6 @@ playbook:
     - Serverless 1.32
     - OSSM 2.5.0
   steps:
-   - unit:
-       name: install-authorino-stable-operator          
-       input_env:
-         OPERATOR_VERSION: "v0.10.0"
-         INSTALL_APPROVAL: Manual
    - unit:
        name: install-rhoai-stable-operator      
        input_env:
@@ -31,5 +26,7 @@ playbook:
        input_env:
          OPERATOR_VERSION: "v2.5.0"
          INSTALL_APPROVAL: Manual              
-   - unit:
-       name: deploy-rhoai-kserve
+   - role:
+       name: opendatahub-create-dsc
+       input_env:
+         OPENDATAHUB_TYPE: rhoai

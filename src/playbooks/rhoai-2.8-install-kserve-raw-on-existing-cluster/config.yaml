@@ -1,6 +1,5 @@
 playbook:
   created_date: "20240320"
-  name: install-kserve-raw-on-existing-cluster
   description: |
     This playbook will deploy kserve rawDeployment mode with rhoai 2.8.
 
@@ -10,12 +9,6 @@ playbook:
     - RHOAI 2.8.0
     - Authorino 0.10.0
   steps:
-    - unit:
-       name: install-authorino-stable-operator       
-       description: Install Authorino operator v0.10.0 version
-       input_env:
-            OPERATOR_VERSION: "v0.10.0"
-            INSTALL_APPROVAL: Manual
     - unit:
        name: install-rhoai-stable-operator-without-dsci
        description: Install RHOAI operator 2.8.0 version

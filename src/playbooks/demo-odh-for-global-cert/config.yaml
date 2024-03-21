@@ -1,6 +1,5 @@
 playbook:
   created_date: "20240221"
-  name: demo-rhoai-for-global-cert
   support: "false"
   description: |
     Install dependent operators/Create DSCi with global cert/Generate certificate and apply it to Minio/Deploy KServe model. This playbook will show full steps how to use central ca to pull an model.
@@ -24,20 +23,6 @@ playbook:
          ENABLE_KSERVE: Managed      
          ENABLE_MODELMESH: Managed 
          ENABLE_DASHBOARD: Managed       
-   - role:
-       name: shell-execute
-       description: add devflags for kserve
-       input_env:
-         DATASCIENCECLUSTER_NAME: rhoai    
-         COMMANDS: |
-          kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'
-   - role:
-       name: shell-execute
-       description: add devflags for modelmesh
-       input_env:
-         DATASCIENCECLUSTER_NAME: rhoai   
-         COMMANDS: |
-           kubectl patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} -n opendatahub --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "https://github.com/jooho/odh-model-controller/tarball/global-ca"}]}}]'           
    - unit:
        name: deploy-ssl-minio
        input_env:

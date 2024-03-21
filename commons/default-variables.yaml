@@ -61,7 +61,7 @@ kserve:
   python_image: registry.redhat.io/ubi9/python-39:latest
   oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
   isvc_deployment_verbose: "true"
-  keep_namespace: "false"
+  keep_namespace: "true"
 
 cert:
   root_ca_cert_name: root.crt

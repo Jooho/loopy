@@ -30,7 +30,6 @@ fi
 ## INIT END ##
 
 ## Parameters Preparation #######################################
-index_role_name=$(basename $ROLE_DIR)
 
 # Define the environment variables
 if [ "${CLUSTER_TOKEN}" = "" ]; then
@@ -73,9 +72,10 @@ done
 #################################################################
 source $root_directory/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
+index_role_name=$(basename $ROLE_DIR)
 
 # create the working namespace
-oc new-project ${WORKING_NAMESPACE}
+oc get ns ${WORKING_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${WORKING_NAMESPACE} > /dev/null 2>&1 
 
 manifests_dir="${current_dir}/manifests"
 for yaml in `find ${manifests_dir} -name "*.yaml"`; do
@@ -86,7 +86,7 @@ done
 echo "Triggering the pipeline caikit-e2e-inference-pipeline with the following parameters: ${PARAMS}"
 tkn pipeline start caikit-e2e-inference-pipeline  \
   ${PARAMS} \
-  -w name=shared-workspace,volumeClaimTemplateFile=${current_dir}/pvc.yaml \
+  -w name=shared-workspace,volumeClaimTemplateFile=${manifests_dir}/pvc.yaml \
   --use-param-defaults --showlog
 
 ############# VERIFY #############

@@ -1,6 +1,6 @@
 role:
   created_date: "20240215"
-  name: kserve-caikit-test-using-pipeline
+  name: test-kserve-caikit-tgis-using-pipeline
   description: |
     This role is to test the caikit runtime with kserve, it requires RHOAI Operator installed without ModelMesh Serving
     The last task will check the model using caikit_nlp client 

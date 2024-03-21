@@ -22,7 +22,7 @@ playbook:
     - unit:
         name: test-kserve-caikit-tgis-rest     
     - role:
-        name: rhoai-model-pipeline-test   
+        name: test-kserve-caikit-tgis-using-pipeline
         input_env:
           KEEP_NAMESPACE: "true"
           WORKING_NAMESPACE: kserve-demo

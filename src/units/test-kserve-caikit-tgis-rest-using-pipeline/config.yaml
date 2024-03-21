@@ -1,0 +1,20 @@
+unit:
+  created_date: "20240320"
+  name: test-kserve-caikit-tgis-rest-using-pipeline
+  description: |
+    This deploy kserve caikit tgis runtime through pipeline.
+    
+    This unit deploy minio(quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5) that has the related models and trigger pipeline task
+
+    Prequisites to work this unit are:
+    - openshift pipeline operator.
+    - RHOAI/ODH and KServe
+  steps:
+    - role:
+        name: minio-deploy
+    - role:
+        name: kserve-caikit-test-using-pipeline
+        input_env:
+          WORKING_NAMESPACE: pipeline-demo
+          KEEP_NAMESPACE: "true"
+      

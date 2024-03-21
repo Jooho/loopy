@@ -1,0 +1,35 @@
+playbook:
+  created_date: "20240320"
+  # name: install-odh-kserve-serverless-on-existing-cluster
+  support: "true"
+  description: >
+    This is a playbook to install kserve serverless mode. It installs required operators(serverless/ossm) then install ODH the latest version operator though stable branch. 
+    
+    Operator version:
+    - ODH 2.9.0
+    - Authorino 0.10.0
+    - Serverless 1.32
+    - OSSM 2.5.0
+  steps:
+   - unit:
+       name: install-authorino-stable-operator          
+       input_env:
+         OPERATOR_VERSION: "v0.10.0"
+         INSTALL_APPROVAL: Manual
+   - unit:
+       name: install-odh-stable-operator      
+       input_env:
+         OPERATOR_VERSION: "2.9.0"
+         INSTALL_APPROVAL: Manual
+   - unit:
+       name: install-serverless-stable-operator         
+       input_env:
+         OPERATOR_VERSION: "v1.32.0"
+         INSTALL_APPROVAL: Manual
+   - unit:
+       name: install-ossm-stable-operator    
+       input_env:
+         OPERATOR_VERSION: "v2.5.0"
+         INSTALL_APPROVAL: Manual              
+   - role:
+       name: opendatahub-create-dsc

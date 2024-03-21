@@ -35,9 +35,7 @@ playbook:
         input_env:
             ENABLE_KSERVE: Managed
             ENABLE_KSERVE_KNATIVE: Removed         
-            DEFAULT_DEPLOYMENTMODE: RawDeployment
-    - role:
-        name: minio-deploy            
+            DEFAULT_DEPLOYMENTMODE: RawDeployment 
     - unit:
         name: test-kserve-caikit-tgis-rest
         description: Deploy KServe Caikit Tgis Runtime with RawDeployment Mode. Then check result.

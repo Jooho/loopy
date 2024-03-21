@@ -17,12 +17,10 @@ playbook:
   steps:
     - role:
         name: openshift-fips-install
-    - role:
-        name: minio-deploy
     - unit:
         name: test-kserve-caikit-tgis-rest     
     - role:
-        name: test-kserve-caikit-tgis-using-pipeline
+        name: test-kserve-caikit-tgis-rest-using-pipeline
         input_env:
           KEEP_NAMESPACE: "true"
           WORKING_NAMESPACE: kserve-demo

@@ -64,6 +64,8 @@ def verify_role_exist(role_name):
 
 
 def verify_if_param_exist_in_role(params, role_name):
+    print(f"{params}")
+    print(f"{role_name}")
     if not params:
         return
     input_exist = False

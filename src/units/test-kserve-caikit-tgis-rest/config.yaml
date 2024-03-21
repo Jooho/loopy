@@ -4,6 +4,8 @@ unit:
   description: This deploy kserve caikit tgis runtime. Prequisites to work this unit is minio(quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5) that has the related models.
   steps:
     - role:
+        name: minio-deploy
+    - role:
         name: kserve-caikit-test
         input_env:
           CAIKIT_ARCH_TYPE: caikit-tgis

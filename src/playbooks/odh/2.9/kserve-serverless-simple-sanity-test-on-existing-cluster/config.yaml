@@ -1,9 +1,11 @@
 playbook:
-  created_date: "20240320"
-  # name: install-odh-kserve-serverless-on-existing-cluster
+  created_date: "20240215"
+  # name: kserve-serverless-simple-sanity-test-on-existing-cluster
   support: "true"
   description: >
-    This is a playbook to install kserve serverless mode. It installs required operators(serverless/ossm) then install ODH the latest version operator though stable branch. 
+    This is a playbook for kserve end to end test. It installs required operators(serverless/ossm) then install ODH the latest version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+
+    (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
     
     Operator version:
     - ODH 2.9.0
@@ -31,5 +33,8 @@ playbook:
        input_env:
          OPERATOR_VERSION: "v2.5.0"
          INSTALL_APPROVAL: Manual              
-  - role:
-       name: opendatahub-create-dsc
+   - role:
+      name: opendatahub-create-dsc
+   - unit:
+       name: test-kserve-caikit-tgis-rest       
+    

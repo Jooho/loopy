@@ -87,7 +87,7 @@ def verify_if_param_exist_in_unit(params, unit_name, unit_list):
             unit_config_path = unit["path"] + "/config.yaml"
             with open(unit_config_path, "r") as file:
                 unit_config_vars = yaml.safe_load(file)
-                roles.verify_if_param_exist_in_role( params, unit_config_vars["unit"]["role"]["name"])
+                roles.verify_if_param_exist_in_role( params, unit_config_vars["unit"]["steps"][0]["role"]["name"])
 
 
 def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):

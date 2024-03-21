@@ -69,7 +69,7 @@ then
 
   yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelmesh/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 else
- error "So we set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
+ error "We set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
  errorHappened=0
 fi
 oc apply -f ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)

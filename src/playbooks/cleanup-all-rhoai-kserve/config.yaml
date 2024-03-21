@@ -40,6 +40,10 @@ playbook:
             oc patch ns kserve-demo -p '{"metadata": {"finalizers": []}}' --type=merge                                %%
             oc delete ns kserve-demo --force --grace-period=0                                                         %%
 
+            oc delete pod,isvc,servingruntime --all --force --grace-period=0 -n pipeline-demo                           %%
+            oc patch ns pipeline-demo -p '{"metadata": {"finalizers": []}}' --type=merge                                %%
+            oc delete ns pipeline-demo --force --grace-period=0               
+
             oc delete pod --all --force --grace-period=0                                                              %%
             oc delete ns minio --force --grace-period=0                                                               %%
 
@@ -92,4 +96,9 @@ playbook:
             oc delete sub serverless-operator --force --grace-period=0 -n openshift-operators                                      %%
             oc delete csv $(oc get csv -n openshift-operators | grep serverless-operator|awk '{print $1}') -n openshift-serverless %%
 
+            oc delete sub openshift-pipelines-operator-rh  --force --grace-period=0 -n openshift-operators %%
+            oc delete csv $(oc get csv -n openshift-operators | grep openshift-pipelines-operator-rh |awk '{print $1}') -n openshift-operators %%
+
             oc delete csv OperatorGroup serverless-operators -n openshift-serverless                                               %%
+            # InstallPlan
+            for installplan in $(oc get installPlan -n openshift-operators|egrep 'authorino|serverless|servicemeshoperator|pipeline'|awk '{print $1}'); do        oc delete installPlan -n openshift-operators $installplan; done 

@@ -123,6 +123,7 @@ then
   oc::wait::return::true "oc get installplan -n $OPERATOR_NAMESPACE |grep ${OPERATOR_NAME} |grep ${OPERATOR_VERSION}|grep ${INSTALL_APPROVAL} |grep 'false'" 5 3
   
   install_plan=$(oc get installplan -n $OPERATOR_NAMESPACE |grep ${OPERATOR_NAME} |grep ${OPERATOR_VERSION}|grep ${INSTALL_APPROVAL} |grep 'false' | awk '{print $1}')
+  info "installplan name: ${install_plan}"
   oc patch installplan $install_plan -n $OPERATOR_NAMESPACE -p '{"spec":{"approved": true}}' --type=merge
   if [[ $? != "0" ]]
   then
@@ -161,7 +162,7 @@ then
   done
 else
   wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1
-  errorHappened=
+  errorHappened=$?
 fi
 
 if [[ $errorHappened == "0" ]]

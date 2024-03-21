@@ -29,42 +29,7 @@ source $root_directory/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 
 ### Main logic ###
-if [ ${CLUSTER_TYPE} = "FIPS" ]; then
-  if [ "${EXTRA_PARAMS}" = "-h" ]; then
-    ${current_dir}/psi-fips/install.sh -h
-    exit 0
-  fi
 
-  # call the install.sh script
-  echo "Calling the install.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} ${EXTRA_PARAMS}"
-  ${current_dir}/psi-fips/install.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_JOB_URL} ${EXTRA_PARAMS}
-
-  if [ $? -ne 0 ]; then
-    error "Failed to install FIPS cluster"
-    exit 1
-  else
-    # Read the file - it is downloaded by the install script
-    file_content=$(cat /tmp/test-variables.yml)
-
-    # Extract the values
-    cluster_admin_id=$(echo "$file_content" | yq -r ".OCP_ADMIN_USER.USERNAME")
-    cluster_admin_pw=$(echo "$file_content" | yq -r ".OCP_ADMIN_USER.PASSWORD")
-    cluster_console_url=$(echo "$file_content" | yq -r ".OCP_CONSOLE_URL")
-
-    # set the cluster api and retrieve the user token
-    cluster_name=$(echo $cluster_console_url | sed 's/.*\.apps\.\(.*\)\..*/\1/')
-    cluster_api_url="https://api.$cluster_name"
-    oc login -u "${cluster_admin_id}" -p ${cluster_admin_pw} --server=${cluster_api_url} --insecure-skip-tls-verify=true
-    cluster_token=$(oc whoami -t)
-  fi
-
-  echo "CLUSTER_CONSOLE_URL=${cluster_console_url}"
-  echo "CLUSTER_API_URL=${cluster_api_url}"
-  echo "CLUSTER_ADMIN_ID=${cluster_admin_id}"
-  echo "CLUSTER_ADMIN_PW=${cluster_admin_pw}"
-  echo "CLUSTER_TOKEN=${cluster_token}"
-  echo "CLUSTER_TYPE=${cluster_type}"
-fi
 
 ############# VERIFY #############
 check_oc_status
@@ -87,4 +52,4 @@ echo "CLUSTER_TOKEN=${cluster_token}" >> ${OUTPUT_ENV_FILE}
 echo "CLUSTER_TYPE=${cluster_type}" >> ${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
-echo ${role_name}::${install-clusetr}::$? >> ${REPORT_FILE}
+echo ${role_name}::$? >> ${REPORT_FILE}

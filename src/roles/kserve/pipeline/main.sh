@@ -75,12 +75,15 @@ role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 index_role_name=$(basename $ROLE_DIR)
 
 # create the working namespace
-oc get ns ${WORKING_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${WORKING_NAMESPACE} > /dev/null 2>&1 
+oc get ns ${WORKING_NAMESPACE} > /dev/null 2>&1 ||  oc new-project ${WORKING_NAMESPACE} > /dev/null 2>&1
+oc project
 
 manifests_dir="${current_dir}/manifests"
 for yaml in `find ${manifests_dir} -name "*.yaml"`; do
-  echo "Applying yaml file: $yaml"
-  oc apply -f $yaml;
+  if [ "${yaml}" != "pvc.yaml" ]; then
+    echo "Applying yaml file: $yaml"
+    oc apply -f $yaml;
+  fi
 done
 
 echo "Triggering the pipeline caikit-e2e-inference-pipeline with the following parameters: ${PARAMS}"
@@ -92,9 +95,11 @@ tkn pipeline start caikit-e2e-inference-pipeline  \
 ############# VERIFY #############
 if [ $? -ne 0 ]; then
   result="1"
+  errorHappened=0
 else
   result="0"
 fi
+
 
 if [[ $errorHappened == "0" ]]
 then
@@ -119,4 +124,4 @@ else
   oc delete project ${WORKING_NAMESPACE}
 fi
 ############# REPORT #############
-echo ${index_role_name}::${caikit-pipeline}::$result >> ${REPORT_FILE}
+echo ${index_role_name}::$result >> ${REPORT_FILE}

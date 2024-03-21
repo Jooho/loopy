@@ -2,6 +2,19 @@ role:
   created_date: "20240205"
   name: openshift-uninstall
   output_filename: openshift-cluster-output.sh
+  description: | 
+    Uninstall a cluster from PSI infra.
+    
+    How to run it:
+    ./loopy roles run openshift-uninstall \
+      -p CLUSTER_TYPE=FIPS \
+      -p JENKINS_USER=user \
+      -p JENKINS_TOKEN=jenkins_user_token \
+      -p JENKINS_JOB_URL=jenkins_job_url
+
+    The default cluster name is 'ods-ci-fips-ms'
+    To override it, use TEST_CLUSTERS parameter, e.g. -p TEST_CLUSTERS=ods-ci-fips-ms,ods-ci-fips-ms2
+
   input_env:
     - name: CLUSTER_TYPE
       description: Type of cluster

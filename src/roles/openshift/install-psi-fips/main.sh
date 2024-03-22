@@ -47,7 +47,7 @@ else
   cluster_console_url=$(echo "$file_content" | yq -r ".OCP_CONSOLE_URL")
 
   # set the cluster api and retrieve the user token
-  cluster_name=$(echo $cluster_console_url | sed 's/.*\.apps\.\(.*\)\..*/\1/')
+    cluster_name=$(echo $cluster_console_url | sed 's/.*\.apps\.\(.*\..*\)/\1/')
   cluster_api_url="https://api.$cluster_name:6443"
   oc login -u "${cluster_admin_id}" -p ${cluster_admin_pw} --server=${cluster_api_url} --insecure-skip-tls-verify=true >/dev/null
   cluster_token=$(oc whoami -t)

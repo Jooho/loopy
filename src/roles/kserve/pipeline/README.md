@@ -53,4 +53,4 @@ Other option is to trigger the pipeline from OpenShift Web Console.
 ### TODOs
 
 - [ ] Create a base python image with the required dependencies as part of the pipeline
-- [ ] Parameterize the deploy-isvc step timeout, default is 120s.
+- [ ] Parameterize the deploy-isvc step timeout, default is 360s.

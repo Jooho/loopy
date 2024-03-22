@@ -3,7 +3,45 @@ role:
   name: kserve-caikit-test-using-pipeline
   description: |
     This role is to test the caikit runtime with kserve, it requires RHOAI Operator installed without ModelMesh Serving
-    The last task will check the model using caikit_nlp client 
+    The last task will check the model using caikit_nlp client with the gRPC and HTTP protocols.
+    
+
+    
+    This role orchestrates the installation process of an OpenShift cluster and provides essential information about 
+    the cluster's configuration and access credentials upon successful completion.
+    
+    The pipeline will do the following actions:
+      - check if there are any resources from previous runs and delete them
+      - deploy the MinIO storage configuration
+      - fetches the git repo to get the needed scripts
+      - deploy two caikit runtimes with kserve: one for gRPC and another for http
+      - check if the runtimes were created
+      - deploy the http and gRPC Inference Services
+      - Infer the mode using both protocols
+      - clean the namespace used for the tests
+    
+    A example of how to run it:
+    
+     ./loopy roles run test-kserve-caikit-tgis-using-pipeline \
+        -p MINIO_ACCESS_KEY_ID=admin \
+        -p MINIO_SECRET_ACCESS_KEY=password \
+        -p MINIO_S3_SVC_URL=http://minio.pipeline-test.svc:9000 \ 
+        -p CLUSTER_API_URL=https://api.openshiftapps.com:443 \
+        -p CLUSTER_ADMIN_ID=user \
+        -p CLUSTER_ADMIN_PW=passwd \
+        -p EXTRA_PARAMS="-sp someparam"
+
+    To get the list of parameters:
+
+     ./loopy roles run test-kserve-caikit-tgis-using-pipeline \
+        -p MINIO_ACCESS_KEY_ID=admin \
+        -p MINIO_SECRET_ACCESS_KEY=password \
+        -p MINIO_S3_SVC_URL=http://minio.pipeline-test.svc:9000 \ 
+        -p CLUSTER_API_URL=https://api.openshiftapps.com:443 \
+        -p CLUSTER_ADMIN_ID=user \
+        -p CLUSTER_ADMIN_PW=passwd \
+        -p EXTRA_PARAMS="-h"
+
   input_env:
     - name: MINIO_ACCESS_KEY_ID
       required: true

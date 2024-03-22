@@ -75,6 +75,7 @@ for index, command in enumerate(commands_list):
                 end_time.append(time.time())
                 update_summary("start_time", start_time)
                 update_summary("end_time", end_time)
+
                 print(result.stdout, end="")  # print to stdout to pass it to log file
                 with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
                     each_command_output_file.write(f"######## {index} command #######\n")
@@ -106,6 +107,7 @@ for index, command in enumerate(commands_list):
                     stop_when_failed = py_utils.is_positive(os.environ["STOP_WHEN_FAILED"])
                     if stop_when_failed == "0":
                         print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is set and there are some errors detected so stop all process")
+                        sys.exit(10)
                     else:
                         print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is NOT set so skip this error.")
 

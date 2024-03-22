@@ -24,15 +24,18 @@ spec:
         apiVersion: v1
         kind: Secret
         metadata:
-          annotations:
-            serving.kserve.io/s3-endpoint: $(params.MINIO_S3_SVC_URL)
-            serving.kserve.io/s3-usehttps: "0" # by default 1, if testing with minio you can set to 0
-            serving.kserve.io/s3-region: "us-east-1"
-            serving.kserve.io/s3-useanoncredential: "false" # omitting this is the same as false, if true will ignore provided credential and use anonymous credentials
           name: storage-config
-        stringData:
-          "AWS_ACCESS_KEY_ID": $(params.MINIO_ACCESS_KEY_ID)
-          "AWS_SECRET_ACCESS_KEY": $(params.MINIO_SECRET_ACCESS_KEY)
+        stringData: 
+          aws-connection-minio: |
+            {
+              "type": "s3",
+              "access_key_id": "$(params.MINIO_ACCESS_KEY_ID)",
+              "secret_access_key": "$(params.MINIO_SECRET_ACCESS_KEY)",
+              "endpoint_url": "$(params.MINIO_S3_SVC_URL)",
+              "bucket": "modelmesh-example-models",
+              "default_bucket": "modelmesh-example-models",
+              "region": "us-east-2"
+            }
         YAML
         
         # deploy service account 

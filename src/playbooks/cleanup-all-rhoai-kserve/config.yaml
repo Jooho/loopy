@@ -63,7 +63,11 @@ playbook:
 
             # Dependences
             oc delete ServiceMeshControlPlane,pod --all -n istio-system --force --grace-period=0  -n istio-system %%
-            oc delete smmr,smm --all --force --grace-period=0  -n istio-system                                    %%
+            # deletes the data-science-smcp, if hangs here, make sure to delete the miastra mutating webhook as well.
+            oc patch smcp $(oc get smcp -n istio-system | awk 'NR>1 {print $1}') -n istio-system -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc delete smcp -n istio-system $(oc get smcp -n istio-system | awk 'NR>1 {print $1}')                                                   %%
+            oc patch smmr $(oc get smmr -n istio-system | awk 'NR>1 {print $1}') -n istio-system -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc delete smmr,smm --all --force --grace-period=0  -n istio-system                                                                      %%
 
             oc delete KnativeServing,pod --all -n rhoai-serverless --force --grace-period=0  %%
             oc patch ns rhoai-serverless -p '{"metadata": {"finalizers": []}}' --type=merge  %%
@@ -91,6 +95,7 @@ playbook:
             oc delete csv -n openshift-operators $(oc get csv -n openshift-operators |grep authorino-operator|awk '{print $1}') %%
 
             oc delete sub servicemeshoperator --force --grace-period=0 -n openshift-operators                                     %%
+            oc delete svc maistra-admission-controller -n openshift-operators                                                     %%
             oc delete csv $(oc get csv -n openshift-operators | grep servicemeshoperator|awk '{print $1}') -n openshift-operators %%
 
             oc delete sub serverless-operator --force --grace-period=0 -n openshift-operators                                      %%

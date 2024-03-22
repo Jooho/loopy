@@ -25,5 +25,5 @@ spec:
         echo "########################################################################"
         echo "executing python infer-model.py -p $(params.PROTOCOL)"
         # the endpoint parameter should be provided by configuration file from previous task (deploy-isvc)
-        python infer-model.py -p $(params.PROTOCOL)
+        python infer-model.py -p $(params.PROTOCOL) -d $(workspaces.source.path)
       resources: {}

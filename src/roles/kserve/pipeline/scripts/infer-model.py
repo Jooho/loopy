@@ -35,13 +35,15 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=int, default=443, help='Model endpoint port, required for grpc protocol')
     parser.add_argument('-p', '--protocol', default='https', type=str,
                         help='Infer the model using the selected protocol (http or grpc), default is http')
-
-    file_path = 'output-envs.properties'
+    parser.add_argument('-d', '--directory', type=str, help='the directory to write the endpoint file to',
+                        required=True)
 
     args = parser.parse_args()
     endpoint = args.endpoint
     protocol = args.protocol
     port = args.port
+
+    file_path = os.path.join(args.directory, "output-envs.properties")
 
     if os.path.exists(file_path):
         with open(file_path, 'rb') as f:

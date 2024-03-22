@@ -47,11 +47,13 @@ role:
       required: true
       description: The minio id that contains test models
     - name: MINIO_SECRET_ACCESS_KEY
-      required: true
       description: The minio password that contains test models
     - name: MINIO_S3_SVC_URL
-      required: true
       description: The minio url that contains test models
+    - name: DEFAULT_BUCKET_NAME
+      description: Set your own bucket name, if you want to user your own bucket
+    - name: MINIO_REGION
+      description: Minio does not use region so you don't need to set this. This is to align with the standard protocol of S3
 
     - name: GIT_URL
       description: url of the git repo for the code of deployment
@@ -65,6 +67,8 @@ role:
       description: OpenShift CLI Container image. default is image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     - name: ISVC_DEPLOYMENT_VERBOSE
       description: Enables the verbose output for the isvc deployment. Defaults to true.
+    - name: ISVC_DEPLOYMENT_MODE
+      description: Set deploymentMode for isvc deployment. Defaults to Serverless
     - name: KEEP_NAMESPACE
       description: Enables the verbose output for the isvc deployment. Defaults to false.
 

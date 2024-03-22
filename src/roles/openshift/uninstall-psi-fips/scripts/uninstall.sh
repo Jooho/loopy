@@ -15,7 +15,7 @@ fi
 # Default values for parameters
 ODS_CI_RUN_SCRIPT_ARGS="--extra-robot-args '-i ODS-127'"
 CLUSTER_TYPE="selfmanaged"
-TEST_CLUSTERS="ods-ci-fips-ms"
+CLUSTER_NAME="ods-ci-fips-ms"
 CLUSTER_ACTION_POST_EXECUTION="Delete"
 TEST_PLATFORM="stage"
 JENKINS_BASE_URL=""
@@ -32,7 +32,7 @@ display_help() {
     echo "   -a, --args                         Set ODS_CI_RUN_SCRIPT_ARGS"
     echo "   -c, --cluster-action               Set CLUSTER_ACTION_POST_EXECUTION"
     echo "   -ct, --cluster-type                Set CLUSTER_TYPE, possible values are managed and selfmanaged, defaults to selfmanaged."
-    echo "   -n, --cluster                      Set TEST_CLUSTERS - is the cluster name that will be deleted, defaults to ${TEST_CLUSTERS}, comma separated."
+    echo "   -n, --cluster                      Set CLUSTER_NAME - is the cluster name that will be deleted, defaults to ${CLUSTER_NAME}, comma separated."
     echo "   -tp, --test-platform               Set TEST_PLATFORM - available values are stage and prod, defaults to stage."
     echo "   -h, --help                         Display help menu"
     echo
@@ -81,7 +81,7 @@ while (( "$#" )); do
       shift 2
       ;;
     -n|--cluster)
-      TEST_CLUSTERS="$2"
+      CLUSTER_NAME="$2"
       shift 2
       ;;
     -to|--test-platform)
@@ -122,7 +122,7 @@ fi
 declare -a parameters_array=(
     "ODS_CI_RUN_SCRIPT_ARGS=$ODS_CI_RUN_SCRIPT_ARGS"
     "CLUSTER_ACTION_POST_EXECUTION=$CLUSTER_ACTION_POST_EXECUTION"
-    "TEST_CLUSTERS=$TEST_CLUSTERS"
+    "CLUSTER_NAME=$CLUSTER_NAME"
     "CLUSTER_TYPE=$CLUSTER_TYPE"
     "TEST_PLATFORM=$TEST_PLATFORM"
 )
@@ -214,7 +214,7 @@ while true; do
     fi
     # Update the build logs
     build_logs="$new_build_logs"
-
+    echo ${build_logs} > ${ROLE_DIR}/build.log
     # Wait before polling the logs again
     sleep 2
 done

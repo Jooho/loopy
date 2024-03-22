@@ -1,35 +1,35 @@
 role:
-  created_date: "20240205"
-  name: openshift-uninstall
-  output_filename: openshift-cluster-output.sh
+  created_date: "20240322"
+  name: openshift-fips-uninstall
+  # output_filename: openshift-cluster-output.sh
   description: | 
-    Uninstall a cluster from PSI infra.
+    Uninstall a cluster from PSI(FIPS) infra.
     
     How to run it:
-    ./loopy roles run openshift-uninstall \
-      -p CLUSTER_TYPE=FIPS \
+    ./loopy roles run openshift-fips-uninstall \
       -p JENKINS_USER=user \
       -p JENKINS_TOKEN=jenkins_user_token \
       -p JENKINS_JOB_URL=jenkins_job_url
 
     The default cluster name is 'ods-ci-fips-ms'
-    To override it, use TEST_CLUSTERS parameter, e.g. -p TEST_CLUSTERS=ods-ci-fips-ms,ods-ci-fips-ms2
+    To override it, use CLUSTER_NAME parameter, e.g. -p CLUSTER_NAME=ods-ci-fips-ms,ods-ci-fips-ms2
 
   input_env:
     - name: CLUSTER_TYPE
       description: Type of cluster
-      required: true
-    # FIPS Enabled cluster - missing mandatory parameters will be checked by the script so this config file
-    # be reused for rosa and psi options
-    - name: TEST_CLUSTERS
+      default: FIPS
+    - name: CLUSTER_NAME
       description: List of clusters to test (optional), comma separated, defaults to ods-ci-fips-ms
+
     - name: JENKINS_JOB_URL
       description: Jenkins Job URL.
+      required: true
     - name: JENKINS_USER
       description: Jenkins Username
+      required: true
     - name: JENKINS_TOKEN
       description: Jenkins Token
+      required: true
+
     - name: EXTRA_PARAMS
       description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"
-    # end of FIPS enabled cluster
-

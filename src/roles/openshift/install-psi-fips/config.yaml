@@ -13,15 +13,10 @@ role:
 
     This role takes input parameters to facilitate the installation of an OpenShift cluster on PSI Using QE Pipeline.
     The parameters include:
-      - CLUSTER_TYPE: Specifies the type of cluster being installed (e.g., PSI, ROSA).
       - JENKINS_USER: Jenkins username used for authentication.
       - JENKINS_TOKEN: Jenkins token used for authentication.
       - JENKINS_JOB_URL: URL of the Jenkins job associated with the cluster installation.
       - EXTRA_PARAMS: Additional parameters for installing the FIPS-enabled cluster.
-      - OSIA_CONFIGURATION_KEY_PATH: Path to the private key for the OSAI repository.
-      - CLUSTER_NAME: Name of the OpenShift cluster being installed.
-      - MACHINE_POOL_TYPE: Specifies the type of OpenShift node.
-    
     
     Output Environment:
 
@@ -30,21 +25,19 @@ role:
     The output variables include:
       - CLUSTER_CONSOLE_URL: URL of the OpenShift console.
       - CLUSTER_API_URL: URL of the OpenShift API.
-      - CLUSTER_TYPE: Type of the OpenShift cluster (PSI, ROSA).
+      - CLUSTER_TYPE: Type of the OpenShift cluster (FIPS).
       - CLUSTER_ADMIN_ID: User ID of the OpenShift cluster administrator.
       - CLUSTER_ADMIN_PW: Password of the OpenShift cluster administrator.
       - CLUSTER_TOKEN: Login token for accessing the OpenShift cluster.
     
     To run it:
     ./loopy roles run openshift-install \
-      -p CLUSTER_TYPE=FIPS \
       -p JENKINS_USER=username \
       -p JENKINS_TOKEN=jenkins_user_token \
       -p JENKINS_JOB_URL=jenkins_job_url 
 
     To see the full list of extra parameters:
     ./loopy roles run openshift-install \
-      -p CLUSTER_TYPE=FIPS \
       -p JENKINS_USER=username \
       -p JENKINS_TOKEN=jenkins_user_token \
       -p JENKINS_JOB_URL=jenkins_job_url \
@@ -53,7 +46,7 @@ role:
   input_env:
     - name: CLUSTER_TYPE
       description: Type of cluster
-      default: PSI
+      default: FIPS
 
     - name: JENKINS_USER
       description: Jenkins username

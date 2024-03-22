@@ -29,7 +29,7 @@ spec:
         cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
         pip install -r requirements.txt
         echo "executing -> python deploy-isvc.py -p $(params.PROTOCOL) -n $(params.WORKING_NAMESPACE)"
-        python deploy-isvc.py -p $(params.PROTOCOL) -n $(params.WORKING_NAMESPACE) -d $(workspaces.source.path)
+        python deploy-isvc.py -p $(params.PROTOCOL) -n $(params.WORKING_NAMESPACE) -d $(workspaces.source.path) -m ${params.ISV_DEPLOYMENT_MODE}
         
         cat $(workspaces.source.path)/output-envs.properties
       resources: {}

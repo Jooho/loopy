@@ -12,7 +12,7 @@ from kserve import constants
 from kubernetes import client
 
 
-def deploy_isvc(protocol, namespace, verbose, directory):
+def deploy_isvc(protocol, namespace, verbose, directory, deployment_mode):
 
     runtime = "caikit-tgis-runtime"
     name = "caikit-tgis-isvc"
@@ -27,7 +27,6 @@ def deploy_isvc(protocol, namespace, verbose, directory):
 
     default_model_spec = V1beta1InferenceServiceSpec(
         predictor=V1beta1PredictorSpec(
-            service_account_name="sa",
             model=V1beta1ModelSpec(
                 model_format=V1beta1ModelFormat(name="caikit"),
                 runtime=runtime,
@@ -39,7 +38,17 @@ def deploy_isvc(protocol, namespace, verbose, directory):
             )
         )
     )
+    raw_annotations={"serving.kserve.io/deploymentMode": "RawDeployment"}
+    serverless_annotations={
+        "serving.knative.openshift.io/enablePassthrough": "true",
+        "sidecar.istio.io/inject": "true",
+        "sidecar.istio.io/rewriteAppHTTPProbers": "true"
+    }
 
+    if deployment_mode.lower() == "rawdeployment":
+        annotations=raw_annotations
+    else:
+        annotations=serverless_annotations
 
     isvc = V1beta1InferenceService(api_version=constants.KSERVE_V1BETA1,
                                    kind=constants.KSERVE_KIND,
@@ -47,11 +56,7 @@ def deploy_isvc(protocol, namespace, verbose, directory):
                                        labels={"pipeline": "caikit-pipeline-test"},
                                        name=name,
                                        namespace=namespace,
-                                       annotations={
-                                           "serving.knative.openshift.io/enablePassthrough": "true",
-                                           "sidecar.istio.io/inject": "true",
-                                           "sidecar.istio.io/rewriteAppHTTPProbers": "true"
-                                       },
+                                       annotations=f"{annotations}",
                                    ),
                                    spec=default_model_spec)
 
@@ -76,6 +81,7 @@ def deploy_isvc(protocol, namespace, verbose, directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='CaKit Inference caller')
+    parser.add_argument('-m', '--deployment-mode', default='Serverless', type=str, help='Serverless or RawDeployment')
     parser.add_argument('-n', '--namespace', type=str, help='Models isvc target namespace')
     parser.add_argument('-v', '--verbose', default=False, action='store_true', help='List swf builder images')
     parser.add_argument('-p', '--protocol', default='http', type=str,
@@ -87,6 +93,4 @@ if __name__ == "__main__":
     if args.namespace is None:
         raise ValueError("Namespace is required")
 
-    deploy_isvc(args.protocol, args.namespace, args.verbose, args.directory)
-
-
+    deploy_isvc(args.protocol, args.namespace, args.verbose, args.directory, args.deployment_mode)

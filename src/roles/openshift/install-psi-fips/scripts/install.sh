@@ -285,7 +285,7 @@ while true; do
     fi
     # Update the build logs
     build_logs="$new_build_logs"
-    echo ${build_logs} >> ${REPORT_FILE}
+    echo ${build_logs} > ${ROLE_DIR}/build.log
     # Wait before polling the logs again
     sleep 2
 done
@@ -293,4 +293,3 @@ done
 # Download the file to a specific directory
 echo "Downloading the test-variables.yml file...."
 curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
-

@@ -75,7 +75,8 @@ fi
 oc apply -f ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
 ############# VERIFY #############
-errorHappened=$(wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE})
+wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE}
+errorHappened=$?
 oc wait --for=condition=ready pod -l app=minio -n ${MINIO_NAMESPACE} --timeout=10s
 
 result=$?

@@ -29,6 +29,7 @@ source $root_directory/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 index_role_name=$(basename $ROLE_DIR)
 
+errorHappened=1 # 0 is true, 1 is false
 ### Main logic ###
 # call the install.sh script
 echo "Calling the install.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} ${EXTRA_PARAMS}"
@@ -47,7 +48,7 @@ else
   cluster_console_url=$(echo "$file_content" | yq -r ".OCP_CONSOLE_URL")
 
   # set the cluster api and retrieve the user token
-    cluster_name=$(echo $cluster_console_url | sed 's/.*\.apps\.\(.*\..*\)/\1/')
+  cluster_name=$(echo $cluster_console_url | sed 's/.*\.apps\.\(.*\..*\)/\1/')
   cluster_api_url="https://api.$cluster_name:6443"
   oc login -u "${cluster_admin_id}" -p ${cluster_admin_pw} --server=${cluster_api_url} --insecure-skip-tls-verify=true >/dev/null
   cluster_token=$(oc whoami -t)

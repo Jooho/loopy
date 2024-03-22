@@ -15,6 +15,10 @@ spec:
       type: string
     - name: MINIO_S3_SVC_URL
       type: string
+    - name: DEFAULT_BUCKET_NAME
+      type: string
+    - name: MINIO_REGION
+      type: string            
   steps:
     - name: deploy-secret
       image: $(params.OC_IMAGE)
@@ -32,19 +36,9 @@ spec:
               "access_key_id": "$(params.MINIO_ACCESS_KEY_ID)",
               "secret_access_key": "$(params.MINIO_SECRET_ACCESS_KEY)",
               "endpoint_url": "$(params.MINIO_S3_SVC_URL)",
-              "bucket": "modelmesh-example-models",
-              "default_bucket": "modelmesh-example-models",
-              "region": "us-east-2"
+              "bucket": "${params.DEFAULT_BUCKET_NAME}",
+              "default_bucket": "${params.DEFAULT_BUCKET_NAME}",
+              "region": "${params.MINIO_REGION}"
             }
-        YAML
-        
-        # deploy service account 
-        oc apply -n $(params.WORKING_NAMESPACE) -f - <<YAML
-        apiVersion: v1
-        kind: ServiceAccount
-        metadata:
-          name: sa
-        secrets:
-        - name: storage-config
         YAML
       resources: {}

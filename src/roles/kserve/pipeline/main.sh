@@ -100,7 +100,6 @@ else
   result="0"
 fi
 
-
 if [[ $errorHappened == "0" ]]
 then
   info "There are some errors in the role"
@@ -112,8 +111,11 @@ then
     info "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is NOT set so skip this error."
   fi
 fi 
-
 ############# OUTPUT #############
+############# REPORT #############
+echo ${index_role_name}::$result >> ${REPORT_FILE}
+
+############# CLEAN UP #############
 if [ "${KEEP_NAMESPACE}" = "true" ]; then
   echo "Keeping the namespace ${WORKING_NAMESPACE}"
 else
@@ -123,5 +125,3 @@ else
   done
   oc delete project ${WORKING_NAMESPACE}
 fi
-############# REPORT #############
-echo ${index_role_name}::$result >> ${REPORT_FILE}

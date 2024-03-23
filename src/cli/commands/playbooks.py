@@ -5,6 +5,7 @@ import utils
 import yaml
 import units
 import roles
+import loopy_report 
 from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
@@ -58,12 +59,13 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                 steps = playbook_config_vars["playbook"]["steps"]
 
     playbook = Playbook(playbook_name)
+    role_count=0
     for py_index, step in enumerate(steps):
         if list(step)[0] == "role":
             role_name = step["role"]["name"]
             additional_input_env = utils.get_input_env_from_config_data(step["role"])
             role = Role(
-                ctx, py_index, role_list, role_name, params, None, additional_input_env
+                ctx, role_count, role_list, role_name, params, None, additional_input_env
             )
             if additional_input_env is not None:
                 unit = Unit(role_name + "-unit")
@@ -71,12 +73,13 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                 playbook.add_component(unit)
             else:
                 playbook.add_component(role)
+            role_count+=1
         if list(step)[0] == "unit":
             unit_name = step["unit"]["name"]
             unit_input_env_in_playbook = utils.get_input_env_from_config_data(step["unit"])
 
             unit = Unit(unit_name)
-            unit_config_data = utils.get_config_data_by_name( ctx, unit_name, "unit", unit_list )["unit"]
+            unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list )["unit"]
             # When Unit have multiple roles
             if "steps" in unit_config_data:
                 for index, step in enumerate(unit_config_data["steps"]):
@@ -87,19 +90,21 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
                     additional_input_env = utils.get_input_env_from_config_data( step["role"] )
                     if index == 0:
                         merged_unit_input_env_in_py_with_role_input_env = {**unit_input_env_in_playbook, **additional_input_env} if unit_input_env_in_playbook and additional_input_env else (unit_input_env_in_playbook or additional_input_env or {})
-                        role = Role( ctx, py_index+index, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
+                        role = Role( ctx, role_count, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
+                        role_count+=1
                     else:
-                        role = Role( ctx, py_index+index, role_list, role_name, params, None, additional_input_env )
+                        role = Role( ctx,  role_count, role_list, role_name, params, None, additional_input_env )
+                        role_count+=1
                     unit.add_component(role)
             # When Unit have single role
             else:
                 additional_input_env = utils.get_input_env_from_config_data( unit_config_data["role"] )
-                role = Role(   ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name( unit_name, unit_list ), params, None, additional_input_env )
+                role = Role(   ctx, role_count, role_list, utils.get_first_role_name_in_unit_by_unit_name( unit_name, unit_list ), params, None, additional_input_env )
                 unit.add_component(role)
 
             playbook.add_component(unit)
     playbook.start()
-    utils.summary(ctx,"playbook",playbook_config_vars,unit_list)
+    loopy_report.summary(ctx,"playbook",playbook_config_vars,unit_list)
 
 def merge_unit_input_env_in_py_with_first_role_in_unit(unit_name, playbook_unit_input_env):
     for unit in unit_list:

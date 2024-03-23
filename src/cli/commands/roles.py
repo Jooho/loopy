@@ -3,6 +3,7 @@ import os
 import click
 import utils
 import yaml
+import loopy_report 
 from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
@@ -53,7 +54,7 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
 
     role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
     role.start()
-    utils.summary(ctx, "role", None,None)
+    loopy_report.summary(ctx, "role", None,None)
 
 def verify_role_exist(role_name):
     for item in role_list:

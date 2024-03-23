@@ -4,6 +4,7 @@ import click
 import utils
 import yaml
 import roles
+import loopy_report 
 from component import Role, Unit, Get_required_input_keys
 from colorama import Fore, Style, Back
 
@@ -69,7 +70,7 @@ def run_unit(
         role = Role( ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name(unit_name, unit_list), params, output_env_file_name, additional_input_env )
         unit.add_component(role)
     unit.start()
-    utils.summary(ctx, "unit", unit_config_data,unit_list)
+    loopy_report.summary(ctx, "unit", unit_config_data,unit_list)
 
 
 def verify_unit_exist(unit_name):

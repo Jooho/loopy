@@ -33,7 +33,8 @@ class Role:
             end_time = summary_dict["end_time"]
         else:
             end_time = []
-        start_time.append(time.time())
+        if self.name != "shell-execute":
+            start_time.append(time.time())
         update_summary("start_time", start_time)
         if first_component_type is None:
             first_component_type = "Role"
@@ -102,7 +103,8 @@ class Role:
             end_time = summary_dict["end_time"]
         else:
             end_time = []
-        end_time.append(time.time())
+        if self.name != "shell-execute":
+            end_time.append(time.time())
         update_summary("end_time", end_time)
 
 

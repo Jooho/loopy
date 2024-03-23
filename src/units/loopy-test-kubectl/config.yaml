@@ -1,24 +1,31 @@
 unit:
   created_date: "20240221"
-  name: test-kubectl
+  name: loopy-test-kubectl
   description: This unit is to explain how to use shell-execute role.
   steps: 
-    - role:
-        name: cert-generate
-        description: "generate certificate"
-        input_env:
-          SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
-          STOP_WHEN_FAILED: "True"
+    # - role:
+    #     name: cert-generate
+    #     description: "generate certificate"
+    #     input_env:
+    #       SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
+    #       STOP_WHEN_FAILED: "True"
     - role:
        name: shell-execute
        description: deploy modelmesh 
        input_env:
          COMMANDS: |
-          env %%
-          echo ${crt_content}  %%
-          export crt_content=${ROOT_CA_CERT_FILE_PATH}           %%
-          echo ${ROOT_CA_CERT_FILE_PATH} %%
-          echoe ${crt_content}  %%
+           echo "unit-role1-c1" 
+    - role:
+       name: shell-execute
+       description: deploy modelmesh2 
+       input_env:
+         COMMANDS: |
+           echo "unit-role2-c1" %% echo3 "unit-role2-c2"
+          # env %%
+          # echo ${crt_content}  %%
+          # export crt_content=${ROOT_CA_CERT_FILE_PATH}           %%
+          # echo ${ROOT_CA_CERT_FILE_PATH} %%
+          # echoe ${crt_content}  %%
           # kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $crt_content)"'"}]' %%
           # oc delete pod --all -n kserve-demo %%
 

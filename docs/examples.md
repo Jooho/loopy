@@ -66,3 +66,23 @@ make init
 ./loopy units run install-serverless-stable-operator  -i ~/temp/TEST_CLUSTER/integrate_test_j.sh
 ./loopy playbooks run deploy-ssl-minio  -i ~/temp/TEST_CLUSTER/integrate_test_j.sh
 ~~~
+
+
+
+report test
+~~~
+./loopy roles run shell-execute -p COMMANDS="ls%%hostname"
+./loopy units run loopy-test-kubectl
+./loopy playbooks run loopy-test-report-playbook
+~~~
+related_component
+- playbook: loopy-test-report-playbook
+  - unit: loopy-test-cert-generate 
+  - role: shell-execute
+  - unit: loopy-test-kubectl 
+- unit: loopy-test-cert-generate 
+  - role: generate-cert
+  - role: shell-execute
+- unit: loopy-test-kubectl
+  - role: shell-execute
+  - role shell-execute

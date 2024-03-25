@@ -1,4 +1,5 @@
 import os
+import sys
 import yaml
 import re
 import click
@@ -135,6 +136,7 @@ def get_config_data_by_config_file_dir(ctx, config_file_dir):
 
 
 def get_config_data_by_name(ctx, name, type, list):
+    path=""    
     if type == "unit":
         for unit in list:
             if name == unit["name"]:
@@ -143,6 +145,9 @@ def get_config_data_by_name(ctx, name, type, list):
         for role in list:
             if name == role["name"]:
                 path = role["path"]
+    if path == "":
+        ctx.invoke(click.echo,f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}") 
+        sys.exit(1)
     return get_config_data_by_config_file_dir(ctx, path)
 
 
@@ -230,4 +235,3 @@ def print_logo():
             else:
                 result += char
         print(result)
-

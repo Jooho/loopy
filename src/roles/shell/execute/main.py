@@ -67,7 +67,7 @@ else:
 for index, command in enumerate(commands_list):
     load_summary()
     command = command.strip()
-    if command:
+    if command.strip() != '':
         try:
             if not command.startswith("#"):
                 start_time.append(time.time())
@@ -102,17 +102,18 @@ for index, command in enumerate(commands_list):
                         errorHappened = "0"
                     results.append(f"{index_role_name}::command::{index+1}::{result.returncode}")
 
-                if errorHappened == "0":
-                    print("There are some errors in the role")
-                    stop_when_failed = py_utils.is_positive(os.environ["STOP_WHEN_FAILED"])
-                    if stop_when_failed == "0":
-                        print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is set and there are some errors detected so stop all process")
-                        sys.exit(10)
-                    else:
-                        print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is NOT set so skip this error.")
 
         except Exception as e:
             print(f"Error occurred while executing command '{command}': {e}")
+    
+    if errorHappened == "0":
+        print("There are some errors in the role")
+        stop_when_failed = py_utils.is_positive(os.environ["STOP_WHEN_FAILED"])
+        if stop_when_failed == "0":
+            print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is set and there are some errors detected so stop all process")
+            sys.exit(10)
+        else:
+            print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is NOT set so skip this error.")
 
     ############# REPORT #############
 

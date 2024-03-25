@@ -32,7 +32,7 @@ playbook:
        description: Update DSCI for customCABundle that is root.crt for minio
        input_env:
          COMMANDS: |
-          kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $ROOT_CA_CERT_FILE_PATH)"'"}]' %% 
+          kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $ROOT_CA_CERT_FILE_PATH)"'"}]'
    - role:
        name: shell-execute
        description: create kserve-demo ns and add labels for data science ns

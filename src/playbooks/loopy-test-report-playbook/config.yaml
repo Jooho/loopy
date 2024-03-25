@@ -6,7 +6,7 @@ playbook:
     This is tested with ODH 2.9+
   steps:
     - unit:
-        name: test-cert-generate
+        name: loopy-test-cert-generate
         description: "playbook-generate certificate"
         input_env:
           SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
@@ -25,7 +25,7 @@ playbook:
             echo "playbook-role-c1" %% echo "playbook-role-c2"          
 
     - unit:
-        name: test-kubectl         
+        name: loopy-test-kubectl         
         description: TEST_TEST
       #(example)
       #       oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"

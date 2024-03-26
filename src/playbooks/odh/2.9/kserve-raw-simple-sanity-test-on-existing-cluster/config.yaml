@@ -22,8 +22,9 @@ playbook:
        name: install-odh-stable-operator-without-dsci
        description: Install ODH operator 2.9.0 version
        input_env:
-            OPERATOR_VERSION: "2.9.0"
+            OPERATOR_VERSION: "v2.9.0"
             INSTALL_APPROVAL: Manual
+            CHANNEL: "fast"
     - role:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"

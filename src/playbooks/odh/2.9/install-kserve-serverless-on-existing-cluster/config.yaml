@@ -19,7 +19,8 @@ playbook:
    - unit:
        name: install-odh-stable-operator      
        input_env:
-         OPERATOR_VERSION: "2.9.0"
+         CHANNEL: "fast"
+         OPERATOR_VERSION: "v2.9.0"
          INSTALL_APPROVAL: Manual
    - unit:
        name: install-serverless-stable-operator         

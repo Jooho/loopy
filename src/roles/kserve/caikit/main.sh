@@ -94,10 +94,10 @@ sed -e \
 
 if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]
 then
-  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.serving.knative.openshift.io/enablePassthrough'
-  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.sidecar.istio.io/inject'
-  yq d -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.sidecar.istio.io/rewriteAppHTTPProbers'
-  yq w -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 'metadata.annotations.serving.kserve.io/deploymentMode' RawDeployment
+  yq e 'del(.metadata.annotations."serving.knative.openshift.io/enablePassthrough")' -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 
+  yq e 'del(.metadata.annotations."sidecar.istio.io/inject")' -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 
+  yq e 'del(.metadata.annotations."sidecar.istio.io/rewriteAppHTTPProbers")' -i  ${ROLE_DIR}/$(basename $inferenceservice_manifests) 
+  yq eval '.metadata.annotations += {"serving.kserve.io/deploymentMode": "RawDeployment"}'  -i ${ROLE_DIR}/$(basename $inferenceservice_manifests) 
 fi
 
 if [[ ${STORAGE_CONFIG_TYPE} != "json" ]]

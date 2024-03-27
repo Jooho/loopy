@@ -40,7 +40,7 @@ fi
 
 # call the install.sh script
 echo "Calling the uninstall.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} -n ${CLUSTER_NAME} ${EXTRA_PARAMS}"
-${current_dir}/scripts/uninstall.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_JOB_URL} -n ${CLUSTER_NAME} ${EXTRA_PARAMS}
+${current_dir}/scripts/uninstall.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}${JENKINS_JOB_URI} -n ${CLUSTER_NAME} ${EXTRA_PARAMS}
 
 result=$?
 if [[ $result == 0 ]]

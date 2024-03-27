@@ -56,9 +56,13 @@ role:
       description: Jenkins token
       required: true
 
-    - name: JENKINS_JOB_URL
-      description: URL of Jenkins job
+    - name: JENKINS_URL
+      description: URL of Jenkins Server URL
       required: true
+
+    - name: JENKINS_JOB_URI
+      description: URL of Jenkins create job
+      default: /job/rhods/job/rhods-smoke/build
 
     - name: EXTRA_PARAMS
       description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"

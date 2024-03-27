@@ -21,9 +21,14 @@ role:
     - name: CLUSTER_NAME
       description: List of clusters to test (optional), comma separated, defaults to ods-ci-fips-ms
 
-    - name: JENKINS_JOB_URL
-      description: Jenkins Job URL.
+    - name: JENKINS_URL
+      description: URL of Jenkins Server URL
       required: true
+
+    - name: JENKINS_JOB_URI
+      description: URL of Jenkins delete job
+      default: /job/tools/job/openshift/job/cluster-operations/build
+
     - name: JENKINS_USER
       description: Jenkins Username
       required: true

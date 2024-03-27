@@ -42,10 +42,11 @@ fi
 echo "Calling the uninstall.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} -n ${CLUSTER_NAME} ${EXTRA_PARAMS}"
 ${current_dir}/scripts/uninstall.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}${JENKINS_JOB_URI} -n ${CLUSTER_NAME} ${EXTRA_PARAMS}
 
-result=$?
-if [[ $result == 0 ]]
+result=1
+result_text=$(cat ${ROLE_DIR}/result)
+if [[ $result_text == "SUCCESS" ]]
 then
-  success "[SUCCESS] FIPS Openshift Cluster is successfully created"
+  success "[SUCCESS] FIPS Openshift Cluster is successfully uninstalled"
   result=0
 else
   error "Failed to delete FIPS cluster(s): ${CLUSTER_NAME}"

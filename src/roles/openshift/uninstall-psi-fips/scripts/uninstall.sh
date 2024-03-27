@@ -200,6 +200,7 @@ while true; do
         exit 0
     elif [ "$job_status" != "null" ]; then
         echo "JOB STATUS: $job_status"
+        echo "$job_status" > ${ROLE_DIR}/result
         break
     fi
 
@@ -218,3 +219,7 @@ while true; do
     # Wait before polling the logs again
     sleep 2
 done
+if [ ! -f ${ROLE_DIR}/result ]
+then
+  echo "SUCCESS" > ${ROLE_DIR}/result
+fi

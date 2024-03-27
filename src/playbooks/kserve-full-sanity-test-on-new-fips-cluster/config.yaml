@@ -20,18 +20,6 @@ playbook:
     - unit:
         name: install-authorino-stable-operator
     - unit:
-        name: install-odh-stable-operator
-        input_env:
-          CHANNEL: "fast"
-    - unit:
-        name: install-serverless-stable-operator
-    - unit:
-        name: install-ossm-stable-operator
-    - unit:
-        name: install-pipelines-stable-operator
-    - role:
-        name: opendatahub-create-dsc
-    - unit:
         name: test-kserve-caikit-tgis-rest
     - role:
         name: kserve-caikit-test-using-pipeline

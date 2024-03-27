@@ -23,7 +23,7 @@ CLUSTER_TYPE="selfmanaged"
 TESTBED_TO_USE="Create new OCP Cluster"
 TEST_CLUSTER="ods-ci-fips-ms"
 TEST_CLUSTER_DETAILS="regionOne,3,g.standard.xxl,4.14-latest,stable"
-PSI_PARAMS="rhos-01,,,"
+PSI_PARAMS="rhos-d,,,"
 DEPLOY_RHODS_OPERATOR="true"
 RHODS_DEPLOYMENT_TYPE="Cli"
 OPERATOR_TYPE="RHODS Operator V2"
@@ -292,4 +292,4 @@ done
 
 # Download the file to a specific directory
 echo "Downloading the test-variables.yml file...."
-curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
+curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yml"

@@ -94,7 +94,7 @@ class Role:
         print(f"{Fore.BLUE}Role '{self.name}': Validating output file with specific environment variables{Style.RESET_ALL}")
         validate_output_env_file(output_env_file_full_path, self.role_config_dir_path)
         print(f"{Fore.BLUE}Role '{self.name}': Releasing exported environment variables for this role{Style.RESET_ALL}")
-        release_exported_env_variables(aggregated_input_vars)
+        release_exported_env_variables(self.ctx, aggregated_input_vars)
         print(f"{Back.BLUE}Finished Role '{self.name}' {Style.RESET_ALL}")
         print()
         # for summary
@@ -160,9 +160,11 @@ def create_dir_if_does_not_exist(directory_path):
             print(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Style.RESET_ALL}")
 
 
-def release_exported_env_variables(input_variabels):
+def release_exported_env_variables(ctx, input_variabels):
+    keep_env_variables = ctx.obj.get("config", "config_data")["config_data"]["keep_env_variables"]
     for input_var in input_variabels:
-        os.environ.pop(input_var)
+        if input_var not in keep_env_variables:
+            os.environ.pop(input_var)
 
     print(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Style.RESET_ALL}")
 

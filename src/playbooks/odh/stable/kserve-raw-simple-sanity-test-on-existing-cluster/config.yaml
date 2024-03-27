@@ -4,26 +4,17 @@ playbook:
   description: |
     This playbook will deploy kserve rawDeployment mode with ODH 2.8.
 
-    This is a playbook for kserve rawDeployment end to end test. It installs required operators(authorino 0.10.0) and install ODH 2.8.0 version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+    This is a playbook for kserve rawDeployment end to end test. It installs ODH operator through fast channel. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
 
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
 
-    operator version:
+    Tested operator version:
     - ODH 2.9.0
-    - Authorino 0.10.0
   steps:
     - unit:
-       name: install-authorino-stable-operator       
-       description: Install Authorino operator v0.10.0 version
-       input_env:
-            OPERATOR_VERSION: "v0.10.0"
-            INSTALL_APPROVAL: Manual
-    - unit:
        name: install-odh-stable-operator-without-dsci
-       description: Install ODH operator 2.9.0 version
+       description: Install ODH operator fast channel
        input_env:
-            OPERATOR_VERSION: "v2.9.0"
-            INSTALL_APPROVAL: Manual
             CHANNEL: "fast"
     - role:
         name: opendatahub-create-dsci 

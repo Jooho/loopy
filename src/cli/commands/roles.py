@@ -4,6 +4,7 @@ import click
 import utils
 import yaml
 import loopy_report 
+import py_utils
 from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
@@ -46,7 +47,7 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
     utils.print_logo()
     # role command specific validation
     verify_role_exist(role_name)
-    verify_if_param_exist_in_role(params, role_name)
+    verify_if_param_exist_in_role(ctx, params, role_name)
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)
     
     # Params is priority. additional vars will be overwritten by params
@@ -64,9 +65,7 @@ def verify_role_exist(role_name):
     exit(1)
 
 
-def verify_if_param_exist_in_role(params, role_name):
-    print(f"{params}")
-    print(f"{role_name}")
+def verify_if_param_exist_in_role(ctx, params, role_name):
     if not params:
         return
     input_exist = False
@@ -84,7 +83,11 @@ def verify_if_param_exist_in_role(params, role_name):
                             break
                         else:
                             input_exist = False
+                            
+    ignore_validate_env_input = py_utils.is_positive(ctx.obj.get("config", "config_data")["config_data"])["ignore_validate_env_input"]                            
     if input_exist:
+        return
+    elif ignore_validate_env_input == 1:
         return
     else:
         print(f"{Fore.RED}no input enviroment name exist:{Back.BLUE} {target_param} {Style.RESET_ALL}")

@@ -7,7 +7,7 @@ playbook:
 
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
     
-    Operator version:
+    Tested operator version:
     - ODH 2.9.0
     - Authorino 0.10.0
     - Serverless 1.32
@@ -15,27 +15,32 @@ playbook:
   steps:
    - unit:
        name: install-authorino-stable-operator          
-       input_env:
-         OPERATOR_VERSION: "v0.10.0"
-         INSTALL_APPROVAL: Manual
+       description: Install Authorino operator stable version
    - unit:
        name: install-odh-stable-operator      
+       description: Install ODH operator fast version
        input_env:
          CHANNEL: "fast"
-         OPERATOR_VERSION: "v2.9.0"
-         INSTALL_APPROVAL: Manual
    - unit:
-       name: install-serverless-stable-operator         
-       input_env:
-         OPERATOR_VERSION: "v1.32.0"
-         INSTALL_APPROVAL: Manual
+       name: install-serverless-stable-operator   
+       description: Install Serverless operator stable version      
    - unit:
        name: install-ossm-stable-operator    
-       input_env:
-         OPERATOR_VERSION: "v2.5.0"
-         INSTALL_APPROVAL: Manual              
+       description: Install ServiceMesh operator stable version
+   - unit:
+       name: install-pipelines-stable-operator        
+       description: Install Pipeline operator stable version          
    - role:
-      name: opendatahub-create-dsc
+       name: opendatahub-create-dsci       
+       description: Create a default DSCI.       
+   - role:
+       name: opendatahub-create-dsc
+       description: Install KServe component.
    - unit:
        name: test-kserve-caikit-tgis-rest       
-    
+       description: Trigger sanity test with caikit-tgis-rest    
+   - role:
+       name: test-kserve-caikit-tgis-rest-using-pipeline
+       input_env:
+         KEEP_NAMESPACE: "true"
+         WORKING_NAMESPACE: pipeline-demo

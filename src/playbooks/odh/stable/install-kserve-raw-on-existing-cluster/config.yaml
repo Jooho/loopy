@@ -1,21 +1,17 @@
 playbook:
   created_date: "20240320"
   description: |
-    This playbook will deploy kserve rawDeployment mode with ODH 2.9.
+    This playbook will deploy kserve rawDeployment mode with ODH.
 
-    It installs required operators(authorino 0.10.0) and install RHOAI 2.9.0 version operator though stable branch. 
-
-    operator version:
+    tested operator version:
     - OHD 2.9.0
-    - Authorino 0.10.0
   steps:
     - unit:
        name: install-odh-stable-operator-without-dsci
-       description: Install ODH operator 2.9.0 version
+       description: Install ODH operator fast version
        input_env:
             CHANNEL: "fast"
             OPERATOR_VERSION: "v2.9.0"
-            INSTALL_APPROVAL: Manual
     - role:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"

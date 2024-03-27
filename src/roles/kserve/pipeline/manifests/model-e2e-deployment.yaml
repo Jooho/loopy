@@ -27,6 +27,12 @@ spec:
     - name: MINIO_S3_SVC_URL
       default: test
       description: the endpoint to access minio storage.
+    - name: DEFAULT_BUCKET_NAME
+      default: modelmesh-example-models
+      description: the default bucket name in minio storage.
+    - name: MINIO_REGION
+      default: us-east-1
+      description: the default region for minio storage.
     - name: WORKING_NAMESPACE
       default: pipeline-test
       description: The namespace where the the ServingRuntime and the InferenceService will be created at.
@@ -40,8 +46,10 @@ spec:
       default: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
     - name: ISVC_DEPLOYMENT_VERBOSE
       description: Enables the verbose output for the isvc deployment.
+    - name: ISVC_DEPLOYMENT_MODE
+      description: This can be set to "RawDeployment" 
       type: string
-      default: "true"
+      default: "Serverless"
   tasks:
     - name: clean-namespace-begin
       description: Make sure there is no previous deployment related to this pipeline
@@ -81,6 +89,10 @@ spec:
           value: $(params.OC_IMAGE)
         - name: WORKING_NAMESPACE
           value: $(params.WORKING_NAMESPACE)
+        - name: DEFAULT_BUCKET_NAME
+          value: $(params.DEFAULT_BUCKET_NAME)
+        - name: MINIO_REGION
+          value: $(params.MINIO_REGION)              
       taskRef:
         kind: Task
         name: deploy-storage-config-task
@@ -156,6 +168,8 @@ spec:
           value: $(params.CLUSTER_TOKEN)
         - name: ISVC_DEPLOYMENT_VERBOSE
           value: $(params.ISVC_DEPLOYMENT_VERBOSE)
+        - name: ISVC_DEPLOYMENT_MODE
+          value: $(params.ISVC_DEPLOYMENT_MODE)          
         - name: WORKING_NAMESPACE
           value: $(params.WORKING_NAMESPACE)
       taskRef:
@@ -178,6 +192,8 @@ spec:
           value: $(params.CLUSTER_TOKEN)
         - name: ISVC_DEPLOYMENT_VERBOSE
           value: $(params.ISVC_DEPLOYMENT_VERBOSE)
+        - name: ISVC_DEPLOYMENT_MODE
+          value: $(params.ISVC_DEPLOYMENT_MODE)                    
         - name: WORKING_NAMESPACE
           value: $(params.WORKING_NAMESPACE)
       taskRef:

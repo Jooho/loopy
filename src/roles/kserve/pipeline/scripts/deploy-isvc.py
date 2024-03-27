@@ -45,10 +45,9 @@ def deploy_isvc(protocol, namespace, verbose, directory, deployment_mode):
         "sidecar.istio.io/rewriteAppHTTPProbers": "true"
     }
 
+    target_annotations=serverless_annotations
     if deployment_mode.lower() == "rawdeployment":
-        annotations=raw_annotations
-    else:
-        annotations=serverless_annotations
+        target_annotations=raw_annotations
 
     isvc = V1beta1InferenceService(api_version=constants.KSERVE_V1BETA1,
                                    kind=constants.KSERVE_KIND,
@@ -56,7 +55,7 @@ def deploy_isvc(protocol, namespace, verbose, directory, deployment_mode):
                                        labels={"pipeline": "caikit-pipeline-test"},
                                        name=name,
                                        namespace=namespace,
-                                       annotations=f"{annotations}",
+                                       annotations=target_annotations,
                                    ),
                                    spec=default_model_spec)
 

@@ -54,6 +54,8 @@ declare envs=(
     "PYTHON_IMAGE=${PYTHON_IMAGE}"
     "OC_IMAGE=${OC_IMAGE}"
     "ISVC_DEPLOYMENT_VERBOSE=${ISVC_DEPLOYMENT_VERBOSE}"
+    "DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}"
+    "MINIO_REGION=${MINIO_REGION}"
 )
 
 # Loop through the environment variables and remove the empty ones
@@ -73,6 +75,7 @@ done
 source $root_directory/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 index_role_name=$(basename $ROLE_DIR)
+errorHappened=1 # 0 is true, 1 is false
 
 # create the working namespace
 oc get ns ${WORKING_NAMESPACE} > /dev/null 2>&1 ||  oc new-project ${WORKING_NAMESPACE} > /dev/null 2>&1
@@ -86,19 +89,20 @@ for yaml in `find ${manifests_dir} -name "*.yaml"`; do
   fi
 done
 
+result=1
 echo "Triggering the pipeline caikit-e2e-inference-pipeline with the following parameters: ${PARAMS}"
 tkn pipeline start caikit-e2e-inference-pipeline  \
   ${PARAMS} \
   -w name=shared-workspace,volumeClaimTemplateFile=${manifests_dir}/pvc.yaml \
   --use-param-defaults --showlog
+succeded_pipeline=$(oc get pipelinerun $(oc get pipelinerun --no-headers|awk '{print $1}') -ojsonpath='{.status.conditions[0].status}')
 
 ############# VERIFY #############
-if [ $? -ne 0 ]; then
-  result="1"
-  errorHappened=0
-else
+if [ ${succeded_pipeline} != "False" ]; then
   result="0"
-fi
+else  
+  errorHappened="0"
+fi  
 
 if [[ $errorHappened == "0" ]]
 then

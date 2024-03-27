@@ -36,9 +36,9 @@ spec:
               "access_key_id": "$(params.MINIO_ACCESS_KEY_ID)",
               "secret_access_key": "$(params.MINIO_SECRET_ACCESS_KEY)",
               "endpoint_url": "$(params.MINIO_S3_SVC_URL)",
-              "bucket": "${params.DEFAULT_BUCKET_NAME}",
-              "default_bucket": "${params.DEFAULT_BUCKET_NAME}",
-              "region": "${params.MINIO_REGION}"
+              "bucket": "$(params.DEFAULT_BUCKET_NAME)",
+              "default_bucket": "$(params.DEFAULT_BUCKET_NAME)",
+              "region": "$(params.MINIO_REGION)"
             }
         YAML
       resources: {}

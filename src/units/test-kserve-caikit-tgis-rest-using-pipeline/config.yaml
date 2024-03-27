@@ -11,6 +11,15 @@ unit:
     - RHOAI/ODH and KServe
   steps:
     - role:
+        name: operator-install
+        input_env:
+          SUBSCRIPTION_NAME: openshift-pipelines-operator-rh
+          OPERATOR_NAMESPACE: openshift-operators
+          OPERATOR_NAME: openshift-pipelines-operator-rh
+          CATALOGSOURCE_NAME: redhat-operators
+          OPERATOR_LABEL: "app=openshift-pipelines-operator"
+          CHANNEL: latest
+    - role:
         name: minio-deploy
     - role:
         name: kserve-caikit-test-using-pipeline

@@ -14,29 +14,24 @@ playbook:
     - OSSM 2.5.0
   steps:
    - unit:
-       name: install-authorino-stable-operator          
-       input_env:
-         OPERATOR_VERSION: "v0.10.0"
-         INSTALL_APPROVAL: Manual
+       name: install-authorino-stable-operator      
+       description: Install Authorino operator stable version    
    - unit:
        name: install-rhoai-stable-operator      
-       input_env:
-         OPERATOR_VERSION: "2.8.0"
-         INSTALL_APPROVAL: Manual
+       description: Install RHOAI operator from stable channel
    - unit:
-       name: install-serverless-stable-operator         
-       input_env:
-         OPERATOR_VERSION: "v1.32.0"
-         INSTALL_APPROVAL: Manual
+       name: install-serverless-stable-operator   
+       description: Install Serverless operator stable version      
    - unit:
        name: install-ossm-stable-operator    
-       input_env:
-         OPERATOR_VERSION: "v2.5.0"
-         INSTALL_APPROVAL: Manual              
+       description: Install ServiceMesh operator stable version            
+   - unit:
+       name: install-pipelines-stable-operator        
+       description: Install Pipeline operator stable version            
    - role:
        name: opendatahub-create-dsc
        input_env:
          OPENDATAHUB_TYPE: rhoai
    - unit:
        name: test-kserve-caikit-tgis-rest       
-    
+       description: Trigger sanity test with caikit-tgis-rest    

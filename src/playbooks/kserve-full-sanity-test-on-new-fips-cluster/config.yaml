@@ -18,10 +18,28 @@ playbook:
     - role:
         name: openshift-fips-install
     - unit:
+        name: install-authorino-stable-operator          
+    - unit:
+        name: install-odh-stable-operator      
+        input_env:
+          CHANNEL: "fast"
+    - unit:
+        name: install-serverless-stable-operator         
+    - unit:
+        name: install-ossm-stable-operator    
+    - unit:
+        name: install-pipelines-stable-operator           
+    - role:
+        name: opendatahub-create-dsc        
+    - unit:
         name: test-kserve-caikit-tgis-rest     
     - role:
         name: test-kserve-caikit-tgis-rest-using-pipeline
         input_env:
           KEEP_NAMESPACE: "true"
-          WORKING_NAMESPACE: kserve-demo
-  
+          WORKING_NAMESPACE: pipeline-demo
+    - role:
+        name: test-kserve-caikit-tgis-rest-using-pipeline
+        input_env:
+          KEEP_NAMESPACE: "true"
+          WORKING_NAMESPACE: pipeline-demo

@@ -44,7 +44,7 @@ def run_unit(
     utils.print_logo()
     click.echo(f"Running unit {unit_name}")
     verify_unit_exist(unit_name)
-    verify_if_param_exist_in_unit(params, unit_name, unit_list)
+    verify_if_param_exist_in_unit(ctx, params, unit_name, unit_list)
 
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
     # Params is priority. additional vars will be overwritten by params
@@ -80,7 +80,7 @@ def verify_unit_exist(unit_name):
     print(f"no unit exist with {unit_name}")
     exit(1)
 
-def verify_if_param_exist_in_unit(params, unit_name, unit_list):
+def verify_if_param_exist_in_unit(ctx, params, unit_name, unit_list):
     if not params:
         return
     for unit in unit_list:
@@ -88,7 +88,7 @@ def verify_if_param_exist_in_unit(params, unit_name, unit_list):
             unit_config_path = unit["path"] + "/config.yaml"
             with open(unit_config_path, "r") as file:
                 unit_config_vars = yaml.safe_load(file)
-                roles.verify_if_param_exist_in_role( params, unit_config_vars["unit"]["steps"][0]["role"]["name"])
+                roles.verify_if_param_exist_in_role(ctx, params, unit_config_vars["unit"]["steps"][0]["role"]["name"])
 
 
 def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):

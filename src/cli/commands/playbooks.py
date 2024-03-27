@@ -43,7 +43,7 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
     click.echo(f"Running playbook {playbook_name}")
     
     verify_playbook_exist(playbook_name)
-    verify_if_param_exist_in_playbook(params, playbook_name, playbook_list)
+    verify_if_param_exist_in_playbook(ctx,params, playbook_name, playbook_list)
 
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
 
@@ -126,7 +126,7 @@ def verify_playbook_exist(playbook_name):
     print(f"no playbook exist with {playbook_name}")
     exit(1)
 
-def verify_if_param_exist_in_playbook(params, playbook_name, playbook_list):
+def verify_if_param_exist_in_playbook(ctx, params, playbook_name, playbook_list):
     if not params:
         return
     for playbook in playbook_list:
@@ -137,7 +137,7 @@ def verify_if_param_exist_in_playbook(params, playbook_name, playbook_list):
                 first_comp_info = playbook_config_vars["playbook"]["steps"][0]
                 first_comp_type = list(first_comp_info.keys())[0]
                 if first_comp_type == "role":
-                    roles.verify_if_param_exist_in_role( params, first_comp_info["role"]["name"])
+                    roles.verify_if_param_exist_in_role(ctx, params, first_comp_info["role"]["name"])
                 elif first_comp_type == "unit":
                     units.verify_if_param_exist_in_unit( params, first_comp_info["unit"]["name"], unit_list, role_list)
 

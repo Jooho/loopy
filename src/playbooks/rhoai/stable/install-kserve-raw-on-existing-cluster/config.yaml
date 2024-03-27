@@ -1,20 +1,17 @@
 playbook:
   created_date: "20240320"
   description: |
-    This playbook will deploy kserve rawDeployment mode with rhoai 2.8.
+    This playbook will deploy kserve rawDeployment mode with rhoai.
 
-    It installs required operators(authorino 0.10.0) and install RHOAI 2.8.0 version operator though stable branch. 
+    It installs required operators(authorino) and install RHOAI operator through stable branch. 
 
-    operator version:
+    Tested operator version:
     - RHOAI 2.8.0
     - Authorino 0.10.0
   steps:
     - unit:
        name: install-rhoai-stable-operator-without-dsci
-       description: Install RHOAI operator 2.8.0 version
-       input_env:
-            OPERATOR_VERSION: "2.8.0"
-            INSTALL_APPROVAL: Manual
+       description: Install RHOAI operator from stable channel
     - role:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"

@@ -2,9 +2,9 @@ playbook:
   created_date: "20240320"
   # name: kserve-raw-simple-sanity-test-on-existing-cluster
   description: |
-    This playbook will deploy kserve rawDeployment mode with rhoai 2.8.
+    This playbook will deploy kserve rawDeployment mode with rhoai.
 
-    This is a playbook for kserve rawDeployment end to end test. It installs required operators(authorino 0.10.0) and install RHOAI 2.8.0 version operator though stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
+    This is a playbook for kserve rawDeployment end to end test. It installs required operators(authorino) and install RHOAI operator through stable branch. After kserve is ready, it will deploy minio pod and deploy caikit-tgis runtime and verify it is working or not.
 
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
 
@@ -14,16 +14,10 @@ playbook:
   steps:
     - unit:
        name: install-authorino-stable-operator       
-       description: Install Authorino operator v0.10.0 version
-       input_env:
-            OPERATOR_VERSION: "v0.10.0"
-            INSTALL_APPROVAL: Manual
+       description: Install Authorino operator stable version
     - unit:
        name: install-rhoai-stable-operator-without-dsci
-       description: Install RHOAI operator 2.8.0 version
-       input_env:
-            OPERATOR_VERSION: "2.8.0"
-            INSTALL_APPROVAL: Manual
+       description: Install RHOAI operator stable version
     - role:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"

@@ -5,7 +5,7 @@ playbook:
   description: >
     This is a playbook to install kserve serverless mode. It installs required operators(serverless/ossm) then install RHOAI the latest version operator though stable branch. 
     
-    Operator version:
+    Tested operator version:
     - RHOAI 2.8.0
     - Authorino 0.10.0
     - Serverless 1.32
@@ -13,19 +13,10 @@ playbook:
   steps:
    - unit:
        name: install-rhoai-stable-operator      
-       input_env:
-         OPERATOR_VERSION: "2.8.0"
-         INSTALL_APPROVAL: Manual
    - unit:
        name: install-serverless-stable-operator         
-       input_env:
-         OPERATOR_VERSION: "v1.32.0"
-         INSTALL_APPROVAL: Manual
    - unit:
        name: install-ossm-stable-operator    
-       input_env:
-         OPERATOR_VERSION: "v2.5.0"
-         INSTALL_APPROVAL: Manual              
    - role:
        name: opendatahub-create-dsc
        input_env:

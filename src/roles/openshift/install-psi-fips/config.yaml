@@ -3,12 +3,12 @@ role:
   name: openshift-fips-install
   description: |
     This role install the FIPS Enabled Cluster we do rely on the QE Jenkins rhods-smoke pipeline.        
-    The default cluster name is `ods-ci-fips-ms`. This should be possible to retrieve this information by querying the hive.
+    The default cluster name is `serving-ods-ci-fips-ms`. This should be possible to retrieve this information by querying the hive.
 
     This role is to install an openshift cluster. It can be used to install a PSI cluster. It can also be used to 
     install a FIPS enabled cluster. 
     The role will install the cluster and return the console url, api url, admin id and admin password and token.
-    
+
     Input Environment:
 
     This role takes input parameters to facilitate the installation of an OpenShift cluster on PSI Using QE Pipeline.
@@ -17,7 +17,7 @@ role:
       - JENKINS_TOKEN: Jenkins token used for authentication.
       - JENKINS_JOB_URL: URL of the Jenkins job associated with the cluster installation.
       - EXTRA_PARAMS: Additional parameters for installing the FIPS-enabled cluster.
-    
+
     Output Environment:
 
     After successful execution, the openshift-install role provides output environment variables containing essential 
@@ -29,7 +29,7 @@ role:
       - CLUSTER_ADMIN_ID: User ID of the OpenShift cluster administrator.
       - CLUSTER_ADMIN_PW: Password of the OpenShift cluster administrator.
       - CLUSTER_TOKEN: Login token for accessing the OpenShift cluster.
-    
+
     To run it:
     ./loopy roles run openshift-install \
       -p JENKINS_USER=username \
@@ -62,10 +62,13 @@ role:
 
     - name: JENKINS_JOB_URI
       description: URL of Jenkins create job
-      default: /job/rhods/job/rhods-smoke/build
+      default: job/rhods/job/rhods-smoke/build
 
     - name: EXTRA_PARAMS
       description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"
+
+    - name: CLUSTER_NAME
+      description: Set cluster name defaults to ods-ci-fips-ms
 
   output_env:
     - name: CLUSTER_CONSOLE_URL

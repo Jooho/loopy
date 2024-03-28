@@ -23,7 +23,7 @@ def summary(ctx, type, config_data, unit_list):
         f"Run: {first_component_type}({first_component_name})",
         f"Loopy result dir: {loopy_result_dir}",
         f"Report file: {loopy_result_dir}/report",
-        f"Execution time: {total_minutes}constants.REPORT_MIN_UNIT {total_seconds}secs",
+        f"Execution time: {total_minutes}{constants.REPORT_MIN_UNIT} {total_seconds}{constants.REPORT_SECOND_UNIT}",
     ]
 
     # Find the maximum length of text lines

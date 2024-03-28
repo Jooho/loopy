@@ -87,7 +87,7 @@ def verify_if_param_exist_in_role(ctx, params, role_name):
     ignore_validate_env_input = py_utils.is_positive(ctx.obj.get("config", "config_data")["config_data"])["ignore_validate_env_input"]                            
     if input_exist:
         return
-    elif ignore_validate_env_input == 1:
+    elif ignore_validate_env_input == 0:
         return
     else:
         print(f"{Fore.RED}no input enviroment name exist:{Back.BLUE} {target_param} {Style.RESET_ALL}")

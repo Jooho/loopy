@@ -15,7 +15,7 @@ fi
 # Default values for parameters
 ODS_CI_RUN_SCRIPT_ARGS="--extra-robot-args '-i ODS-127'"
 CLUSTER_TYPE="selfmanaged"
-CLUSTER_NAME="ods-ci-fips-ms"
+TEST_CLUSTER="serving-ods-ci-fips-ms"
 CLUSTER_ACTION_POST_EXECUTION="Delete"
 TEST_PLATFORM="stage"
 JENKINS_BASE_URL=""
@@ -32,7 +32,7 @@ display_help() {
     echo "   -a, --args                         Set ODS_CI_RUN_SCRIPT_ARGS"
     echo "   -c, --cluster-action               Set CLUSTER_ACTION_POST_EXECUTION"
     echo "   -ct, --cluster-type                Set CLUSTER_TYPE, possible values are managed and selfmanaged, defaults to selfmanaged."
-    echo "   -n, --cluster                      Set CLUSTER_NAME - is the cluster name that will be deleted, defaults to ${CLUSTER_NAME}, comma separated."
+    echo "   -n, --cluster                      Set TEST_CLUSTER - is the cluster name that will be deleted, defaults to ${TEST_CLUSTER}, comma separated."
     echo "   -tp, --test-platform               Set TEST_PLATFORM - available values are stage and prod, defaults to stage."
     echo "   -h, --help                         Display help menu"
     echo
@@ -81,7 +81,7 @@ while (( "$#" )); do
       shift 2
       ;;
     -n|--cluster)
-      CLUSTER_NAME="$2"
+      TEST_CLUSTER="$2"
       shift 2
       ;;
     -to|--test-platform)
@@ -122,7 +122,7 @@ fi
 declare -a parameters_array=(
     "ODS_CI_RUN_SCRIPT_ARGS=$ODS_CI_RUN_SCRIPT_ARGS"
     "CLUSTER_ACTION_POST_EXECUTION=$CLUSTER_ACTION_POST_EXECUTION"
-    "CLUSTER_NAME=$CLUSTER_NAME"
+    "TEST_CLUSTERS=$TEST_CLUSTER"
     "CLUSTER_TYPE=$CLUSTER_TYPE"
     "TEST_PLATFORM=$TEST_PLATFORM"
 )
@@ -197,6 +197,7 @@ while true; do
     # Break the loop if the job is finished
     if [ "$job_status" == "SUCCESS" ]; then
         echo "Cluster ${TEST_CLUSTER} deleted."
+        echo "SUCCESS" > ${ROLE_DIR}/result
         exit 0
     elif [ "$job_status" != "null" ]; then
         echo "JOB STATUS: $job_status"
@@ -219,7 +220,3 @@ while true; do
     # Wait before polling the logs again
     sleep 2
 done
-if [ ! -f ${ROLE_DIR}/result ]
-then
-  echo "SUCCESS" > ${ROLE_DIR}/result
-fi

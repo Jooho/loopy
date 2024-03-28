@@ -208,7 +208,7 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
     role_group_name = role_name.split("-")[0]
     for key in default_vars.get(role_group_name, {}):
         aggregated_input_vars[str.upper(key)] = default_vars[role_group_name][key]
-
+        
     # Load config.yaml in the role. Read input_env and overwrite the environment value if there is default field
     with open(role_config_dir_path + "/config.yaml", "r") as file:
         role_config_vars = yaml.safe_load(file)
@@ -218,7 +218,7 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
                     required_envs.append(input_env["name"])
                 if "default" in default_env:
                     aggregated_input_vars[input_env["name"]] = input_env["default"]
-
+    
     # If it is unit, add additional input variables
     if additional_input_vars is not None:
         for input_var, value in additional_input_vars.items():

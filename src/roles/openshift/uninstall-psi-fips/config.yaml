@@ -11,15 +11,16 @@ role:
       -p JENKINS_TOKEN=jenkins_user_token \
       -p JENKINS_JOB_URL=jenkins_job_url
 
-    The default cluster name is 'ods-ci-fips-ms'
-    To override it, use CLUSTER_NAME parameter, e.g. -p CLUSTER_NAME=ods-ci-fips-ms,ods-ci-fips-ms2
+    The default cluster name is 'serving-ods-ci-fips-ms'
+    To override it, use CLUSTER_NAME parameter, e.g. -p CLUSTER_NAME=serving-ods-ci-fips-ms,ods-ci-fips-ms2
 
   input_env:
     - name: CLUSTER_TYPE
       description: Type of cluster
       default: FIPS
+
     - name: CLUSTER_NAME
-      description: List of clusters to test (optional), comma separated, defaults to ods-ci-fips-ms
+      description: List of clusters to test (optional), comma separated, defaults to serving-ods-ci-fips-ms
 
     - name: JENKINS_URL
       description: URL of Jenkins Server URL
@@ -27,7 +28,7 @@ role:
 
     - name: JENKINS_JOB_URI
       description: URL of Jenkins delete job
-      default: /job/tools/job/openshift/job/cluster-operations/build
+      default: job/tools/job/openshift/job/cluster-operations/build
 
     - name: JENKINS_USER
       description: Jenkins Username

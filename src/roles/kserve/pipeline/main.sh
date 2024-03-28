@@ -94,11 +94,12 @@ echo "Triggering the pipeline caikit-e2e-inference-pipeline with the following p
 tkn pipeline start caikit-e2e-inference-pipeline  \
   ${PARAMS} \
   -w name=shared-workspace,volumeClaimTemplateFile=${manifests_dir}/pvc.yaml \
-  --use-param-defaults --showlog --timeout=20m
+  --use-param-defaults --showlog --pipeline-timeout=30m
 succeded_pipeline=$(oc get pipelinerun $(oc get pipelinerun --no-headers|awk '{print $1}') -ojsonpath='{.status.conditions[0].status}')
 
 ############# VERIFY #############
-if [ ${succeded_pipeline} != "False" ]; then
+if [[ ${succeded_pipeline} != "False" ]]
+then
   result="0"
 else  
   errorHappened="0"

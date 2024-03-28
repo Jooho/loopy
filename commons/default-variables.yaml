@@ -13,11 +13,9 @@ operator:
 
 openshift:
   # install
-  type: psi
-  cluster_name: model-serving-test-cluster
+  cluster_type: psi
+  cluster_name: serving-fips
   machine_pool_type: m5.2xlarge
-  # uninstall
-  cluster_name: ods-ci-fips-ms
 
 opendatahub:
   opendatahub_type: opendatahub

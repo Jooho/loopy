@@ -12,11 +12,17 @@ playbook:
     - OSSM 2.5.0
   steps:
    - unit:
-       name: install-rhoai-stable-operator      
+       name: install-authorino-stable-operator      
+       description: Install Authorino operator stable version      
    - unit:
-       name: install-serverless-stable-operator         
+       name: install-rhoai-stable-operator      
+       description: Install RHOAI operator from stable channel
+   - unit:
+       name: install-serverless-stable-operator   
+       description: Install Serverless operator stable version      
    - unit:
        name: install-ossm-stable-operator    
+       description: Install ServiceMesh operator stable version 
    - role:
        name: opendatahub-create-dsc
        input_env:

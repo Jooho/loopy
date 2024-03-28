@@ -369,3 +369,25 @@ function check_oc_status(){
         exit 1
     fi
 }
+
+retry_if_http_code_is_not_200() {
+    local retries=$1
+    local interval=$2
+    local result_var=$3
+    shift 3
+    local cmd=("$@")
+    local result
+
+    for ((i=0; i<retries; i++)); do
+        result=$("${cmd[@]}")
+        if [[ $result == "200" ]]; then
+            eval "$result_var=\"$result\""
+            return 0
+        else
+            info "return code is not 200. retry"
+            sleep $interval
+        fi
+    done
+    eval "$result_var=\"$result\""
+    return 1
+}

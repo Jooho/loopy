@@ -21,7 +21,7 @@ ENABLE_FIPS_IN_CLUSTER="true"
 CLUSTER_ACTION_POST_EXECUTION="Retain Cluster Ready"
 CLUSTER_TYPE="selfmanaged"
 TESTBED_TO_USE="Create new OCP Cluster"
-TEST_CLUSTER="ods-ci-fips-ms"
+TEST_CLUSTER="serving-ods-ci-fips-ms"
 TEST_CLUSTER_DETAILS="regionOne,3,g.standard.xxl,4.14-latest,stable"
 PSI_PARAMS="rhos-01,,,"
 DEPLOY_RHODS_OPERATOR="true"
@@ -293,4 +293,3 @@ done
 # Download the file to a specific directory
 echo "Downloading the test-variables.yml file...."
 curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yaml"
-

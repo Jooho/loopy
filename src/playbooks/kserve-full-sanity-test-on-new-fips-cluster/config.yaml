@@ -21,10 +21,7 @@ playbook:
         name: install-authorino-stable-operator
     - unit:
         name: test-kserve-caikit-tgis-rest
-    - role:
-        name: kserve-caikit-test-using-pipeline
-        input_env:
-          KEEP_NAMESPACE: "true"
-          WORKING_NAMESPACE: pipeline-demo
-    - role:
-        name: openshift-fips-uninstall
+    - unit:
+        name: test-kserve-caikit-tgis-rest-using-pipeline
+    # - role:
+    #     name: openshift-fips-uninstall

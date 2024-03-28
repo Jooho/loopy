@@ -62,9 +62,9 @@ def deploy_isvc(protocol, namespace, verbose, directory, deployment_mode):
     if verbose:
         print(json.dumps(isvc.to_dict(), indent=2))
     kserve = KServeClient()
-    kserve.create(isvc, namespace=namespace, watch=True, timeout_seconds=240)
+    kserve.create(isvc, namespace=namespace, watch=True, timeout_seconds=600)
 
-    response_json = kserve.get(name=name, timeout_seconds=360, namespace=namespace, watch=False)
+    response_json = kserve.get(name=name, timeout_seconds=600, namespace=namespace, watch=False)
     endpoint = response_json.get('status', {}).get('components', {}).get('predictor', {}).get('url', None)
 
     file_path = os.path.join(directory, "output-envs.properties")

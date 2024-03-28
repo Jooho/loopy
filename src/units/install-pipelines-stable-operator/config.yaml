@@ -12,3 +12,13 @@ unit:
         CATALOGSOURCE_NAME: redhat-operators
         OPERATOR_LABEL: "app=openshift-pipelines-operator"
         CHANNEL: latest
+  - role:
+        name: shell-execute
+        input_env:
+          COMMANDS: |
+            oc get ns openshift-pipelines  > /dev/null 2>&1 || sleep 120s %%
+            oc wait --for=condition=ready  pod -l app.kubernetes.io/part-of=tekton-pipelines -n openshift-pipelines %%
+            oc wait --for=condition=ready  pod -l app.kubernetes.io/component=controller -n openshift-pipelines %%
+            oc wait crd pipelines.tekton.dev --for=condition=established %%   
+            oc wait crd pipelineruns.tekton.dev --for=condition=established %%   
+            oc wait crd tasks.tekton.dev --for=condition=established

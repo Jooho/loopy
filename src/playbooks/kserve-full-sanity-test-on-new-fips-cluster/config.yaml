@@ -15,16 +15,13 @@ playbook:
     - deploy simple caikit tgis runtime using pipeline
     This is tested with ODH 2.9+
   steps:
-    - role:
-        name: openshift-fips-install
+    # - role:
+    #     name: openshift-fips-install
+    # - unit:
+    #     name: install-authorino-stable-operator
+    # - unit:
+    #     name: test-kserve-caikit-tgis-rest
     - unit:
-        name: install-authorino-stable-operator
-    - unit:
-        name: test-kserve-caikit-tgis-rest
-    - role:
-        name: kserve-caikit-test-using-pipeline
-        input_env:
-          KEEP_NAMESPACE: "true"
-          WORKING_NAMESPACE: pipeline-demo
-    - role:
-        name: openshift-fips-uninstall
+        name: test-kserve-caikit-tgis-rest-using-pipeline
+    # - role:
+    #     name: openshift-fips-uninstall

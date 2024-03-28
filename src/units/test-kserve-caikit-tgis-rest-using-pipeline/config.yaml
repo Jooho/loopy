@@ -3,7 +3,7 @@ unit:
   name: test-kserve-caikit-tgis-rest-using-pipeline
   description: |
     This deploy kserve caikit tgis runtime through pipeline.
-    
+
     This unit deploy minio(quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5) that has the related models and trigger pipeline task
 
     Prequisites to work this unit are:
@@ -20,10 +20,19 @@ unit:
           OPERATOR_LABEL: "app=openshift-pipelines-operator"
           CHANNEL: latest
     - role:
+        name: shell-execute
+        input_env:
+          COMMANDS: |
+            oc get ns openshift-pipelines  > /dev/null 2>&1 || sleep 120s %%
+            oc wait --for=condition=ready  pod -l app.kubernetes.io/part-of=tekton-pipelines -n openshift-pipelines %%
+            oc wait --for=condition=ready  pod -l app.kubernetes.io/component=controller -n openshift-pipelines %%
+            oc wait crd pipelines.tekton.dev --for=condition=established %%   
+            oc wait crd pipelineruns.tekton.dev --for=condition=established %%   
+            oc wait crd tasks.tekton.dev --for=condition=established
+    - role:
         name: minio-deploy
     - role:
         name: kserve-caikit-test-using-pipeline
         input_env:
           WORKING_NAMESPACE: pipeline-demo
           KEEP_NAMESPACE: "true"
-      

@@ -99,6 +99,7 @@ spec:
       runAfter:
         - clean-namespace-begin
     - name: deploy-caikit-runtime-http
+      timeout: "20m" 
       params:
         - name: PROTOCOL
           value: http
@@ -120,6 +121,7 @@ spec:
         - name: source
           workspace: shared-workspace
     - name: deploy-caikit-runtime-grpc
+      timeout: "20m" 
       params:
         - name: PROTOCOL
           value: grpc

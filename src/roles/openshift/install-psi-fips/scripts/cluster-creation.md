@@ -21,7 +21,7 @@ At the end of the execution you might have the output pointing out the cluster c
 Keep in mind that, the pipeline will create a new cluster and keep it running.
 So, before trigger it again make sure the cluster is not running, 
 
-The default cluster name is `ods-ci-fips-ms`
+The default cluster name is `serving-ods-ci-fips-ms`
 This should be possible to retrieve this information by querying the hive.
 
 We can also build a specific build from brew, to do so, you can use the following command:

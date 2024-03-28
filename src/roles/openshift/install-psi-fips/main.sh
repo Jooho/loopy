@@ -32,8 +32,13 @@ index_role_name=$(basename $ROLE_DIR)
 errorHappened=1 # 0 is true, 1 is false
 ### Main logic ###
 # call the install.sh script
+if [[ ${CLUSTER_NAME} != "serving-ods-ci-fips-ms" ]] 
+then
+  EXTRA_PARAMS="${EXTRA_PARAMS} -n ${CLUSTER_NAME}"
+fi 
+
 echo "Calling the install.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} ${EXTRA_PARAMS}"
-${current_dir}/scripts/install.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}${JENKINS_JOB_URI} ${EXTRA_PARAMS}
+${current_dir}/scripts/install.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}/${JENKINS_JOB_URI} ${EXTRA_PARAMS}
 
 if [ $? -ne 0 ]; then
   error "Failed to install FIPS cluster"
@@ -83,7 +88,7 @@ echo "CLUSTER_API_URL=${cluster_api_url}" >> ${OUTPUT_ENV_FILE}
 echo "CLUSTER_ADMIN_ID=${cluster_admin_id}" >> ${OUTPUT_ENV_FILE}
 echo "CLUSTER_ADMIN_PW=${cluster_admin_pw}" >> ${OUTPUT_ENV_FILE}
 echo "CLUSTER_TOKEN=${cluster_token}" >> ${OUTPUT_ENV_FILE}
-echo "CLUSTER_TYPE=${cluster_type}" >> ${OUTPUT_ENV_FILE}
+echo "CLUSTER_TYPE=${CLUSTER_TYPE}" >> ${OUTPUT_ENV_FILE}
 
-############# REPORT #############
+############ REPORT #############
 echo ${index_role_name}::$result >> ${REPORT_FILE}

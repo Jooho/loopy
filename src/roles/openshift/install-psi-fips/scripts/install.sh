@@ -5,6 +5,28 @@
 # To run this script use:
 # ./install.sh <JENKINS_USER> <JENKINS_TOKEN> <JENKINS_JOB_URL>
 
+retry_if_http_code_is_not_200() {
+    local retries=$1
+    local interval=$2
+    local result_var=$3
+    shift 3
+    local cmd=("$@")
+    local result
+
+    for ((i=0; i<retries; i++)); do
+        result=$("${cmd[@]}")
+        if [[ $result == "200" ]]; then
+            eval "$result_var=\"$result\""
+            return 0
+        else
+            info "return code is not 200. retry"
+            sleep $interval
+        fi
+    done
+    eval "$result_var=\"$result\""
+    return 1
+}
+
 # Check if yq command exists
 if ! command -v yq &> /dev/null
 then
@@ -21,7 +43,7 @@ ENABLE_FIPS_IN_CLUSTER="true"
 CLUSTER_ACTION_POST_EXECUTION="Retain Cluster Ready"
 CLUSTER_TYPE="selfmanaged"
 TESTBED_TO_USE="Create new OCP Cluster"
-TEST_CLUSTER="ods-ci-fips-ms"
+TEST_CLUSTER="serving-ods-ci-fips-ms"
 TEST_CLUSTER_DETAILS="regionOne,3,g.standard.xxl,4.14-latest,stable"
 PSI_PARAMS="rhos-d,,,"
 DEPLOY_RHODS_OPERATOR="true"
@@ -292,4 +314,14 @@ done
 
 # Download the file to a specific directory
 echo "Downloading the test-variables.yml file...."
-curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yml"
+max_retries=60
+retry_interval=10 #10mins
+retry_if_http_code_is_not_200  $max_retries $retry_interval ready_to_download curl -s -o /dev/null -w "%{http_code}"  -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" 
+
+if [[ ${ready_to_download} == 200 ]]
+then
+  curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml" -u "$JENKINS_USER:$JENKINS_TOKEN" -o "/tmp/test-variables.yml"
+else  
+  echo "Failed to download /tmp/test-variables.yml file(Code: ${ready_to_download})"
+  echo "curl -k -s "${BUILD_URL}/${job_id}/artifact/test-variables.yml""
+fi  

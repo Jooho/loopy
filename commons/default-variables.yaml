@@ -69,6 +69,8 @@ kserve:
 cert:
   root_ca_cert_name: root.crt
   root_ca_key_name: root.key
+  root_ca_cert: ""
+  root_ca_key: ""
   cert_name: custom.crt
   key_name: custom.key
   csr_name:  custom.csr

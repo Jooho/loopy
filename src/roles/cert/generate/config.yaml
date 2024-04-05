@@ -17,6 +17,10 @@ role:
       required: true
     - name: SAN_IP_LIST
       description: Set SAN IP address (ex "192.0.0.1,192.0.0.2")
+    - name: ROOT_CA_CERT
+      description: This is root certification cert file path
+    - name: ROOT_CA_KEY
+      description: This is root certification key file path     
     - name: ROOT_CA_CERT_NAME
       description: This is root certification cert file name
     - name: ROOT_CA_KEY_NAME

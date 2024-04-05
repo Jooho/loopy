@@ -53,7 +53,24 @@ for ip_entry in "${new_ip_entries[@]}"; do
     ((index--))
 done
 
-openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096  -subj "/O=Loopy Example Inc./CN=root"  -keyout ${ROLE_DIR}/${ROOT_CA_KEY_NAME}  -out ${ROLE_DIR}/${ROOT_CA_CERT_NAME}
+if [[ ${ROOT_CA_CERT} == "" ]]
+then  
+  openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096  -subj "/O=Loopy Example Inc./CN=root"  -keyout ${ROLE_DIR}/${ROOT_CA_KEY_NAME}  -out ${ROLE_DIR}/${ROOT_CA_CERT_NAME}
+else
+  if [[ ${ROOT_CA_KEY} == "" ]]
+  then
+    error "ROOT_CA_CERT is set but ROOT_CA_KEY is NOT set."
+    exit 1
+  fi
+  if [[ ! -f ${ROOT_CA_CERT} ]] || [[ ! -f ${ROOT_CA_KEY} ]]
+  then
+    error "ROOT_CA_CERT or ROOT_CA_KEY file does not exist"
+    error "ROOT_CA_CERT: ${ROOT_CA_CERT}, ROOT_CA_KEY: ${ROOT_CA_KEY}"
+    exit 1
+  fi
+  cp ${ROOT_CA_CERT} ${ROLE_DIR}/${ROOT_CA_CERT_NAME}
+  cp ${ROOT_CA_KEY} ${ROLE_DIR}/${ROOT_CA_KEY_NAME}  
+fi
 
 openssl req -nodes --newkey rsa:4096 -subj "/CN=${CN}/O=Loopy Example Inc."  --keyout ${ROLE_DIR}/${KEY_NAME} -out ${ROLE_DIR}/${CSR_NAME} -config ${ROLE_DIR}/$(basename $openssl_san_file_path)
 

@@ -1,2 +1,0 @@
-caikit-nlp-client
-jproperties

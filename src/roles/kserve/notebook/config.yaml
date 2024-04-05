@@ -40,4 +40,7 @@ role:
     - name: MINIO_URL
       required: false
       description: if using minio, provide minio endpoint
+    - name: MODEL_PATH
+      required: false
+      description: if using minio, provide model path for onnx model
 

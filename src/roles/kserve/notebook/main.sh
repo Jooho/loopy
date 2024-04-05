@@ -70,8 +70,10 @@ oc label namespace ${TEST_NAMESPACE} "opendatahub.io/dashboard=true" --overwrite
 
 if [ "${USE_MINIO}" == "true" ]; then 
   S3_URL="https://s3.amazonaws.com"
+  MODEL_PATH="kserve-samples/mnist/"
 else 
   S3_URL=${MINIO_URL}
+  MODEL_PATH=${MODEL_PATH}
 fi 
 
 # replacing variables in the notebook body
@@ -82,6 +84,7 @@ sed -e "s@%s3_access_key%@${S3_ACCESS_KEY}@g" \
     -e "s@%cluster_admin_pw%@${CLUSTER_ADMIN_PW}@g" \
     -e "s@%cluster_api_url%@${CLUSTER_API_URL}@g" \
     -e "s@%s3_url%@${S3_URL}@g" \
+    -e "s@%model_path%@${MODEL_PATH}@g" \
     ${ROLE_DIR}/manifests/kserve_notebook.ipynb > ${ROLE_DIR}/test_notebook.ipynb
 
 

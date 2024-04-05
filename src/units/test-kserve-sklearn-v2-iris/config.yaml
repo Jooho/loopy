@@ -1,0 +1,82 @@
+unit:
+  created_date: "20240405"
+  support: "false"
+  name: test-kserve-sklearn-v2-iris
+  description: This deploy kserve sklean v2 iris runtime. 
+  steps:
+    - role:
+        name: shell-execute
+        description: Create test namespace
+        input_env:
+          COMMANDS: |
+           oc get ns kserve-test > /dev/null 2>&1 || oc new-project kserve-test
+
+    - role:
+        name: shell-execute
+        description: Create a ServingRuntime
+        input_env:
+          COMMANDS: |
+            curl -s https://raw.githubusercontent.com/opendatahub-io/kserve/master/config/runtimes/kserve-sklearnserver.yaml | \
+            sed 's/ClusterServingRuntime/ServingRuntime/' | \
+            sed "s|kserve-sklearnserver:replace|docker.io/kserve/sklearnserver:latest|" | \
+            oc apply -n kserve-test -f -
+
+    - role:
+        name: shell-execute
+        description: Create the InferenceService, which will deploy a sample model
+        input_env:
+          COMMANDS: |
+            cat <<EOF >${ROLE_DIR}/isvc.yaml            
+            apiVersion: "serving.kserve.io/v1beta1"
+            kind: "InferenceService"
+            metadata:
+              name: "sklearn-v2-iris"
+              namespace: kserve-test
+              annotations:
+                serving.knative.openshift.io/enablePassthrough: "true"
+                sidecar.istio.io/inject: "true"
+            spec:
+              predictor:
+                model:
+                  modelFormat:
+                    name: sklearn
+                  protocolVersion: v2
+                  runtime: kserve-sklearnserver
+                  storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
+            EOF %%            
+            oc apply -f ${ROLE_DIR}/isvc.yaml
+
+    - role:
+        name: shell-execute
+        description: Create test input json file
+        input_env:
+          COMMANDS: |
+            cat <<EOF > ${ROLE_DIR}/iris-input-v2.json
+            {
+              "inputs": [
+                {
+                  "name": "input-0",
+                  "shape": [2, 4],
+                  "datatype": "FP32",
+                  "data": [
+                    [6.8, 2.8, 4.8, 1.4],
+                    [6.0, 3.4, 4.5, 1.6]
+                  ]
+                }
+              ]
+            }
+            EOF
+            cp ${ROLE_DIR}/iris-input-v2.json /tmp/.
+
+    - role:
+        name: shell-execute
+        description: Send a test input to inferenceservice endpoint
+        input_env:
+          COMMANDS: |
+            # sleep 10 %%
+            oc wait --for=condition=Ready=true pod -l  app=sklearn-v2-iris-predictor-00001 -n kserve-test %%
+            # sleep 10 %%
+            result_code=$(curl -s -o /dev/null -w "%{http_code}" -kL  \
+              -H "Content-Type: application/json" \
+              -d @/tmp/iris-input-v2.json \
+              $(kubectl get inferenceservice sklearn-v2-iris -o jsonpath='{.status.url}' -n kserve-test)/v2/models/sklearn-v2-iris/infer)|if [[ ${result_code} != "200" ]];then echo "result_code:${result_code}"; exit 1;else echo 200; fi

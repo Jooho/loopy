@@ -1,47 +1,54 @@
 # Loopy Concept
-Loopy is TEST Framework that anybody can create a test script simply with your favorite language. Loopy is using environment variable to pass information between tests. The main concept is similar to ansible. Role is the smallest component and Unit will include Role with specific input data. The playbook can 
+Loopy is an automation framework in which anybody can create a test script simply with their favorite language. Loopy is using environment variables to pass information between tests. The main concept is similar to Ansible. Role is the smallest component and Unit will include Roles with specific input data. 
+A Playbook can have combinations of roles and units. 
 
-Requirement:
+**Requirements:**
 - python should be 3.10+
 - The sudoers file must have your username listed as a root user
-- 
-Loopy is using 3 components:
+
+**Loopy is using 3 components:**
 - role
 - unit (role + input value)
 - playbook (role + unit)
 
-## Component
-**role**
-- This include real scripts to achieve the goal
+## Components
+**Role**
+- This includes real executable scripts to achieve the goal
+- Role can be reusable in Unit and Playbook
 
-**unit**
-- This is combination of a configuration file and role. 
-- Unit can be reusable in the playbook
-- example
-  - target units
-    - operator-install-ossm-stable
-    - operator-install-serverless-stable
-    - operator-install-pipeline-stable
-    - operator-install-odh-stable
-    - operator-install-rhods-stable
-    - test-notebook-deploy-model
-    - test-pipeline-deploy-model
-    - test-kserve-deploy-model
-    - test-modelmesh-deploy-model
+**Unit**
+- This is a combination of a role name and input environment values. 
+- Unit can be reusable in Playbook.
 
-**playbook**
-- This is combination of several roles.
-- Each role will have input/output and it will be passed to the next role
-- playbook can be resuable in the suite.
-- example
-  - target playbooks
-    - operator-install-for-integration-test
-      - operator-install-ossm-stable
-      - operator-install-serverless-stable
-      - operator-install-pipeline-stable
-      - operator-install-rhods-stable
-    - integration-tests
-      - test-notebook-deploy-model
-      - test-pipeline-deploy-model
-      - test-kserve-deploy-model
-      - test-modelmesh-deploy-model
+**Playbook**
+- This is a combination of several roles and units.
+- Each Role/Unit can set input variables and output variables will be set for the next role.
+
+## Commands
+- list
+  - This show you roles/units/playbooks that you can use
+    ~~~
+    ./loopy roles list
+    ./loopy units list
+    ./loopy playbooks list
+    ~~~
+- show
+  - This show the detail information of the component. If you add `-v`, it will show you more detail information of the first component
+    ~~~
+    ./loopy roles show minio-deploy
+    
+    ./loopy units show deploy-ssl-minio
+    ./loopy units show deploy-ssl-minio -v
+    
+    ./loopy playbooks show odh-stable-install-kserve-raw-on-existing-cluster
+    ./loopy playbooks show odh-stable-install-kserve-raw-on-existing-cluster -v
+    ~~~
+- run
+  - This trigger to execute script
+    ~~~
+    ./loopy roles run minio-deploy
+    
+    ./loopy units run deploy-ssl-minio
+    
+    ./loopy playbooks run odh-stable-install-kserve-raw-on-existing-cluster
+    ~~~

@@ -1,0 +1,46 @@
+role:
+  created_date: "20240401"
+  name: kserve-inference-test-from-notebook
+  description: |
+    This role is to deploy a notebook that will in turn deploy a sample model using Kserve and test inference from within the notebook.    
+    This role assumes that ODH/RHOAI is installed along with the necessary depencencies. 
+    IF using minio, the minio bucket must have a mnist model in the path "kserve-samples/mnist/"
+    
+    A example of how to run it:
+    
+     ./loopy roles run kserve-inference-test-from-notebook \
+        -p TEST_NAMESPACE=test \ 
+        -p S3_ACCESS_KEY=your-access-key \ 
+        -p S3_SECRET_KEY=your-secret-key \ 
+        -p CLUSTER_API_URL=https://api.openshiftapps.com:443 \
+        -p CLUSTER_ADMIN_ID=user \
+        -p CLUSTER_ADMIN_PW=passwd \
+
+  input_env:
+    - name: TEST_NAMESPACE
+      required: true
+      description: Namespace where test objects will be deployed
+    - name: S3_ACCESS_KEY
+      required: true
+      description: Any valid s3 access key 
+    - name: S3_SECRET_KEY
+      description: Any valid s3 access key 
+    - name: CLUSTER_API_URL
+      required: true
+      description: target cluster to deploy (https://api.example.com:6443), can be obtained through ui or "oc config view --minify -o jsonpath='{.clusters[*].cluster.server}'"
+    - name: CLUSTER_ADMIN_ID
+      required: true
+      description: openshift cluster user id
+    - name: CLUSTER_ADMIN_PW
+      required: true
+      description: openshift cluster user password
+    - name: USE_MINIO
+      required: false
+      description: set value to "true" if you want to use a minio deployment as the source of the model instead of aws s3
+    - name: MINIO_URL
+      required: false
+      description: if using minio, provide minio endpoint
+    - name: MODEL_PATH
+      required: false
+      description: if using minio, provide model path for onnx model
+

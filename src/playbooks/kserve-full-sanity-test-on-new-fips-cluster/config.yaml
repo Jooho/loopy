@@ -20,6 +20,8 @@ playbook:
     - unit:
         name: install-authorino-stable-operator
     - unit:
+        name: test-modelmesh-openvino
+    - unit:
         name: test-kserve-caikit-tgis-rest
     - unit:
         name: test-kserve-caikit-tgis-rest-using-pipeline

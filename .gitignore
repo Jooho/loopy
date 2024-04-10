@@ -1,5 +1,5 @@
 /bin
-test.sh
+#test.sh
 env
 __pycache__
 */__pycache__/*

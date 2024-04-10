@@ -23,5 +23,7 @@ playbook:
         name: test-kserve-caikit-tgis-rest
     - unit:
         name: test-kserve-caikit-tgis-rest-using-pipeline
+    - unit:
+        name: test-kserve-using-notebook
     # - role:
     #     name: openshift-fips-uninstall

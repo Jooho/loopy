@@ -19,7 +19,6 @@ playbook:
        description: Install ODH operator fast version  
        input_env:
          CHANNEL: "fast"
-         OPERATOR_VERSION: "v2.9.0"
    - unit:
        name: install-serverless-stable-operator         
        description: Install Serverless operator stable version      

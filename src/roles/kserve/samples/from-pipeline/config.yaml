@@ -41,7 +41,7 @@ role:
         -p CLUSTER_ADMIN_ID=user \
         -p CLUSTER_ADMIN_PW=passwd \
         -p EXTRA_PARAMS="-h"
-
+  
   input_env:
     - name: MINIO_ACCESS_KEY_ID
       required: true

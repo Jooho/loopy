@@ -65,6 +65,8 @@ kserve:
   default_bucket_name: modelmesh-example-models
   minio_access_key_id: admin
   minio_secret_access_key: password
+  # notebook
+  use_minio: "false"
 
 cert:
   root_ca_cert_name: root.crt

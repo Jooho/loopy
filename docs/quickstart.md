@@ -104,3 +104,14 @@ make init
   ~~~
   ./loopy playbooks run odh-stable-kserve-serverless-simple-sanity-test-on-existing-cluster -i ./cluster_info.sh 
   ~~~ 
+
+### KServe Sanity Test on fips cluster
+- Install ossm,serverless,rhoai operators. Deploy kserve then test caikit-tgis runtime.
+  ~~~
+  cat fips.sh
+  JENKINS_USER=user
+  JENKINS_TOKEN=XXXX
+  JENKINS_URL=https://X.X.example.com
+
+  ./loopy playbooks run kserve-full-sanity-test-on-new-fips-cluster -i ./fips.sh
+  ~~~ 

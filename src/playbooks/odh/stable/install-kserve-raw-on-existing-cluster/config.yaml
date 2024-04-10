@@ -11,7 +11,6 @@ playbook:
        description: Install ODH operator fast version
        input_env:
             CHANNEL: "fast"
-            OPERATOR_VERSION: "v2.9.0"
     - role:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"

@@ -1,0 +1,14 @@
+unit:
+  created_date: "20240409"
+  name: test-kserve-using-notebook
+  description: |
+    This deploy kserve openvino runtime through notebook.
+
+    By default, it uses public model(kserve-samples/mnist/) but if you set `USE_MINIO` and provide 
+
+  steps:
+    - role:
+        name: kserve-inference-test-from-notebook
+        input_env:
+          TEST_NAMESPACE: test-notebook
+          KEEP_NAMESPACE: "true"

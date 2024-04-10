@@ -1,5 +1,6 @@
 import subprocess
 import os
+import sys
 import yaml
 import utils
 import time
@@ -84,9 +85,13 @@ class Role:
                 target_main_file_type = "python"
             with open(log_output_file, "w") as f:
                 with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
-                    for line in proc.stdout:
-                        print(line, end="")
-                        f.write(line)
+                    for stdout_line, stderr_line in zip(proc.stdout, proc.stderr):
+                        if stdout_line:
+                            print(stdout_line, end="")
+                            f.write(stdout_line)
+                        if stderr_line:
+                            print(stderr_line, end="", file=sys.stderr)
+                            f.write(stderr_line)                        
         except subprocess.CalledProcessError as e:
             print(f"{Fore.RED}Command failed with return code {e.returncode}:{Style.RESET_ALL}")
             print(e.output)

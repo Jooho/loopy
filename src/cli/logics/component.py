@@ -84,14 +84,14 @@ class Role:
                 target_main_file = os.path.join(self.role_config_dir_path, "main.py")
                 target_main_file_type = "python"
             with open(log_output_file, "w") as f:
-                with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
                     for stdout_line, stderr_line in zip(proc.stdout, proc.stderr):
                         if stdout_line:
                             print(stdout_line, end="")
                             f.write(stdout_line)
                         if stderr_line:
                             print(stderr_line, end="", file=sys.stderr)
-                            f.write(stderr_line)                        
+                            f.write(stderr_line)
         except subprocess.CalledProcessError as e:
             print(f"{Fore.RED}Command failed with return code {e.returncode}:{Style.RESET_ALL}")
             print(e.output)
@@ -213,7 +213,7 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
     role_group_name = role_name.split("-")[0]
     for key in default_vars.get(role_group_name, {}):
         aggregated_input_vars[str.upper(key)] = default_vars[role_group_name][key]
-        
+
     # Load config.yaml in the role. Read input_env and overwrite the environment value if there is default field
     with open(role_config_dir_path + "/config.yaml", "r") as file:
         role_config_vars = yaml.safe_load(file)
@@ -223,7 +223,7 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
                     required_envs.append(input_env["name"])
                 if "default" in default_env:
                     aggregated_input_vars[input_env["name"]] = input_env["default"]
-    
+
     # If it is unit, add additional input variables
     if additional_input_vars is not None:
         for input_var, value in additional_input_vars.items():

@@ -1,0 +1,11 @@
+unit:
+  created_date: "20240410"
+  name: test-modelmesh-openvino
+  description: |
+    This deploy kserve openvino runtime through notebook.
+    By default, it uses public model(kserve-samples/mnist/) but if you set `USE_MINIO` and provide 
+  steps:
+    - role:
+        name: minio-deploy  
+    - role:
+        name: modelmesh-openvino-test

@@ -77,7 +77,10 @@ cert:
   key_name: custom.key
   csr_name:  custom.csr
   cn: custom
-  
+
+modelmesh:
+  test_namespace: "mm-test"
+
 cli:
   output_root_dir: /tmp/ms_cli
   output_env_dir: output

@@ -1,0 +1,43 @@
+role:
+  created_date: "20240410"
+  name: modelmesh-openvino-test
+  description: |
+    This is a Role designed for testing the Openvino runtime with Modelmesh. Before executing this Role, it is essential to ensure that RHOAI Modelmesh is up and running on the OpenShift cluster and functioning properly.
+
+    (Example)
+    
+  # output_filename: operator-install-output.sh
+  manifests:
+    openvino_serving_runtime: ./manifests/openvino-serving-runtime.yaml
+    data_connection: ./manifests/data-connection.yaml
+    onnx_mnist_isvc: ./manifests/onnx-mnist-isvc.yaml
+    input_onnx: ./manifests/input-onnx.json
+  input_env:
+    - name: TEST_NAMESPACE
+      description: The test namespace that will deploy modelmesh.
+    - name: MINIO_S3_SVC_URL
+      required: true
+      description: The minio url that contains test models
+    - name: MINIO_DEFAULT_BUCKET_NAME
+      required: true
+      description: The minio bucket name that contains test models
+    - name: MINIO_ACCESS_KEY_ID
+      required: true
+      description: The minio id that contains test models
+    - name: MINIO_SECRET_ACCESS_KEY
+      required: true    
+      description: The minio password that contains test models
+    - name: MINIO_REGION
+      description: Minio does not use region so you don't need to set this. This is to align with the standard protocol of S3
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+    - name: CLUSTER_TOKEN  
+      description: openshift cluster login token      

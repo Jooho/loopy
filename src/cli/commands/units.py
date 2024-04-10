@@ -53,10 +53,12 @@ def run_unit(
     # Create Unit component
     unit = Unit(unit_name)
     unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)
+    print(f"step: {unit_config_data['unit']['steps']}")
 
     # When Unit have multiple roles
     if "steps" in unit_config_data['unit']:
         for index, step in enumerate(unit_config_data['unit']["steps"]):
+            print(f"step: {step}")
             if list(step)[0] != "role":
                 click.echo("Unit can not include another unit in the steps")
                 exit(1)

@@ -48,8 +48,7 @@ fi
 check_oc_status
 
 # Deploy a sample model
-oc get ns ${TEST_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${TEST_NAMESPACE} > /dev/null 2>&1
-
+oc get ns ${TEST_NAMESPACE}  > /dev/null 2>&1 ||  oc new-project ${TEST_NAMESPACE} 
 use_data_connection=$(is_positive ${USE_DATA_CONNECTION})
 if [[ ${use_data_connection} == "0" ]]
 then

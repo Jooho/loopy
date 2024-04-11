@@ -28,7 +28,7 @@ spec:
     - name: deploy-isvc
       image: $(params.PYTHON_IMAGE)
       script: |
-        cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
+        cd $(workspaces.source.path)/src/roles/kserve/samples/from-pipeline/scripts
         pip install -r requirements.txt
         echo "executing -> python deploy-isvc.py -p $(params.PROTOCOL) -n $(params.WORKING_NAMESPACE)"
         python deploy-isvc.py -p $(params.PROTOCOL) -n $(params.WORKING_NAMESPACE) -d $(workspaces.source.path) -m $(params.ISVC_DEPLOYMENT_MODE)

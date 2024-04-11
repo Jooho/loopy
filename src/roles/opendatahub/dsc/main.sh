@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 if [[ $DEBUG == "0" ]]
 then 
   set -x 

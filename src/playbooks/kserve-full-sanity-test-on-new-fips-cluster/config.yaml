@@ -17,15 +17,34 @@ playbook:
   steps:
     - role:
         name: openshift-fips-install
+        description: Install a FIPS openShift cluster
     - unit:
         name: install-authorino-stable-operator
+        description: Install Authorino operator for KServe auth
     - unit:
         name: test-modelmesh-openvino
+        description: Test Modelmesh Sanity Test with openvino
+        input_env:
+          TEST_NAMESPACE: mm-demo
+          KEEP_NAMESPACE: "true"        
     - unit:
         name: test-kserve-caikit-tgis-rest
+        description: Test Kserve Sanity Test with caikit-tgis
+        input_env:
+          TEST_NAMESPACE: kserve-demo
+          KEEP_NAMESPACE: "true"             
     - unit:
         name: test-kserve-caikit-tgis-rest-using-pipeline
+        description: Test KServe Sanity Test with caikit-tgis by pipeline
+        input_env:
+          WORKING_NAMESPACE: pipeline-demo
+          KEEP_NAMESPACE: "true"        
     - unit:
         name: test-kserve-using-notebook
-    # - role:
-    #     name: openshift-fips-uninstall
+        description: Test KServe Sanity Test with openvino by notebook
+        input_env:
+          TEST_NAMESPACE: notebook-demo
+          KEEP_NAMESPACE: "true"             
+    - role:
+        name: openshift-fips-uninstall
+        description: Uninstall the test FIPS openshift cluster

@@ -20,7 +20,7 @@ spec:
     - name: deploy-caikit-runtime
       image: $(params.PYTHON_IMAGE)
       script: |
-        cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
+        cd $(workspaces.source.path)/src/roles/kserve/samples/from-pipeline/scripts
         pip install -r requirements-infer.txt
         echo "########################################################################"
         echo "executing python infer-model.py -p $(params.PROTOCOL)"

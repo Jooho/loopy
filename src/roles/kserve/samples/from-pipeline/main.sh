@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 if [[ $DEBUG == "0" ]]
 then
   set -x
@@ -121,7 +120,7 @@ fi
 echo ${index_role_name}::$result >> ${REPORT_FILE}
 
 ############# CLEAN UP #############
-if [ "${KEEP_NAMESPACE}" = "true" ]; then
+if [ "${KEEP_NAMESPACE}" == "true" ]; then
   echo "Keeping the namespace ${WORKING_NAMESPACE}"
 else
   for yaml in `find ${manifests_dir} -name "*.yaml"`; do

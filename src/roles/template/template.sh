@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e 
-set -o pipefail
 if [[ $DEBUG == "0" ]]
 then 
   set -x 

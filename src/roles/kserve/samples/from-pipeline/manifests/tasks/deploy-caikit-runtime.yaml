@@ -26,7 +26,7 @@ spec:
     - name: deploy-caikit-runtime
       image: $(params.PYTHON_IMAGE)
       script: |
-        cd $(workspaces.source.path)/src/roles/kserve/pipeline/scripts
+        cd $(workspaces.source.path)/src/roles/kserve/samples/from-pipeline/scripts
         pip install -r requirements-runtime.txt
         echo "executing python deploy-caikit-runtime.py -p $(params.PROTOCOL) -e $(params.CLUSTER_API_ENDPOINT) -t $(params.TOKEN)"
         python deploy-caikit-runtime.py -p $(params.PROTOCOL) -e $(params.CLUSTER_API_ENDPOINT) -t $(params.TOKEN) -n $(params.WORKING_NAMESPACE)

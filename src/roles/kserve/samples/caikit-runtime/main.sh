@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 if [[ $DEBUG == "0" ]]
 then 
   set -x 
@@ -226,3 +225,10 @@ fi
 
 ############# REPORT #############
 echo "${index_role_name}::$result" >> ${REPORT_FILE}
+
+############# CLEAN UP #############
+if [ "${KEEP_NAMESPACE}" == "true" ]; then
+  echo "Keeping the namespace ${TEST_NAMESPACE}"
+else
+  oc delete project ${TEST_NAMESPACE}
+fi

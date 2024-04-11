@@ -233,13 +233,13 @@ def get_report_table_for_playbook(ctx, table, type, report_file, execution_time_
     py_step_min_time_list = []
     py_step_sec_time_list = []
     target_index = 0
-    for step in py_steps:
+    for py_step in py_steps:
         temp_min_time = 0
         temp_sec_time = 0.0
-        if "unit" in step:
-            unit_name = step["unit"]["name"]
-            if "description" in step["unit"]:
-                py_step_unit_role_description.append(step["unit"]["description"])
+        if "unit" in py_step:
+            unit_name = py_step["unit"]["name"]
+            if "description" in py_step["unit"]:
+                py_step_unit_role_description.append(py_step["unit"]["description"])
             else:
                 py_step_unit_role_description.append(unit_name)
             unit_config_data = utils.get_config_data_by_name(ctx, unit_name, type, unit_list)
@@ -264,14 +264,14 @@ def get_report_table_for_playbook(ctx, table, type, report_file, execution_time_
             py_step_min_time_list.append(temp_min_time)
             py_step_sec_time_list.append(temp_sec_time)
         else:
-            if "description" in step["role"]:
-                py_step_unit_role_description.append(step["role"]["description"])
+            if "description" in py_step["role"]:
+                py_step_unit_role_description.append(py_step["role"]["description"])
             else:
-                py_step_unit_role_description.append(step["role"]["name"])
+                py_step_unit_role_description.append(py_step["role"]["name"])
             py_step_time_position_index_list.append(target_index)
             command_count = 0
-            if "shell-execute" == step["role"]["name"]:
-                commands_list = step["role"]["input_env"]["COMMANDS"].split("%%")
+            if "shell-execute" == py_step["role"]["name"]:
+                commands_list = py_step["role"]["input_env"]["COMMANDS"].split("%%")
                 for command in commands_list:
                     if command.strip() != '':
                         command_count+=1

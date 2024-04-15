@@ -84,7 +84,8 @@ class Role:
                 target_main_file = os.path.join(self.role_config_dir_path, "main.py")
                 target_main_file_type = "python"
             with open(log_output_file, "w") as f:
-                with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                # with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
                     for line in proc.stdout:
                         print(line, end="")
                         f.write(line)

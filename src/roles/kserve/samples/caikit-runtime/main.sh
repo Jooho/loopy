@@ -159,7 +159,7 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
                 eval "$result_var=\"$result\""
                 return 0
             else
-                info "return code is not 200. retry"
+                info "return code($result) is not 200. retry"
                 sleep $interval
             fi
         done
@@ -176,9 +176,13 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
     fi
     
     info "Testing all token in a single call"
+    echo "curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{\"model_id\": \"flan-t5-small-caikit\", \"inputs\": \"At what temperature does Nitrogen boil?\"}' ${ISVC_HOSTNAME}/api/v1/task/text-generation"
+
     retry $max_retries $retry_interval single_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "${ISVC_HOSTNAME}/api/v1/task/text-generation"
     
     info "Testing streams of token"
+    echo "curl -s -o /dev/null -w \"%{http_code}\" -kL -H 'Content-Type: application/json' -d '{\"model_id\": \"flan-t5-small-caikit\", \"inputs\": \"At what temperature does Nitrogen boil?\"}' ${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
+    
     retry $max_retries $retry_interval streaming_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
 
     # show return value

@@ -26,10 +26,7 @@ playbook:
        description: Install Serverless operator stable version      
    - unit:
        name: install-ossm-stable-operator    
-       description: Install ServiceMesh operator stable version
-   - unit:
-       name: install-pipelines-stable-operator        
-       description: Install Pipeline operator stable version          
+       description: Install ServiceMesh operator stable version   
    - role:
        name: opendatahub-create-dsci       
        description: Create a default DSCI.       
@@ -39,8 +36,3 @@ playbook:
    - unit:
        name: test-kserve-caikit-tgis-rest       
        description: Trigger sanity test with caikit-tgis-rest    
-   - role:
-       name: test-kserve-caikit-tgis-rest-using-pipeline
-       input_env:
-         KEEP_NAMESPACE: "true"
-         WORKING_NAMESPACE: pipeline-demo

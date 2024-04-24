@@ -3,27 +3,48 @@ kind: ServingRuntime
 metadata:
   name: tgis-runtime
 spec:
+  containers:
+  - args:
+    - --model-name=/mnt/models/artifacts/
+    command:
+    - text-generation-launcher
+    env:
+    - name: TRANSFORMERS_CACHE
+      value: /tmp/transformers_cache
+    image: quay.io/opendatahub/text-generation-inference@sha256:e50101c1245b22e080b5754efb7c2b69fd1422e5a608d276eab249bdc5cc5a55
+    name: kserve-container
+  - env:
+    - name: RUNTIME_LOCAL_MODELS_DIR
+      value: /mnt/models
+    - name: TRANSFORMERS_CACHE
+      value: /tmp/transformers_cache
+    - name: RUNTIME_GRPC_ENABLED
+      value: "true"
+    - name: RUNTIME_HTTP_ENABLED
+      value: "true"
+    - name: RUNTIME_GRPC_SERVER_THREAD_POOL_SIZE
+      value: "64"
+    image: quay.io/opendatahub/caikit-tgis-serving@sha256:153294140ecc87839defeca317b4b67cc16e8f56ec2211f3540ed00e0efa0ae0
+    livenessProbe:
+      exec:
+        command:
+        - python
+        - -m
+        - caikit_health_probe
+        - liveness
+    name: transformer-container
+    ports:
+    - containerPort: 8085
+      name: h2c
+      protocol: TCP
+    readinessProbe:
+      exec:
+        command:
+        - python
+        - -m
+        - caikit_health_probe
+        - readiness
   multiModel: false
   supportedModelFormats:
-    - autoSelect: true
-      name: pytorch
-  containers:
-    - name: kserve-container
-      image: quay.io/opendatahub/text-generation-inference:stable
-      command: ["text-generation-launcher"]
-      args: 
-        - "--model-name=/mnt/models/"
-        - "--port=3000"
-        - "--grpc-port=8033"
-      env:
-        - name: TRANSFORMERS_CACHE
-          value: /tmp/transformers_cache
-      resources: # configure as required
-        requests:
-          cpu: 2
-          memory: 4Gi
-      ports:
-      - containerPort: 8033
-        name: h2c
-        protocol: TCP
-        
+  - autoSelect: true
+    name: caikit

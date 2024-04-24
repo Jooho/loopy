@@ -182,7 +182,7 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
     
     info "Testing streams of token"
     echo "curl -s -o /dev/null -w \"%{http_code}\" -kL -H 'Content-Type: application/json' -d '{\"model_id\": \"flan-t5-small-caikit\", \"inputs\": \"At what temperature does Nitrogen boil?\"}' ${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
-    
+
     retry $max_retries $retry_interval streaming_call_result curl -s -o /dev/null -w "%{http_code}" -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' "${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation"
 
     # show return value
@@ -199,6 +199,7 @@ errorHappened=$(wait_pod_containers_ready "serving.kserve.io/inferenceservice=${
     curl -s -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' https://${ISVC_HOSTNAME}/api/v1/task/text-generation -o ${ROLE_DIR}/server-single-text-generation.out
 
     curl -s -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' https://${ISVC_HOSTNAME}/api/v1/task/server-streaming-text-generation -o ${ROLE_DIR}/server-streaming-text-generation.out
+    
     if [[ $single_call_result == "200" || $streaming_call_result == "200" ]]
     then
       success "[SUCCESS] Caikit runtime return correct data"

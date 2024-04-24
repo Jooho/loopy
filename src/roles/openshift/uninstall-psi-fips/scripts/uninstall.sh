@@ -16,8 +16,8 @@ fi
 ODS_CI_RUN_SCRIPT_ARGS="--extra-robot-args '-i ODS-127'"
 CLUSTER_TYPE="selfmanaged"
 TEST_CLUSTER="serving-ods-ci-fips-ms"
-CLUSTER_ACTION_POST_EXECUTION="Delete"
-TEST_PLATFORM="stage"
+CLUSTER_ACTION_POST_EXECUTION="Delete Cluster"
+TEST_ENVIRONMENT="PSI"
 JENKINS_BASE_URL=""
 USER=""
 TOKEN=""
@@ -33,7 +33,7 @@ display_help() {
     echo "   -c, --cluster-action               Set CLUSTER_ACTION_POST_EXECUTION"
     echo "   -ct, --cluster-type                Set CLUSTER_TYPE, possible values are managed and selfmanaged, defaults to selfmanaged."
     echo "   -n, --cluster                      Set TEST_CLUSTER - is the cluster name that will be deleted, defaults to ${TEST_CLUSTER}, comma separated."
-    echo "   -tp, --test-platform               Set TEST_PLATFORM - available values are stage and prod, defaults to stage."
+    echo "   -te, --test-envrionment               Set TEST_ENVIRONMENT - available values are stage and prod, defaults to stage."
     echo "   -h, --help                         Display help menu"
     echo
     exit 1
@@ -84,8 +84,8 @@ while (( "$#" )); do
       TEST_CLUSTER="$2"
       shift 2
       ;;
-    -to|--test-platform)
-      TEST_PLATFORM="$2"
+    -te|--test-envrionment)
+      TEST_ENVIRONMENT="$2"
       shift 2
       ;;
     -em|--email)
@@ -124,7 +124,7 @@ declare -a parameters_array=(
     "CLUSTER_ACTION_POST_EXECUTION=$CLUSTER_ACTION_POST_EXECUTION"
     "TEST_CLUSTERS=$TEST_CLUSTER"
     "CLUSTER_TYPE=$CLUSTER_TYPE"
-    "TEST_PLATFORM=$TEST_PLATFORM"
+    "TEST_ENVIRONMENT=$TEST_ENVIRONMENT"
 )
 
 #format the parameters

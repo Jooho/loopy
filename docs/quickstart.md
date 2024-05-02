@@ -115,3 +115,68 @@ make init
 
   ./loopy playbooks run kserve-full-sanity-test-on-new-fips-cluster -i ./fips.sh
   ~~~ 
+
+
+### Deploy KServe/Modelmesh with the latest odh/rhoai operator
+- Deploy KServe Serverless 
+  ~~~
+  # ODH
+  ./loopy playbooks run odh-stable-install-kserve-serverless-on-existing-cluster  -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-serverless-on-existing-cluster  -i ./cluster_info.sh 
+  ~~~ 
+
+- Deploy KServe RawDeployment
+  ~~~
+  # ODH 
+  ./loopy playbooks run odh-stable-install-kserve-raw-on-existing-cluster  -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-raw-on-existing-cluster  -i ./cluster_info.sh   
+  ~~~ 
+
+- Deploy Modelmesh and KServe Raw  
+  ~~~
+  ./loopy playbooks run odh-stable-install-kserve-raw-on-existing-cluster -p ENABLE_MODELMESH=Managed -i ~/temp/TEST_CLUSTER/integrate_test_j.sh 
+  ~~~
+
+### Deploy KServe/Modelmesh with custom manifests
+example(unit - example-deploy-rhoai-kserve-with-custom-manifests)
+You can combine multiple components together.
+
+- Custom KServe Manifests
+~~~
+# ODH
+  ./loopy playbooks run odh-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_KSERVE_MANIFESTS=https://github.com/jooho/kserve/tarball/master -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_KSERVE_MANIFESTS=https://github.com/jooho/kserve/tarball/master -i ./cluster_info.sh 
+~~~
+
+- Custom ODH MODEL CONTROLLER Manifests
+~~~
+# ODH
+  ./loopy playbooks run odh-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS=https://github.com/jooho/odh-model-controller/tarball/main -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS=https://github.com/jooho/odh-model-controller/tarball/main -i ./cluster_info.sh 
+~~~
+
+- Custom MODELMESH Manifests
+~~~
+# ODH
+  ./loopy playbooks run odh-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_MODELMESH_MANIFESTS=https://github.com/jooho/modelmesh-serving/tarball/main -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_MODELMESH_MANIFESTS=https://github.com/jooho/modelmesh-serving/tarball/main -i ./cluster_info.sh 
+~~~
+
+- Custom DASHBOARD Manifests
+~~~
+# ODH
+  ./loopy playbooks run odh-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_MODELMESH_MANIFESTS=https://github.com/opendatahub-io/odh-dashboard/tarball/f/pipelines-v2 -i ./cluster_info.sh 
+
+  # RHOAI
+  ./loopy playbooks run rhoai-stable-install-kserve-serverless-on-existing-cluster -p CUSTOM_MODELMESH_MANIFESTS=https://github.com/opendatahub-io/odh-dashboard/tarball/f/pipelines-v2 -i ./cluster_info.sh 
+~~~

@@ -87,6 +87,34 @@ sed -e "s+%datasciencecluster_name%+$DATASCIENCECLUSTER_NAME+g; \
 
 oc apply -f ${ROLE_DIR}/$(basename $dsc_manifests_path)
 
+if [[ $CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS != "" ]]
+then
+  if [[ $CUSTOM_KSERVE_MANIFESTS != "" ]]    
+  then
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "'$CUSTOM_KSERVE_MANIFESTS'"},{"contextDir": "config","uri": "'$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS'"}]}}]'
+  fi
+
+  if [[ $CUSTOM_MODELMESH_MANIFESTS != "" ]]
+  then
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config", "uri": "'$CUSTOM_MODELMESH_MANIFESTS'"},{"contextDir": "config","uri": "'$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS'"}]}}]'
+  fi
+else
+  if [[ $CUSTOM_KSERVE_MANIFESTS != "" ]]
+  then    
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "'$CUSTOM_KSERVE_MANIFESTS'"}]}}]'
+  fi
+
+  if [[ $CUSTOM_MODELMESH_MANIFESTS != "" ]]
+  then  
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "'$CUSTOM_MODELMESH_MANIFESTS'"}]}}]'
+  fi    
+fi
+
+if [[ $CUSTOM_DASHBOARD_MANIFESTS != "" ]]
+  then  
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/dashboard/devFlags", "value": {"manifests":[{"contextDir": "manifests","uri": "'$CUSTOM_DASHBOARD_MANIFESTS'"}]}}]'
+  fi    
+
 ############# VERIFY #############
 info "Veirfy role"
 errorHappened=0 # 0 is true, s1 is false

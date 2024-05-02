@@ -20,19 +20,30 @@ role:
 
     - name: ENABLE_DASHBOARD
       description: Deploy dashboard (Removed, Managed)
-
+  
+    - name: CUSTOM_DASHBOARD_MANIFESTS 
+      description: Set the url, if you want to use custom manifests for DASHBOARD (ex https://github.com/opendatahub-io/odh-dashboard/tarball/f/pipelines-v2)  
     - name: ENABLE_DATASCIENCEPIPELINES
       description: Deploy pipelines (Removed, Managed)
 
     - name: ENABLE_KSERVE
       description: Deploy Kserve (Managed, Removed)
 
+    - name: CUSTOM_KSERVE_MANIFESTS 
+      description: Set the url, if you want to use custom manifests for Kserve (ex https://github.com/jooho/kserve/tarball/global-ca)
+
+    - name: CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS 
+      description: Set the url, if you want to use custom manifests for ODH MODEL CONTROLLER (ex https://github.com/jooho/odh-model-controller/tarball/global-ca)
+      
     - name: ENABLE_KSERVE_KNATIVE (Managed, Removed)
       description: Deploy serverless dependencies
 
     - name: ENABLE_MODELMESH
       description: Deploy modelmesh (Removed, Managed)
 
+    - name: CUSTOM_MODELMESH_MANIFESTS 
+      description: Set the url, if you want to use custom manifests for MODELMESH (ex https://github.com/jooho/modelmesh-serving/tarball/global-ca)
+ 
     - name: ENABLE_RAY
       description: Deploy ray (Removed, Managed)
 

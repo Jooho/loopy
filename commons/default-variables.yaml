@@ -22,13 +22,18 @@ opendatahub:
   datasciencecluster_name: rhoai
   enable_codeflare: Removed
   enable_dashboard: Removed
+  custom_dashboard_manfiests: ""
   enable_datasciencepipelines: Removed
   enable_kserve: Managed
+  custom_kserve_manfiests: ""
+  custom_odh_model_controller_manfiests: ""
   enable_kserve_knative: Managed
   enable_modelmesh: Removed
+  custom_modelmesh_manfiests: ""
   enable_ray: Removed
   enable_trustyai: Removed
   enable_workbenches: Removed
+
   default_deploymentmode: Serverless
 
 minio:

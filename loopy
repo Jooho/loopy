@@ -7,7 +7,12 @@ from datetime import datetime
 from config import update_config, reset_config, reset_summary
 
 # main.py path
+loopy_root_path = os.environ.get("LOOPY_PATH", "")
+loopy_config_path = os.environ.get("LOOPY_CONFIG_PATH", "config.yaml")
 current_dir = os.path.dirname(os.path.abspath(__file__))
+if loopy_root_path: 
+    current_dir = loopy_root_path
+
 # add ./src/cli/commands
 commands_dir = os.path.join(current_dir, "src", "cli", "commands")
 logics_dir = os.path.join(current_dir, "src", "cli", "logics")
@@ -101,10 +106,16 @@ cli.add_command(playbooks)
 
 
 # Load configuation file(./config.yaml)
-with open("./config.yaml", "r") as file:
+if loopy_root_path and loopy_config_path == "config.yaml":
+    loopy_config_path = f"{loopy_root_path}/{loopy_config_path}"
+        
+with open(loopy_config_path, "r") as file:
     config_data = yaml.safe_load(file)
 
-with open(config_data["default_vars_file"], "r") as file:
+if loopy_root_path:
+    loopy_default_vars_path = f"{loopy_root_path}/{config_data['default_vars_file']}"
+
+with open(loopy_default_vars_path, "r") as file:
     default_vars = yaml.safe_load(file)
 
 main_context_settings = dict(config={"default_vars": default_vars, "config_data": config_data})

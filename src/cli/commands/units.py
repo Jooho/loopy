@@ -11,6 +11,10 @@ from colorama import Fore, Style, Back
 unit_list = utils.initialize("./src/units", "unit")
 role_list = utils.initialize("./src/roles", "role")
 
+loopy_root_path = os.environ.get("LOOPY_PATH", "")
+if loopy_root_path:
+    unit_list = utils.initialize(f"{loopy_root_path}/src/units", "unit")
+    role_list = utils.initialize(f"{loopy_root_path}/src/roles", "role")
 
 @click.command(name="list")
 def list_units():

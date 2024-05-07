@@ -1,4 +1,4 @@
-default_vars_file: ./commons/default-variables.yaml
+default_vars_file: commons/default-variables.yaml
 enable_print_input_env: "false"
 ignore_validate_env_input: "false"
 keep_env_variables:

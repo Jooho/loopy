@@ -9,11 +9,16 @@ from config import summary_dict, load_summary
 from prettytable import PrettyTable
 import constants
 
+loopy_root_path = os.environ.get("LOOPY_PATH", "")
 
 ROLE_SCHEMA_FILE_PATH = "./src/schema/role.yaml"
 UNIT_SCHEMA_FILE_PATH = "./src/schema/unit.yaml"
 PLAYBOOK_SCHEMA_FILE_PATH = "./src/schema/playbook.yaml"
 
+if loopy_root_path:
+    ROLE_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/role.yaml"
+    UNIT_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/unit.yaml"
+    PLAYBOOK_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/playbook.yaml"    
 
 def initialize(directory, type):
     item_list = []

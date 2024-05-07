@@ -10,6 +10,10 @@ from colorama import Fore, Style, Back
 
 role_list = utils.initialize("./src/roles","role")
 
+loopy_root_path = os.environ.get("LOOPY_PATH", "")
+if loopy_root_path:
+    role_list = utils.initialize(f"{loopy_root_path}/src/roles","role")
+    
 @click.command(name="list")
 def list_roles():
     click.echo("Available roles:")

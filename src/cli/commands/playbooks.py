@@ -13,6 +13,11 @@ role_list = utils.initialize("./src/roles", "role")
 unit_list = utils.initialize("./src/units", "unit")
 playbook_list = utils.initialize("./src/playbooks", "playbook")
 
+loopy_root_path = os.environ.get("LOOPY_PATH", "")
+if loopy_root_path:
+    role_list = utils.initialize(f"{loopy_root_path}/src/roles", "role")
+    unit_list = utils.initialize(f"{loopy_root_path}/src/units", "unit")
+    playbook_list = utils.initialize(f"{loopy_root_path}/src/playbooks", "playbook")
 
 @click.command(name="list")
 def list_playbooks():

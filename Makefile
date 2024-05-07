@@ -1,3 +1,11 @@
+IMG=quay.io/jooholee/loopy
+IMG_TAG=latest
+
+.PHONY: build push
+build:
+	docker build -t ${IMG}:${IMG_TAG} .
+push:
+	docker push ${IMG}:${IMG_TAG}
 
 .PHONY: download-cli
 download-cli:
@@ -9,4 +17,3 @@ install-lib:
 
 .PHONY: init
 init: download-cli install-lib
-

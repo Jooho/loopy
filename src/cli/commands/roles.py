@@ -8,14 +8,29 @@ import py_utils
 from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
-role_list = utils.initialize("./src/roles","role")
+role_list = []
+@click.pass_context
+def init(ctx):
+    global role_list
 
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
-if loopy_root_path:
-    role_list = utils.initialize(f"{loopy_root_path}/src/roles","role")
+    # Default Roles
+    loopy_root_path = os.environ.get("LOOPY_PATH", "")
+    default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+
+    # Additional Roles
+    additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    
+    # Combine default and additional roles directories
+    roles_dir_list = [default_roles_dir] + additional_role_dirs
+    
+    # Initialize roles
+    for directory in roles_dir_list:
+        roles = utils.initialize(directory, "role")
+        role_list.extend(roles)
     
 @click.command(name="list")
 def list_roles():
+    init()
     click.echo("Available roles:")
     for item in sorted(role_list, key=lambda x: x["name"]):
         click.echo(f" - {item['name']}")
@@ -25,6 +40,7 @@ def list_roles():
 @click.argument("role_name")
 @click.pass_context
 def show_role(ctx, role_name):
+    init()
     verify_role_exist(role_name)
   
     for item in role_list:
@@ -36,10 +52,10 @@ def show_role(ctx, role_name):
 @click.command(name="test")
 @click.argument("role_name")
 def test_role(role_name):
+    init()
     click.echo(f"Running tests for role: {role_name}")
     click.echo(f"THIS COMMAND is not implemented")
     # Add your implementation here
-
 
 @click.command(name="run")
 @click.argument("role_name")
@@ -48,6 +64,7 @@ def test_role(role_name):
 @click.option("-i", "--input-env-file")
 @click.pass_context
 def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_file=None):
+    init()
     utils.print_logo()
     # role command specific validation
     verify_role_exist(role_name)

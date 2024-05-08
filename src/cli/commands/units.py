@@ -8,33 +8,55 @@ import loopy_report
 from component import Role, Unit, Get_required_input_keys
 from colorama import Fore, Style, Back
 
-unit_list = utils.initialize("./src/units", "unit")
-role_list = utils.initialize("./src/roles", "role")
+role_list = []
+unit_list = []
+@click.pass_context
+def init(ctx):
+    global role_list
+    global unit_list
 
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
-if loopy_root_path:
-    unit_list = utils.initialize(f"{loopy_root_path}/src/units", "unit")
-    role_list = utils.initialize(f"{loopy_root_path}/src/roles", "role")
+    # Default Roles/Units
+    loopy_root_path = os.environ.get("LOOPY_PATH", "")
+    default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+    default_units_dir = f"{loopy_root_path}/src/units" if loopy_root_path else "./src/units"
 
+    # Additional Roles/Units
+    additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    
+    # Combine default and additional roles/units directories
+    roles_dir_list = [default_roles_dir] + additional_role_dirs
+    units_dir_list = [default_units_dir] + additional_unit_dirs
+    
+    # Initialize roles
+    for directory in roles_dir_list:
+        roles = utils.initialize(directory, "role")
+        role_list.extend(roles)
+    
+    # Initialize units
+    for directory in units_dir_list:
+        units = utils.initialize(directory, "unit")
+        unit_list.extend(units)
+    
 @click.command(name="list")
 def list_units():
+    init()
     click.echo("Available utils:")
     for unit in sorted(unit_list, key=lambda x: x["name"]):
         click.echo(f" - {unit['name']}")
-
 
 @click.command(name="show")
 @click.argument("unit_name")
 @click.option("-v", "--detail-information",is_flag=True)
 @click.pass_context
-def show_unit(ctx, unit_name,detail_information):    
+def show_unit(ctx, unit_name,detail_information):   
+    init() 
     verify_unit_exist(unit_name)
     for item in unit_list:
         if unit_name == item["name"]:
             unit_path = item["path"]
             role_name = item["role_name"]
     display_unit_info(ctx, unit_name, unit_path, role_name,detail_information)
-
 
 @click.command(name="run")
 @click.argument("unit_name")
@@ -45,6 +67,7 @@ def show_unit(ctx, unit_name,detail_information):
 def run_unit(
     ctx, unit_name, params=None, output_env_file_name=None, input_env_file=None
 ):
+    init()
     utils.print_logo()
     click.echo(f"Running unit {unit_name}")
     verify_unit_exist(unit_name)

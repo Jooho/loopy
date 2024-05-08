@@ -9,28 +9,60 @@ import loopy_report
 from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
-role_list = utils.initialize("./src/roles", "role")
-unit_list = utils.initialize("./src/units", "unit")
-playbook_list = utils.initialize("./src/playbooks", "playbook")
+role_list = []
+unit_list = []
+playbook_list = []
+@click.pass_context
+def init(ctx):
+    global role_list
+    global unit_list
+    global playbook_list
 
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
-if loopy_root_path:
-    role_list = utils.initialize(f"{loopy_root_path}/src/roles", "role")
-    unit_list = utils.initialize(f"{loopy_root_path}/src/units", "unit")
-    playbook_list = utils.initialize(f"{loopy_root_path}/src/playbooks", "playbook")
+    # Default Roles/Units/Playbooks
+    loopy_root_path = os.environ.get("LOOPY_PATH", "")
+    default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+    default_units_dir = f"{loopy_root_path}/src/units" if loopy_root_path else "./src/units"
+    default_playbooks_dir = f"{loopy_root_path}/src/playbooks" if loopy_root_path else "./src/playbooks"
+
+    # Additional Roles/Units/Playbooks
+    additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    additional_playbook_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_playbook_dirs", [])
+    
+    # Combine default and additional roles/units/playbooks directories
+    roles_dir_list = [default_roles_dir] + additional_role_dirs
+    units_dir_list = [default_units_dir] + additional_unit_dirs
+    playbooks_dir_list = [default_playbooks_dir] + additional_playbook_dirs
+    
+    # Initialize roles
+    for directory in roles_dir_list:
+        roles = utils.initialize(directory, "role")
+        role_list.extend(roles)
+    
+    # Initialize units
+    for directory in units_dir_list:
+        units = utils.initialize(directory, "unit")
+        unit_list.extend(units)
+    
+    # Initialize playbooks
+    for directory in playbooks_dir_list:
+        playbooks = utils.initialize(directory, "playbook")
+        playbook_list.extend(playbooks)
+
 
 @click.command(name="list")
 def list_playbooks():
+    init()
     click.echo("Available playbooks:")
     for playbook in sorted(playbook_list, key=lambda x: x["name"]):
         click.echo(f" - {playbook['name']}")
-
 
 @click.command(name="show")
 @click.argument("playbook_name")
 @click.option("-v", "--detail-information",is_flag=True)
 @click.pass_context
 def show_playbook(ctx, playbook_name, detail_information):
+    init()
     verify_playbook_exist(playbook_name)
     for item in playbook_list:
         if playbook_name == item["name"]:
@@ -44,6 +76,7 @@ def show_playbook(ctx, playbook_name, detail_information):
 @click.option("-i", "--input-env-file")
 @click.pass_context
 def run_playbook(ctx, playbook_name, params, input_env_file=None):
+    init()
     utils.print_logo()
     click.echo(f"Running playbook {playbook_name}")
     

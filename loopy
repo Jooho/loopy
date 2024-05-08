@@ -112,6 +112,7 @@ if loopy_root_path and loopy_config_path == "config.yaml":
 with open(loopy_config_path, "r") as file:
     config_data = yaml.safe_load(file)
 
+loopy_default_vars_path = config_data['default_vars_file']
 if loopy_root_path:
     loopy_default_vars_path = f"{loopy_root_path}/{config_data['default_vars_file']}"
 

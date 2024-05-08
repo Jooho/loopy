@@ -88,7 +88,7 @@ make init
 
 - Install SSL Minio
   ~~~
-  ./loopy roles run minio-deploy -p ENABLE_SSL="true" -i ./cluster_info.sh 
+  ./loopy units run deploy-ssl-minio  -i ./cluster_info.sh 
   ~~~
 
   

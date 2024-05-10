@@ -15,7 +15,6 @@ def find_root_directory(cur_dir):
     else:
         return None
 
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_directory = find_root_directory(current_dir)
 if root_directory:
@@ -27,7 +26,7 @@ config_yaml_file = os.path.join(current_dir, "config.yaml")
 with open(config_yaml_file, "r") as config_file:
     config_data = yaml.safe_load(config_file)
 
-with open(f"{root_directory}/config.txt", "r") as file:
+with open(f"config.txt", "r") as file:
     config_dict_str = file.read()
     config_dict = eval(config_dict_str)
 

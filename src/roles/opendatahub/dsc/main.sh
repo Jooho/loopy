@@ -87,27 +87,50 @@ sed -e "s+%datasciencecluster_name%+$DATASCIENCECLUSTER_NAME+g; \
 
 oc apply -f ${ROLE_DIR}/$(basename $dsc_manifests_path)
 
-if [[ $CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS != "" ]]
+
+# Custom Manifests
+if [[ $ENABLE_KSERVE == "Managed" ]]
 then
-  if [[ $CUSTOM_KSERVE_MANIFESTS != "" ]]    
-  then
-    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "'$CUSTOM_KSERVE_MANIFESTS'"},{"contextDir": "config","uri": "'$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS'"}]}}]'
+  if [ -n "$CUSTOM_KSERVE_MANIFESTS" ]; then
+    kserve_patch_json_array+=("{\"contextDir\": \"config\",\"sourcePath\": \"overlays/odh\",\"uri\": \"$CUSTOM_KSERVE_MANIFESTS\"}")
   fi
 
-  if [[ $CUSTOM_MODELMESH_MANIFESTS != "" ]]
-  then
-    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config", "uri": "'$CUSTOM_MODELMESH_MANIFESTS'"},{"contextDir": "config","uri": "'$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS'"}]}}]'
+  if [ -n "$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS" ]; then
+      kserve_patch_json_array+=("{\"contextDir\": \"config\",\"uri\": \"$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS\"}")
   fi
+fi
+
+if [[ $ENABLE_MODELMESH == "Managed" ]]
+then
+  if [ -n "$CUSTOM_MODELMESH_MANIFESTS" ]; then
+    mm_patch_json_array+=("{\"contextDir\": \"config\",\"uri\": \"$CUSTOM_MODELMESH_MANIFESTS\"}")
+  fi
+
+  if [ -n "$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS" ]; then
+    mm_patch_json_array+=("{\"contextDir\": \"config\",\"uri\": \"$CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS\"}")
+  fi
+fi
+
+# Check if the kserve array is not empty
+if [ ${#kserve_patch_json_array[@]} -gt 0 ]; then
+    # Convert KServe array to JSON string
+    kserve_patch_json_array=$(IFS=, ; echo "[" "${kserve_patch_json_array[*]}" "]")
+
+    # Apply the KServe JSON string to the oc patch command
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p="[{'op': 'add', 'path': '/spec/components/kserve/devFlags', 'value': {'manifests': $kserve_patch_json_array}}]"
 else
-  if [[ $CUSTOM_KSERVE_MANIFESTS != "" ]]
-  then    
-    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/kserve/devFlags", "value": {"manifests":[{"contextDir": "config","sourcePath": "overlays/odh","uri": "'$CUSTOM_KSERVE_MANIFESTS'"}]}}]'
-  fi
+    echo "No custom manifests for the Kserve/odh manifests. Skipping oc patch."
+fi
 
-  if [[ $CUSTOM_MODELMESH_MANIFESTS != "" ]]
-  then  
-    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p='[{"op": "add", "path": "/spec/components/modelmeshserving/devFlags", "value": {"manifests":[{"contextDir": "config","uri": "'$CUSTOM_MODELMESH_MANIFESTS'"}]}}]'
-  fi    
+# Check if the modelmesh array is not empty
+if [ ${#mm_patch_json_array[@]} -gt 0 ]; then
+    # Convert Modelmesh array to JSON string
+    mm_patch_json_array=$(IFS=, ; echo "[" "${mm_patch_json_array[*]}" "]")
+
+    # Apply the Modelmesh JSON string to the oc patch command
+    oc patch DataScienceCluster ${DATASCIENCECLUSTER_NAME} --type='json' -p="[{'op': 'add', 'path': '/spec/components/modelmeshserving/devFlags', 'value': {'manifests': $mm_patch_json_array}}]"
+else
+    echo "No custom manifests for the Modelmesh/odh manifests. Skipping oc patch."
 fi
 
 if [[ $CUSTOM_DASHBOARD_MANIFESTS != "" ]]

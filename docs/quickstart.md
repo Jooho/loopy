@@ -46,6 +46,13 @@ make init
   STDOUT: LOOPY is Ready
   ~~~
 
+## Loopy Docker Image
+~~~
+docker run -it quay.io/jooholee/loopy
+~~~
+
+
+
 ## Loopy with your cluster
 
 - Create your cluster information

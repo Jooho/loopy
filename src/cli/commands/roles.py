@@ -12,21 +12,21 @@ role_list = []
 @click.pass_context
 def init(ctx):
     global role_list
+    if len(role_list) == 0:
+        # Default Roles
+        loopy_root_path = os.environ.get("LOOPY_PATH", "")
+        default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
 
-    # Default Roles
-    loopy_root_path = os.environ.get("LOOPY_PATH", "")
-    default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
-
-    # Additional Roles
-    additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
-    
-    # Combine default and additional roles directories
-    roles_dir_list = [default_roles_dir] + additional_role_dirs
-    
-    # Initialize roles
-    for directory in roles_dir_list:
-        roles = utils.initialize(directory, "role")
-        role_list.extend(roles)
+        # Additional Roles
+        additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+        
+        # Combine default and additional roles directories
+        roles_dir_list = [default_roles_dir] + additional_role_dirs
+        
+        # Initialize roles
+        for directory in roles_dir_list:
+            roles = utils.initialize(directory, "role")
+            role_list.extend(roles)
     
 @click.command(name="list")
 def list_roles():

@@ -1,6 +1,6 @@
 import os
 import utils
-from colorama import Fore, Style
+from colorama import Fore
 from config import summary_dict, load_summary
 from prettytable import PrettyTable
 import constants

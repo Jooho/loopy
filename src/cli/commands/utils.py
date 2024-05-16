@@ -5,9 +5,7 @@ import re
 import click
 from jsonschema import Draft7Validator
 from colorama import Fore, Style
-from config import summary_dict, load_summary
 from prettytable import PrettyTable
-import constants
 
 loopy_root_path = os.environ.get("LOOPY_PATH", "")
 

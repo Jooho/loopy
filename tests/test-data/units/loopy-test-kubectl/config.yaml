@@ -1,0 +1,55 @@
+unit:
+  created_date: "20240221"
+  name: loopy-test-kubectl
+  description: This unit is to explain how to use shell-execute role.
+  steps: 
+    # - role:
+    #     name: cert-generate
+    #     description: "generate certificate"
+    #     input_env:
+    #       SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
+    #       STOP_WHEN_FAILED: "True"
+    - role:
+       name: shell-execute
+       description: deploy modelmesh 
+       input_env:
+         COMMANDS: |
+           echo "unit-role1-c1" 
+    - role:
+       name: shell-execute
+       description: deploy modelmesh2 
+       input_env:
+         COMMANDS: |
+           echo "unit-role2-c1" %% echo3 "unit-role2-c2"
+          # env %%
+          # echo ${crt_content}  %%
+          # export crt_content=${ROOT_CA_CERT_FILE_PATH}           %%
+          # echo ${ROOT_CA_CERT_FILE_PATH} %%
+          # echoe ${crt_content}  %%
+          # kubectl patch dscinitialization default-dsci --type='json' -p='[{"op":"replace","path":"/spec/trustedCABundle/customCABundle","value":"'"$(awk '{printf "%s\\n", $0}' $crt_content)"'"}]' %%
+          # oc delete pod --all -n kserve-demo %%
+
+          # oc label namespace kserve-demo modelmesh-enabled=true --overwrite=true %%
+          # oc apply -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/main/Kserve/docs/Common/manifests/openvino-serving-runtime.yaml -n kserve-demo %%
+          # oc patch servingruntime/ovms-1.x -p '{"spec":{"replicas":1}}' --type=merge -n kserve-demo %%
+          # cat <<EOF| oc apply -f -
+          # apiVersion: serving.kserve.io/v1beta1
+          # kind: InferenceService
+          # metadata:
+          #   name: example-onnx-mnist
+          #   namespace: kserve-demo
+          #   annotations:
+          #     serving.kserve.io/deploymentMode: ModelMesh
+          # spec:
+          #   predictor:
+          #     model:
+          #       modelFormat:
+          #         name: onnx
+          #       runtime: ovms-1.x
+          #       storage:
+          #         key: aws-connection-minio
+          #         path: onnx/mnist.onnx
+          # EOF
+    #(example)
+    #       oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
+    #       kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname

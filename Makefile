@@ -17,3 +17,7 @@ install-lib:
 
 .PHONY: init
 init: download-cli install-lib
+
+.PHONY: unit
+unit:  
+	pytest tests/cli/commands/test_roles.py

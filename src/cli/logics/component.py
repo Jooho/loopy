@@ -42,7 +42,6 @@ class Role:
             first_component_name = self.name
             update_summary("first_component_type", "Role")
             update_summary("first_component_name", self.name)
-
         print(f"{Back.BLUE}Start Role '{self.name}' {Style.RESET_ALL}")
         output_env_dir_path = config_dict["output_dir"]
         artifacts_dir_path = config_dict["artifacts_dir"]
@@ -180,7 +179,7 @@ def release_exported_env_variables(ctx, input_variabels):
 
 def export_env_variables(ctx, input_variabels):
     enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
-    if enabled_print_input_env.lower() == "true":
+    if enabled_print_input_env:
         print(f"{Back.RED} [DEBUG] Input Environmental Variables {Style.RESET_ALL}")
         print(f"{Fore.GREEN} \u21B3 {input_variabels} {Style.RESET_ALL}")
 
@@ -234,15 +233,20 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
             aggregated_input_vars[input_var] = value
 
     # If user put params, it will overwrite environment variable
+    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
+    ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
     if params is not None:
         for param in params:
-            for input_env in role_config_vars["role"]["input_env"]:
-                if input_env["name"].lower() == param.lower():
-                    aggregated_input_vars[input_env["name"]] = params[param]
-
-    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
-    if enabled_print_input_env.lower() == "true":
-        print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Style.RESET_ALL}")
+            if ignore_validate_env_input:                    
+                aggregated_input_vars[param] = params[param]    
+            else: 
+                for input_env in role_config_vars["role"]["input_env"]:
+                    if input_env["name"].lower() == param.lower():
+                        aggregated_input_vars[input_env["name"]] = params[param]
+    
+    print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Style.RESET_ALL}")
+    if enabled_print_input_env:
+        print(f"{Fore.GREEN} \u21B3 {aggregated_input_vars} {Style.RESET_ALL}")
     return aggregated_input_vars, required_envs
 
 

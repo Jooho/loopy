@@ -1,19 +1,21 @@
 default_vars_file: commons/default-variables.yaml
-enable_print_input_env: "false"
-ignore_validate_env_input: "false"
+enable_print_input_env: true
+enable_loopy_report: false
+enable_loopy_logo: false
+ignore_validate_env_input: false
 keep_env_variables:
-- CLUSTER_API_URL
-- CLUSTER_ADMIN_ID
-- CLUSTER_ADMIN_PW
-- CLUSTER_TOKEN  
-- MINIO_S3_SVC_URL
-- MINIO_DEFAULT_BUCKET_NAME
-- MINIO_ACCESS_KEY_ID
-- MINIO_SECRET_ACCESS_KEY
-- MINIO_REGION
-- JENKINS_USER
-- JENKINS_TOKEN
-- JENKINS_URL
+  - CLUSTER_API_URL
+  - CLUSTER_ADMIN_ID
+  - CLUSTER_ADMIN_PW
+  - CLUSTER_TOKEN
+  - MINIO_S3_SVC_URL
+  - MINIO_DEFAULT_BUCKET_NAME
+  - MINIO_ACCESS_KEY_ID
+  - MINIO_SECRET_ACCESS_KEY
+  - MINIO_REGION
+  - JENKINS_USER
+  - JENKINS_TOKEN
+  - JENKINS_URL
 additional_role_dirs: [] #example /home/roles
 additional_unit_dirs: []
 additional_playbook_dirs: []

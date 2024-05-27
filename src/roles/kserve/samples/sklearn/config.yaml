@@ -13,8 +13,8 @@ role:
     storage_config_annotation: ./manifests/kserve/storage-config-secret-annotation.yaml
     storage_config_serviceaccount: ./manifests/kserve/storage-config-serviceaccount.yaml
     sklearn_runtime: ./manifests/sklearn/sklearn-runtime.yaml
-    sklearn_isvc_iris_v2_storage_grpc: ./manifests/sklearn/sklearn-isvc-iris-v2-storage-grpc.yaml
-    sklearn_isvc_iris_v2_storage_rest: ./manifests/sklearn/sklearn-isvc-iris-v2-storage-rest.yaml
+    sklearn_isvc_iris_v2_storageuri_grpc: ./manifests/sklearn/sklearn-isvc-iris-v2-storageuri-grpc.yaml
+    sklearn_isvc_iris_v2_storageuri_rest: ./manifests/sklearn/sklearn-isvc-iris-v2-storageuri-rest.yaml
     sklearn_isvc_iris_v2_input_rest: ./manifests/sklearn/sklearn-isvc-iris-v2-input-rest.json
     sklearn_isvc_iris_v2_input_grpc: ./manifests/sklearn/sklearn-isvc-iris-v2-input-grpc.json
     grpc_predict_v2_protoc: ./manifests/grpc_predict_v2.proto
@@ -39,7 +39,7 @@ role:
       description: caikit supports 2 protocols (rest,grpc)
 
     - name: ISVC_STORAGE_PATH_TYPE
-      description: kserve support various storage path types (storage, storageuri) - storageuri is tbd
+      description: kserve support various storage path types (storage, storageuri) - storage is tbd
 
     - name: ISVC_DEPLOYMENT_MODE
       description: kserve support Serverless and RawDeployment to deploy a model (Serverless, RawDeployment)

@@ -9,9 +9,13 @@ from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
 role_list = []
+enable_loopy_logo=True
+enable_loopy_report=True
 @click.pass_context
 def init(ctx):
     global role_list
+    global enable_loopy_logo
+    global enable_loopy_report
     if len(role_list) == 0:
         # Default Roles
         loopy_root_path = os.environ.get("LOOPY_PATH", "")
@@ -19,6 +23,12 @@ def init(ctx):
 
         # Additional Roles
         additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+        
+        # Enable Loopy Report
+        enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+        
+        # Enable Loopy Logo
+        enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
         
         # Combine default and additional roles directories
         roles_dir_list = [default_roles_dir] + additional_role_dirs
@@ -65,7 +75,8 @@ def test_role(role_name):
 @click.pass_context
 def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_file=None):
     init()
-    utils.print_logo()
+    if enable_loopy_logo:
+        utils.print_logo()
     # role command specific validation
     verify_role_exist(role_name)
     verify_if_param_exist_in_role(ctx, params, role_name)
@@ -76,7 +87,8 @@ def run_role(ctx, role_name, params=None, output_env_file_name=None, input_env_f
 
     role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
     role.start()
-    loopy_report.summary(ctx, "role", None,None)
+    if enable_loopy_report:
+        loopy_report.summary(ctx, "role", None,None)
 
 def verify_role_exist(role_name):
     for item in role_list:
@@ -105,10 +117,10 @@ def verify_if_param_exist_in_role(ctx, params, role_name):
                         else:
                             input_exist = False
                             
-    ignore_validate_env_input = py_utils.is_positive(ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]) 
+    ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
     if input_exist:
         return
-    elif ignore_validate_env_input == 0:
+    elif ignore_validate_env_input:
         return
     else:
         print(f"{Fore.RED}no input enviroment name exist:{Back.BLUE} {target_param} {Style.RESET_ALL}")

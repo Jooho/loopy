@@ -30,10 +30,10 @@ def test_show_role(cli_runner, custom_context):
     assert "Name: minio-deploy" in result.output
 
 
-# def test_run_role(cli_runner, custom_context):
-#     result = cli_runner.invoke(run_role, ["shell-execute","-p","COMMANDS=echo test"], obj=custom_context)
-#     # result = cli_runner.invoke(run_role, ["shell-execute","-p"], obj=custom_context)
-#     print(f"TEST: {result.stdout.strip()}")
+def test_run_role(cli_runner, custom_context):
+    result = cli_runner.invoke(run_role, ["shell-execute","-p","COMMANDS=echo test"], obj=custom_context)
+    # result = cli_runner.invoke(run_role, ["shell-execute","-p"], obj=custom_context)
+    print(f"TEST: {result.stdout.strip()}")
 
-#     # assert result.exit_code == 0
-#     assert "Success" in result.stdout.strip()
+    # assert result.exit_code == 0
+    assert "Success" in result.stdout.strip()

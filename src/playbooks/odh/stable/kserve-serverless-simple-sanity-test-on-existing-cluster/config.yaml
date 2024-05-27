@@ -8,7 +8,7 @@ playbook:
     (note) at the moment, downloading the runtime take too long so sometimes it returns fail because of long downloading time.
     
     Tested operator version:
-    - ODH 2.9.0
+    - ODH 2.12.0
     - Authorino 0.10.0
     - Serverless 1.32
     - OSSM 2.5.0

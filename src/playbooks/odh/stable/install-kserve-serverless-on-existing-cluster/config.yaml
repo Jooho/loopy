@@ -30,4 +30,4 @@ playbook:
        description: Create a default DSCI.
    - role:
        name: opendatahub-create-dsc
-       description: Deploy KServer component.
+       description: Deploy KServe component.

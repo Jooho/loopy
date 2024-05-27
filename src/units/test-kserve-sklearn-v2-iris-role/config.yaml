@@ -1,0 +1,18 @@
+unit:
+  created_date: "20240527"
+  support: "false"
+  name: test-kserve-sklearn-v2-iris-role
+  description: This deploy kserve sklean v2 iris runtime. 
+  steps:
+    - role:
+        name: minio-deploy
+    - role:
+        name: kserve-sklearn-test
+        input_env:
+          PROTOCOL: grpc
+          # PROTOCOL: rest
+          ISVC_STORAGE_PATH_TYPE: storage
+          TEST_NAMESPACE: kserve-demo
+          STORAGE_CONFIG_TYPE: json
+          # ISVC_DEPLOYMENT_MODE: RawDeployment
+          ISVC_DEPLOYMENT_MODE: Serverless

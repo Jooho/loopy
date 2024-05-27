@@ -1,0 +1,69 @@
+role:
+  created_date: "20240527"
+  name: kserve-sklearn-test
+  description: |
+    This is a Role designed for testing the Sklearn  runtime. By default, it will be deployed with Serverless but if you want to deploy it for RawDeployment, please set `ISVC_DEPLOYMENT_MODE` to `RawDeployment`
+
+    (Example)
+
+  # output_filename: operator-install-output.sh
+  manifests:
+    data_connection_secret: ./manifests/kserve/data-connection-secret.yaml
+    storage_config_json: ./manifests/kserve/storage-config-secret-json.yaml
+    storage_config_annotation: ./manifests/kserve/storage-config-secret-annotation.yaml
+    storage_config_serviceaccount: ./manifests/kserve/storage-config-serviceaccount.yaml
+    sklearn_runtime: ./manifests/sklearn/sklearn-runtime.yaml
+    sklearn_isvc_iris_v2_storage_grpc: ./manifests/sklearn/sklearn-isvc-iris-v2-storage-grpc.yaml
+    sklearn_isvc_iris_v2_storage_rest: ./manifests/sklearn/sklearn-isvc-iris-v2-storage-rest.yaml
+    sklearn_isvc_iris_v2_input_rest: ./manifests/sklearn/sklearn-isvc-iris-v2-input-rest.json
+    sklearn_isvc_iris_v2_input_grpc: ./manifests/sklearn/sklearn-isvc-iris-v2-input-grpc.json
+    grpc_predict_v2_protoc: ./manifests/grpc_predict_v2.proto
+  input_env:
+    - name: MINIO_S3_SVC_URL
+      required: true
+      description: The minio url that contains test models
+
+    - name: MINIO_DEFAULT_BUCKET_NAME
+      required: true
+      description: The minio bucket name that contains test models
+
+    - name: MINIO_ACCESS_KEY_ID
+      required: true
+      description: The minio id that contains test models
+
+    - name: MINIO_SECRET_ACCESS_KEY
+      required: true
+      description: The minio password that contains test models
+
+    - name: PROTOCOL
+      description: caikit supports 2 protocols (rest,grpc)
+
+    - name: ISVC_STORAGE_PATH_TYPE
+      description: kserve support various storage path types (storage, storageuri) - storageuri is tbd
+
+    - name: ISVC_DEPLOYMENT_MODE
+      description: kserve support Serverless and RawDeployment to deploy a model (Serverless, RawDeployment)
+
+    - name: STORAGE_CONFIG_TYPE
+      description: kserve support 2 storage-config secret types(json,annotation)
+
+    - name: USE_DATA_CONNECTION
+      description: By default, the storage-config secret will be created by data-connection. So creating data connection would be the right way to get `storage-config` json style of secret.
+
+    - name: TEST_NAMESPACE
+      description: The namespace where the caikit runtime is running
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token

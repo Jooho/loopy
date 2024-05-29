@@ -2,8 +2,10 @@
     "config": {
         "config_data": {
             "default_vars_file": "commons/default-variables.yaml",
-            "enable_print_input_env": "false",
-            "ignore_validate_env_input": "false",
+            "enable_loopy_report": true,
+            "enable_loopy_logo": true,
+            "enable_loopy_log": true,
+            "ignore_validate_env_input": false,
             "keep_env_variables": [
                 "CLUSTER_API_URL",
                 "CLUSTER_ADMIN_ID",
@@ -20,7 +22,53 @@
             ],
             "additional_role_dirs": [],
             "additional_unit_dirs": [],
-            "additional_playbook_dirs": []
+            "additional_playbook_dirs": [],
+            "logging": {
+                "version": 1,
+                "disable_existing_loggers": false,
+                "formatters": {
+                    "simple": {
+                        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                    },
+                    "detailed": {
+                        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]"
+                    },
+                    "colored": {
+                        "()": "colorlog.ColoredFormatter",
+                        "format": "%(log_color)s%(asctime)s %(levelname)s:[%(filename)s:%(lineno)3d] %(message)s",
+                        "datefmt": "%Y-%m-%d %H:%M:%S",
+                        "log_colors": {
+                            "DEBUG": "cyan",
+                            "INFO": "light_blue",
+                            "WARNING": "yellow",
+                            "ERROR": "red",
+                            "CRITICAL": "bold_red"
+                        }
+                    }
+                },
+                "handlers": {
+                    "console": {
+                        "class": "logging.StreamHandler",
+                        "level": "ERROR",
+                        "formatter": "colored",
+                        "stream": "ext://sys.stdout"
+                    },
+                    "file": {
+                        "class": "logging.FileHandler",
+                        "level": "DEBUG",
+                        "formatter": "detailed",
+                        "filename": "loopy.log",
+                        "mode": "w"
+                    }
+                },
+                "root": {
+                    "level": "DEBUG",
+                    "handlers": [
+                        "console",
+                        "file"
+                    ]
+                }
+            }
         },
         "default_vars": {
             "operator": {

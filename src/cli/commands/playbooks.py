@@ -3,36 +3,81 @@ import os
 import click
 import utils
 import yaml
+import logging
+import constants
 import units
 import roles
 import loopy_report 
 from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 
+logger = logging.getLogger(__name__)
+
 role_list = []
 unit_list = []
 playbook_list = []
+enable_loopy_log=True
+enable_loopy_logo=True
+enable_loopy_report=True
+
 @click.pass_context
-def init(ctx):
+def init(ctx, verbose=None):
     global role_list
     global unit_list
     global playbook_list
+    global enable_loopy_log
+    global enable_loopy_logo
+    global enable_loopy_report
+    
+    # Set log level
+    logging_config = ctx.obj.get("config", {}).get("config_data", {}).get("logging", [])
+    default_log_level=logging_config['handlers']['console']['level']
+    
+    log_levels = {
+        1: logging.WARN,
+        2: logging.INFO,
+        3: logging.DEBUG
+    }
 
+    logging_config['handlers']['console']['level']=log_levels.get(verbose, default_log_level)
+    logging.config.dictConfig(logging_config)        
+
+    # Enable Loopy Report
+    enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
+    
+    # Enable Loopy Logo
+    enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
+
+    # Enable Loopy Log
+    enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")   
+            
     # Default Roles/Units/Playbooks
     loopy_root_path = os.environ.get("LOOPY_PATH", "")
     default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_roles_dir: {default_roles_dir}")
     default_units_dir = f"{loopy_root_path}/src/units" if loopy_root_path else "./src/units"
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_units_dir: {default_units_dir}")
     default_playbooks_dir = f"{loopy_root_path}/src/playbooks" if loopy_root_path else "./src/playbooks"
-
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_playbooks_dir: {default_playbooks_dir}")
+    
     # Additional Roles/Units/Playbooks
     additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
     additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_unit_dirs: {additional_unit_dirs}")
     additional_playbook_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_playbook_dirs", [])
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_playbook_dirs: {additional_playbook_dirs}")
     
     # Combine default and additional roles/units/playbooks directories
     roles_dir_list = [default_roles_dir] + additional_role_dirs
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:roles_dir_list: {roles_dir_list}")
     units_dir_list = [default_units_dir] + additional_unit_dirs
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:units_dir_list: {units_dir_list}")
     playbooks_dir_list = [default_playbooks_dir] + additional_playbook_dirs
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:playbooks_dir_list: {playbooks_dir_list}")
     
     # Initialize roles
     for directory in roles_dir_list:
@@ -73,12 +118,37 @@ def show_playbook(ctx, playbook_name, detail_information):
 @click.command(name="run")
 @click.argument("playbook_name")
 @click.option("-p", "--params", multiple=True, callback=utils.parse_key_value_pairs)
+@click.option("-r", "--no-report", is_flag=True)
+@click.option("-l", "--no-logo", is_flag=True)
+@click.option("-g", "--no-log", is_flag=True)
+@click.option('-v', '--verbose', count=True)
 @click.option("-i", "--input-env-file")
 @click.pass_context
-def run_playbook(ctx, playbook_name, params, input_env_file=None):
+def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params, input_env_file=None):
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:no_log: {no_log}")    
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:verbose: {verbose}")    
+    
     init()
-    utils.print_logo()
-    click.echo(f"Running playbook {playbook_name}")
+    
+    # Enable loopy role log
+    if no_log:
+        os.environ['ENABLE_LOOPY_LOG']="false"
+    elif enable_loopy_log:
+        os.environ['ENABLE_LOOPY_LOG']="true"
+    else:
+        os.environ['ENABLE_LOOPY_LOG']="false"
+        
+    # Print logo    
+    if no_logo:
+       pass
+    elif enable_loopy_logo:
+        utils.print_logo()
+    else:
+        pass
+        
+    logger.debug(f"Playbook: {playbook_name}")
     
     verify_playbook_exist(playbook_name)
     verify_if_param_exist_in_playbook(ctx,params, playbook_name, playbook_list)
@@ -142,7 +212,13 @@ def run_playbook(ctx, playbook_name, params, input_env_file=None):
 
             playbook.add_component(unit)
     playbook.start()
-    loopy_report.summary(ctx,"playbook",playbook_config_vars,unit_list)
+    # Print report
+    if no_report:
+        pass
+    elif enable_loopy_report:
+        loopy_report.summary(ctx,"playbook",playbook_config_vars,unit_list)
+    else:
+        pass
 
 def merge_unit_input_env_in_py_with_first_role_in_unit(unit_name, playbook_unit_input_env):
     for unit in unit_list:
@@ -161,7 +237,7 @@ def verify_playbook_exist(playbook_name):
     for playbook in playbook_list:
         if playbook_name == playbook["name"]:
             return
-    print(f"no playbook exist with {playbook_name}")
+    logger.error(f"Playbook name({playbook_name}) does not exist")
     exit(1)
 
 def verify_if_param_exist_in_playbook(ctx, params, playbook_name, playbook_list):

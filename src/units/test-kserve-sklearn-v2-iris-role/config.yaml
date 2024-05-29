@@ -11,7 +11,7 @@ unit:
         input_env:
           PROTOCOL: grpc
           # PROTOCOL: rest
-          ISVC_STORAGE_PATH_TYPE: storage
+          # ISVC_STORAGE_PATH_TYPE: storageuri
           TEST_NAMESPACE: kserve-demo
           STORAGE_CONFIG_TYPE: json
           # ISVC_DEPLOYMENT_MODE: RawDeployment

@@ -1,11 +1,14 @@
 import os
 import sys
 import yaml
+import logging
 import re
 import click
 from jsonschema import Draft7Validator
 from colorama import Fore, Style
 from prettytable import PrettyTable
+
+logger = logging.getLogger(__name__)
 
 loopy_root_path = os.environ.get("LOOPY_PATH", "")
 
@@ -16,7 +19,8 @@ PLAYBOOK_SCHEMA_FILE_PATH = "./src/schema/playbook.yaml"
 if loopy_root_path:
     ROLE_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/role.yaml"
     UNIT_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/unit.yaml"
-    PLAYBOOK_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/playbook.yaml"    
+    PLAYBOOK_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/playbook.yaml"
+
 
 def initialize(directory, type):
     item_list = []
@@ -106,7 +110,8 @@ def load_env_file_if_exist(file):
                     else:
                         additional_vars[key] = value
         else:
-            print(f"File({file}) does not exist")
+            logger.error(f"File({file}) does not exist")
+            # print(f"File({file}) does not exist")
             exit(1)
     return additional_vars
 
@@ -139,7 +144,7 @@ def get_config_data_by_config_file_dir(ctx, config_file_dir):
 
 
 def get_config_data_by_name(ctx, name, type, list):
-    path=""    
+    path = ""
     if type == "unit":
         for unit in list:
             if name == unit["name"]:
@@ -149,7 +154,7 @@ def get_config_data_by_name(ctx, name, type, list):
             if name == role["name"]:
                 path = role["path"]
     if path == "":
-        ctx.invoke(click.echo,f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}") 
+        ctx.invoke(click.echo, f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}")
         sys.exit(1)
     return get_config_data_by_config_file_dir(ctx, path)
 
@@ -193,7 +198,8 @@ def validate_role_yaml(yaml_file, type):
         with open(yaml_file, "r") as f:
             yaml_data = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
+        # print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
+        logger.error(f"YAML File Syntax Error: {e}")
         exit(1)
 
     # Create validator
@@ -237,4 +243,17 @@ def print_logo():
                 result += Fore.BLUE + char
             else:
                 result += char
-        print(result)
+        print(f"{result}{Fore.RESET}")
+
+def is_positive(input_string):
+    input_string_lower = input_string.lower() 
+    
+    # return 0 when input is "yes", "true" 
+    if input_string_lower in ["yes", "true"]:
+        return 0
+    # return 0 when input is "no", "false"
+    elif input_string_lower in ["no", "false"]:
+        return 1
+    else:
+        # return error if the input is something else
+        raise ValueError("Invalid input. Please provide 'yes', 'no', 'true', or 'false'.")

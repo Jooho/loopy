@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-
+## INIT START ##
 if [[ $DEBUG == "0" ]]
 then 
   set -x 
 fi  
 
-## INIT START ##
 # Get the directory where this script is located
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

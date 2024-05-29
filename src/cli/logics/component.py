@@ -2,14 +2,18 @@ import subprocess
 import os
 import sys
 import yaml
+import constants
 import utils
 import time
+import logging
 from config import config_dict, summary_dict, update_config, update_summary, load_summary
 from colorama import Fore, Style, Back
 
 first_component_type = None
 first_component_name = None
 loopy_result_dir = None
+
+logger = logging.getLogger(__name__)
 
 
 class Role:
@@ -23,6 +27,10 @@ class Role:
         self.additional_input_vars = additional_input_vars
 
     def start(self):
+        # Enable Loopy Logo
+        enable_loopy_log = utils.is_positive(os.getenv("ENABLE_LOOPY_LOG"))
+        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")
+
         # for summary
         load_summary()
         global first_component_type, first_component_name, loopy_result_dir
@@ -42,7 +50,8 @@ class Role:
             first_component_name = self.name
             update_summary("first_component_type", "Role")
             update_summary("first_component_name", self.name)
-        print(f"{Back.BLUE}Start Role '{self.name}' {Style.RESET_ALL}")
+        # print(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
+        logger.info(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
         output_env_dir_path = config_dict["output_dir"]
         artifacts_dir_path = config_dict["artifacts_dir"]
 
@@ -60,50 +69,64 @@ class Role:
         os.environ["ROLE_DIR"] = role_dir_path
         update_config("role_dir", role_dir_path)
 
-        print(f"{Fore.BLUE}Role '{self.name}': Gathering environment and setting environment variables{Style.RESET_ALL}")
+        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Gathering environment and setting environment variables{Fore.RESET}")
+        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Gathering environment and setting environment variables{Fore.RESET}")
         aggregated_input_vars, required_envs = get_aggregated_input_vars(self.ctx, self.role_config_dir_path, self.name, self.params, self.additional_input_vars)
         export_env_variables(self.ctx, aggregated_input_vars)
         verify_required_env_exist(required_envs)
-        print(f"{Fore.BLUE}Role '{self.name}': Executing bash script{Style.RESET_ALL}\n")
-        print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Style.RESET_ALL}")
+        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing bash script{Fore.RESET}\n")
+        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing bash script{Fore.RESET}")
+        # print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}")
         log_output_file = os.path.join(role_dir_path, "log")
         output_env_file_full_path = get_output_env_file_path(self.index, output_env_dir_path, self.role_config_dir_path, self.param_output_env_file)
         os.environ["OUTPUT_ENV_FILE"] = output_env_file_full_path
         try:
-            # # TO-DO This does not show logs but save it to file
-            # with open(log_output_file, "w") as log_file:
-            #     proc=subprocess.run(['bash', self.role_config_dir_path + "/main.sh"],capture_output=True,text=True, check=True)
-            #     log_file.write(proc.stdout)
-            # print(proc.stdout.strip())
-
-            # This show logs and also save it to file
             target_main_file_type = "bash"
             target_main_file = os.path.join(self.role_config_dir_path, "main.sh")
             if not os.path.exists(target_main_file):
                 target_main_file = os.path.join(self.role_config_dir_path, "main.py")
                 target_main_file_type = "python"
-            with open(log_output_file, "w") as f:
-                with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
-                # with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
-                    for line in proc.stdout:
-                        print(line, end="")
-                        f.write(line)
-                    # for stdout_line, stderr_line in zip(proc.stdout, proc.stderr):
-                    #     if stdout_line:
-                    #         print(stdout_line, end="")
-                    #         f.write(stdout_line)
-                    #     if stderr_line:
-                    #         print(stderr_line, end="")
-                    #         f.write(stderr_line)
+
+            if enable_loopy_log == 0:
+                logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}")
+                # This show logs and also save it to file
+                with open(log_output_file, "w") as f:
+                    with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                        # with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+
+                        for line in proc.stdout:
+                            print(line, end="")
+                            f.write(line)
+
+                logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}")
+            else:
+                # # TO-DO This does not show logs but save it to file
+                with open(log_output_file, "w") as log_file:
+                    proc = subprocess.run([target_main_file_type, target_main_file], capture_output=True, text=True, check=True)
+                    log_file.write(proc.stdout)
+                # print(proc.stdout.strip())
+
+            # for stdout_line, stderr_line in zip(proc.stdout, proc.stderr):
+            #     if stdout_line:
+            #         print(stdout_line, end="")
+            #         f.write(stdout_line)
+            #     if stderr_line:
+            #         print(stderr_line, end="")
+            #         f.write(stderr_line)
         except subprocess.CalledProcessError as e:
-            print(f"{Fore.RED}Command failed with return code {e.returncode}:{Style.RESET_ALL}")
-            print(e.output)
-        print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Style.RESET_ALL}\n")
-        print(f"{Fore.BLUE}Role '{self.name}': Validating output file with specific environment variables{Style.RESET_ALL}")
+            # print(f"{Fore.RED}Command failed with return code {e.returncode}:{Fore.RESET}")
+            logger.error(f"{Fore.RED}Command failed with return code {e.returncode}:{Fore.RESET}")
+            # print(e.output)
+            logger.error(e.output)
+        # print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}\n")
+        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Validating output file with specific environment variables{Fore.RESET}")
+        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Validating output file with specific environment variables{Fore.RESET}")
         validate_output_env_file(output_env_file_full_path, self.role_config_dir_path)
-        print(f"{Fore.BLUE}Role '{self.name}': Releasing exported environment variables for this role{Style.RESET_ALL}")
+        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Releasing exported environment variables for this role{Fore.RESET}")
+        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Releasing exported environment variables for this role{Fore.RESET}")
         release_exported_env_variables(self.ctx, aggregated_input_vars)
-        print(f"{Back.BLUE}Finished Role '{self.name}' {Style.RESET_ALL}")
+        # print(f"{Back.BLUE}Finished Role '{self.name}' {Fore.RESET}")
+        logger.info(f"{Back.BLUE}Finished Role '{self.name}' {Fore.RESET}")
         print()
         # for summary
         load_summary()
@@ -114,6 +137,7 @@ class Role:
         if self.name != "shell-execute":
             end_time.append(time.time())
         update_summary("end_time", end_time)
+        print(f"{Fore.RESET}")
 
 
 class Unit:
@@ -132,7 +156,8 @@ class Unit:
             update_summary("first_component_type", "Unit")
             update_summary("first_component_name", self.name)
 
-        print(f"{Fore.LIGHTCYAN_EX}Running unit '{self.name}': Starting role{Style.RESET_ALL}")
+        # print(f"{Fore.LIGHTCYAN_EX}Running unit '{self.name}': Starting role{Fore.RESET}")
+        logger.info(f"{Fore.LIGHTCYAN_EX}Running unit '{self.name}': Starting role{Fore.RESET}")
         for component in self.components:
             component.start()
 
@@ -146,7 +171,7 @@ class Playbook:
         self.components.append(component)
 
     def start(self):
-        print()
+        # print()
         global first_component_type, first_component_name
         if first_component_type is None:
             first_component_type = "Playbook"
@@ -154,7 +179,8 @@ class Playbook:
             update_summary("first_component_type", "Playbook")
             update_summary("first_component_name", self.name)
 
-        print(f"{Back.CYAN}Running Playbook '{self.name}': Starting components{Style.RESET_ALL}")
+        # print(f"{Back.CYAN}Running Playbook '{self.name}': Starting components{Fore.RESET}")
+        logger.info(f"{Back.CYAN}Running Playbook '{self.name}': Starting components{Fore.RESET}")
         for component in self.components:
             component.start()
 
@@ -163,9 +189,11 @@ def create_dir_if_does_not_exist(directory_path):
     if not os.path.exists(directory_path):
         try:
             os.makedirs(directory_path)
-            print(f"{Fore.GREEN}Succeed to create a new direcotry: {directory_path}{Style.RESET_ALL}")
+            # print(f"{Fore.GREEN}Succeed to create a new direcotry: {directory_path}{Fore.RESET}")
+            logger.info(f"{Fore.GREEN}Succeed to create a new direcotry: {directory_path}{Fore.RESET}")
         except OSError as e:
-            print(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Style.RESET_ALL}")
+            # print(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Fore.RESET}")
+            logger.error(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Fore.RESET}")
 
 
 def release_exported_env_variables(ctx, input_variabels):
@@ -174,14 +202,15 @@ def release_exported_env_variables(ctx, input_variabels):
         if input_var not in keep_env_variables:
             os.environ.pop(input_var)
 
-    print(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Style.RESET_ALL}")
+    # print(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Fore.RESET}")
+    logger.info(f"{Fore.GREEN} \u21B3 Successfully release exported input variables {Fore.RESET}")
 
 
 def export_env_variables(ctx, input_variabels):
-    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
-    if enabled_print_input_env:
-        print(f"{Back.RED} [DEBUG] Input Environmental Variables {Style.RESET_ALL}")
-        print(f"{Fore.GREEN} \u21B3 {input_variabels} {Style.RESET_ALL}")
+    # print(f"{Back.RED} [DEBUG] Input Environmental Variables {Fore.RESET}")
+    logger.debug(f"{Fore.YELLOW} Input Environmental Variables {Fore.RESET}")
+    # print(f"{Fore.GREEN} \u21B3 {input_variabels} {Fore.RESET}")
+    logger.debug(f"{Fore.LIGHTYELLOW_EX} \u21B3 {input_variabels} {Fore.RESET}")
 
     if "STOP_WHEN_FAILED" not in input_variabels:
         # Set default value of stop_when_failed when it is not specified in the role/unit input_env or params
@@ -190,7 +219,8 @@ def export_env_variables(ctx, input_variabels):
     for input_var in input_variabels:
         os.environ[input_var] = input_variabels[input_var]
 
-    print(f"{Fore.GREEN} \u21B3 Successfully export input variables {Style.RESET_ALL}")
+    # print(f"{Fore.GREEN} \u21B3 Successfully export input variables {Fore.RESET}")
+    logger.info(f"{Fore.GREEN} \u21B3 Successfully export input variables {Fore.RESET}")
 
 
 def Get_default_input_value(ctx, role_config_dir_path, role_name, additional_input_vars, input_key):
@@ -233,29 +263,31 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
             aggregated_input_vars[input_var] = value
 
     # If user put params, it will overwrite environment variable
-    enabled_print_input_env = ctx.obj.get("config", "config_data")["config_data"]["enable_print_input_env"]
     ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
     if params is not None:
         for param in params:
-            if ignore_validate_env_input:                    
-                aggregated_input_vars[param] = params[param]    
-            else: 
+            if ignore_validate_env_input:
+                aggregated_input_vars[param] = params[param]
+            else:
                 for input_env in role_config_vars["role"]["input_env"]:
                     if input_env["name"].lower() == param.lower():
                         aggregated_input_vars[input_env["name"]] = params[param]
-    
-    print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Style.RESET_ALL}")
-    if enabled_print_input_env:
-        print(f"{Fore.GREEN} \u21B3 {aggregated_input_vars} {Style.RESET_ALL}")
+
+    # print(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Fore.RESET}")
+    logger.info(f"{Fore.GREEN} \u21B3 Successfully aggregated input variables {Fore.RESET}")
+    # print(f"{Fore.GREEN} \u21B3 {aggregated_input_vars} {Fore.RESET}")
+    # logger.debug(f"JHOUSE{Fore.GREEN} \u21B3 {aggregated_input_vars} {Fore.RESET}")
     return aggregated_input_vars, required_envs
 
 
 def verify_required_env_exist(required_envs):
     for required_env in required_envs:
         if required_env not in os.environ:
-            print(f"{Fore.RED}Required environment value({required_env}) is not set{Style.RESET_ALL}")
+            # print(f"{Fore.RED}Required environment value({required_env}) is not set{Fore.RESET}")
+            logger.error(f"{Fore.RED}Required environment value({required_env}) is not set{Fore.RESET}")
             exit(1)
-    print(f"{Fore.GREEN} \u21B3 successfully confirmed that all required input variables have been entered{Style.RESET_ALL}")
+    # print(f"{Fore.GREEN} \u21B3 successfully confirmed that all required input variables have been entered{Fore.RESET}")
+    logger.info(f"{Fore.GREEN} \u21B3 successfully confirmed that all required input variables have been entered{Fore.RESET}")
 
 
 def validate_output_env_file(output_env_file_path, role_config_dir_path):
@@ -265,11 +297,13 @@ def validate_output_env_file(output_env_file_path, role_config_dir_path):
         if "output_env" in target_component_vars["role"]:
             for output_env in target_component_vars["role"]["output_env"]:
                 if str(output_env["name"]) not in os.environ:
-                    print(f"{Fore.RED}Please checkt this role. output_env({output_env}) is not set{Style.RESET_ALL}")
+                    logger.error(f"{Fore.RED}Please checkt this role. output_env({output_env}) is not set{Fore.RESET}")
                     exit(1)
-            print(f"{Fore.GREEN} \u21B3 All required environment variables are successfully set for the next role{Style.RESET_ALL}")
+            # print(f"{Fore.GREEN} \u21B3 All required environment variables are successfully set for the next role{Fore.RESET}")
+            logger.info(f"{Fore.GREEN} \u21B3 All required environment variables are successfully set for the next role{Fore.RESET}")
         else:
-            print(f"{Fore.LIGHTGREEN_EX} \u21B3 No output variables are required for this role{Style.RESET_ALL}")
+            # print(f"{Fore.GREEN} \u21B3 No output variables are required for this role{Fore.RESET}")
+            logger.info(f"{Fore.GREEN} \u21B3 No output variables are required for this role{Fore.RESET}")
             return
 
 
@@ -279,7 +313,8 @@ def get_role_config_dir_path(role_list, role_name):
         if role_name == item["name"]:
             target_config_yaml_dir_path = item["path"]
     if target_config_yaml_dir_path is None:
-        print(f"{Fore.RED}role({role_name} does not exist){Style.RESET_ALL}")
+        # print(f"{Fore.RED}role({role_name} does not exist){Fore.RESET}")
+        logger.error(f"{Fore.RED}role({role_name} does not exist){Fore.RESET}")
         exit(1)
     return target_config_yaml_dir_path
 

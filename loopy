@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import click
 import os
 import sys
 import yaml
+import logging
+
 from datetime import datetime
 from config import update_config, reset_config, reset_summary
+from colorlog import ColoredFormatter
 
 # main.py path
 loopy_root_path = os.environ.get("LOOPY_PATH", "")
@@ -111,6 +114,9 @@ if loopy_root_path and loopy_config_path == "config.yaml":
         
 with open(loopy_config_path, "r") as file:
     config_data = yaml.safe_load(file)
+
+# logging_config=config_data['logging']
+# logging.config.dictConfig(logging_config)
 
 loopy_default_vars_path = config_data['default_vars_file']
 if loopy_root_path:

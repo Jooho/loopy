@@ -1,6 +1,6 @@
 import os
 import utils
-from colorama import Fore
+from colorama import Fore, Style
 from config import summary_dict, load_summary
 from prettytable import PrettyTable
 import constants
@@ -8,6 +8,7 @@ import constants
 
 def summary(ctx, type, config_data, unit_list):
     load_summary()
+    print(f'{Fore.RESET}')  # Reset Color
     summary_text = ["╦  ╔═╗╔═╗╔═╗╦ ╦", "║  ║ ║║ ║╠═╝╚╦╝", "╩═╝╚═╝╚═╝╩   ╩ ", "╔═╗┬ ┬┌┬┐┌┬┐┌─┐┬─┐┬ ┬", "╚═╗│ │││││││├─┤├┬┘└┬┘", "╚═╝└─┘┴ ┴┴ ┴┴ ┴┴└─ ┴ "]
     first_component_type = summary_dict["first_component_type"]
     first_component_name = summary_dict["first_component_name"]
@@ -41,7 +42,7 @@ def summary(ctx, type, config_data, unit_list):
         padding_length = (max_line_length - len(info)) // 2
         key = info.split(":")[0].strip()
         value = info.split(":")[1].strip()
-        new_string = f"{Fore.BLUE}{key}{Fore.RESET}" + ":" + f"{Fore.YELLOW} {value}{Fore.RESET}"
+        new_string = f"{Fore.BLUE}{key}{Style.RESET_ALL}" + ":" + f"{Fore.YELLOW} {value}{Style.RESET_ALL}"
 
         print("* " + " " * padding_length + new_string + " " * (max_line_length - len(info) - padding_length) + " *")
 
@@ -217,7 +218,7 @@ def get_report_table_for_unit_role(table, type, report_file, execution_time_min_
                 [
                     final_index.strip(),
                     description if description != "" else role_name.strip(),
-                    f"{Fore.GREEN}Success{Fore.RESET}" if result.strip() == "0" else f"{Fore.RED}Fail{Fore.RESET}",
+                    f"{Fore.GREEN}Success{Style.RESET_ALL}" if result.strip() == "0" else f"{Fore.RED}Fail{Style.RESET_ALL}",
                     f"{exec_min_time}{constants.REPORT_MIN_UNIT} {exec_sec_time}{constants.REPORT_SECOND_UNIT}",
                     os.path.join(loopy_result_dir, "artifacts", index + "-" + role_name),
                 ]
@@ -346,7 +347,7 @@ def get_report_table_for_playbook(ctx, table, type, report_file, execution_time_
                         f"{Fore.YELLOW}Step({accumulate_time_index_per_unit_role})",
                         f"{unit_description}",
                         f"\u21A7",
-                        f"{py_step_min_time_list[accumulate_time_index_per_unit_role]}{constants.REPORT_MIN_UNIT} {round(py_step_sec_time_list[accumulate_time_index_per_unit_role],constants.REPORT_EXECUTION_TIME_ROUND)}{constants.REPORT_SECOND_UNIT}{Fore.RESET}",
+                        f"{py_step_min_time_list[accumulate_time_index_per_unit_role]}{constants.REPORT_MIN_UNIT} {round(py_step_sec_time_list[accumulate_time_index_per_unit_role],constants.REPORT_EXECUTION_TIME_ROUND)}{constants.REPORT_SECOND_UNIT}{Style.RESET_ALL}",
                         "",
                     ]
                 )
@@ -355,7 +356,7 @@ def get_report_table_for_playbook(ctx, table, type, report_file, execution_time_
                 [
                     f"R({final_index.strip()})",
                     description if description != "" else role_name.strip(),
-                    f"{Fore.GREEN}Success{Fore.RESET}" if result.strip() == "0" else f"{Fore.RED}Fail{Fore.RESET}",
+                    f"{Fore.GREEN}Success{Style.RESET_ALL}" if result.strip() == "0" else f"{Fore.RED}Fail{Style.RESET_ALL}",
                     f"{exec_min_time}{constants.REPORT_MIN_UNIT} {exec_sec_time}{constants.REPORT_SECOND_UNIT}",
                     os.path.join(loopy_result_dir, "artifacts", index + "-" + role_name),
                 ]

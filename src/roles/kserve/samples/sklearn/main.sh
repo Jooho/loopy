@@ -1,23 +1,20 @@
 #!/usr/bin/env bash
+## INIT START ##
 if [[ $DEBUG == "0" ]]
 then 
   set -x 
 fi  
-
-## INIT START ##
 # Get the directory where this script is located
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # Traverse up the directory tree to find the .github folder
 github_dir="$current_dir"
 while [ ! -d "$github_dir/.git" ] && [ "$github_dir" != "/" ]; do
   github_dir="$(dirname "$github_dir")"
 done
-
 # If the .github folder is found, set root_directory
 if [ -d "$github_dir/.git" ]; then
   root_directory="$github_dir"
-  if [[ $DEBUG == "0" ]]; then echo "The root directory is: $root_directory" ;fi
+  if [[ $DEBUG == "0" ]]; then echo "The root directory is: $root_directory"; fi
 else
   echo "Error: Unable to find .github folder."
 fi
@@ -93,8 +90,9 @@ grpc_predict_v2=$(eval "echo \${grpc_predict_v2_protoc_manifests_path}")
 cp $servingruntime_manifests  ${ROLE_DIR}/.
 cp $input_data  ${ROLE_DIR}/.
 cp $grpc_predict_v2 ${ROLE_DIR}/.
-sed -e \
-"s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g" $inferenceservice_manifests > ${ROLE_DIR}/$(basename $inferenceservice_manifests)
+echo $servingruntime_manifests
+echo ${MODEL_NAME}_isvc_iris_v2_${ISVC_STORAGE_PATH_TYPE}_${PROTOCOL}_manifests_path
+sed -e "s+%minio_default_bucket_name%+$MINIO_DEFAULT_BUCKET_NAME+g" $inferenceservice_manifests > ${ROLE_DIR}/$(basename $inferenceservice_manifests)
 
 if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]
 then

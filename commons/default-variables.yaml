@@ -40,11 +40,11 @@ minio:
   minio_namespace: minio
   access_key_id: admin
   secret_access_key: password
-  minio_image: quay.io/opendatahub/modelmesh-minio-examples:caikit-flan-t5  
+  minio_image: quay.io/jooholee/model-minio:latest
   enable_ssl: "false"
   enable_console: "false"
   minio_region: "us-east-1"
-  default_bucket_name: modelmesh-example-models
+  default_bucket_name: example-models
   
 kserve:
   # caikit tgis runtime

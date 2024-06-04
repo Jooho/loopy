@@ -9,9 +9,30 @@ spec:
       port: 9000
       protocol: TCP
       targetPort: 9000
+    - name: minio-ui-port
+      port: 9001
+      protocol: TCP
+      targetPort: 9001
   selector:
     app: minio
 ---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio
+  namespace: %minio_namespace%
+spec:
+  port:
+    targetPort: minio-ui-port
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: minio
+    weight: 100
+  wildcardPolicy: None
+---  
 apiVersion: v1
 kind: Pod
 metadata:
@@ -26,6 +47,8 @@ spec:
     - args:
         - server
         - /data1
+        - --console-address
+        - :9001
       env:
         - name: MINIO_ACCESS_KEY
           value: %access_key_id%

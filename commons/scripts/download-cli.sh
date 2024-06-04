@@ -47,9 +47,10 @@ mv jq-linux64  ${root_directory}/bin/jq
 
 # GRPC_CURL
 GRPC_CURL=1.8.9
-wget https://github.com/fullstorydev/grpcurl/releases/download/v${GRPC_CURL}/grpcurl_${GRPC_CURL}_linux_x86_64.tar.gz
+curl -L https://github.com/fullstorydev/grpcurl/releases/download/v${GRPC_CURL}/grpcurl_${GRPC_CURL}_linux_x86_64.tar.gz|tar xzv
 #wget https://github.com/fullstorydev/grpcurl/releases/download/v${GRPC_CURL}/grpcurl_${GRPC_CURL}_osx_x86_64.tar.gz
-tar xvf grpcurl*.gz
+#tar xvf grpcurl*.gz
+chmod 777 grpcurl
 mv grpcurl  ${root_directory}/bin/grpcurl
 
 # OC, KUBECTL

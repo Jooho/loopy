@@ -1,13 +1,12 @@
 playbook:
   created_date: "20240320"
-  # name: install-odh-kserve-serverless-on-existing-cluster
-  support: "true"
+  support: "false"
   description: >
     This is a playbook to install kserve serverless mode. It installs required operators(serverless/ossm) then install ODH the latest version operator though fast branch. 
     
     Tested operator version:
-    - ODH 2.9.0
-    - Authorino 0.10.0
+    - ODH 2.12.1
+    - Authorino 0.11.1
     - Serverless 1.32
     - OSSM 2.5.0
   steps:

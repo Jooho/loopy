@@ -90,13 +90,18 @@ class Role:
             if enable_loopy_log == 0:
                 logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}")
                 # This show logs and also save it to file
+                env = os.environ.copy()
+                env["PYTHONUNBUFFERED"] = "1"
                 with open(log_output_file, "w") as f:
-                    with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
-                        # with subprocess.Popen([target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                    # with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
+                    with subprocess.Popen(
+                        [target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True, env=env
+                    ) as proc:
 
                         for line in proc.stdout:
                             print(line, end="")
                             f.write(line)
+                            f.flush()
 
                 logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}")
             else:

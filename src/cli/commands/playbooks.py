@@ -130,7 +130,7 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:verbose: {verbose}")    
     
-    init()
+    init(verbose)
     
     # Enable loopy role log
     if no_log:

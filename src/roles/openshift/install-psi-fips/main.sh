@@ -34,7 +34,7 @@ then
 fi 
 
 echo "Calling the install.sh script with the following parameters: -u ${JENKINS_USER} -t *** -j ${JENKINS_JOB_URL} ${EXTRA_PARAMS}"
-${current_dir}/scripts/install.sh -u ${JENKINS_USER} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}/${JENKINS_JOB_URI} ${EXTRA_PARAMS}
+${current_dir}/scripts/install.sh -u ${JENKINS_USER} -r ${ODS_RELEASE_VERSION} -p ${PRODUCT_TYPE} -t ${JENKINS_TOKEN} -j ${JENKINS_URL}/${JENKINS_JOB_URI} ${EXTRA_PARAMS}
 
 if [ $? -ne 0 ]; then
   error "Failed to install FIPS cluster"

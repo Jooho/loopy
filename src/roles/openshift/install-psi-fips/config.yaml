@@ -68,8 +68,15 @@ role:
       description: Extra parameters for for installing the fips enabled cluster, for all available use -h, e.g. EXTRA_PARAMS="-em email@test.com -n clustername"
 
     - name: CLUSTER_NAME
-      description: Set cluster name defaults to ods-ci-fips-ms
+      description: Set cluster name defaults to serving-fips
 
+    - name: PRODUCT_TYPE
+      description: Set RHOAI if you want to test RHOAI. Default ODH  
+
+    - name: ODS_RELEASE_VERSION
+      description: Set ODS Release version. Default RHODS_2.11.0_GA
+      default: RHODS_2.11.0_GA
+      
   output_env:
     - name: CLUSTER_CONSOLE_URL
       description: openshift console url

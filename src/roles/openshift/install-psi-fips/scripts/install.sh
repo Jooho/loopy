@@ -43,8 +43,8 @@ ENABLE_FIPS_IN_CLUSTER="true"
 CLUSTER_ACTION_POST_EXECUTION="Retain Cluster Ready"
 CLUSTER_TYPE="selfmanaged"
 TESTBED_TO_USE="Create new OCP Cluster"
-TEST_CLUSTER="serving-fips"
-TEST_CLUSTER_DETAILS="regionOne,3,g.standard.xxl,4.16-latest,stable"
+CLUSTER_NAME="serving-fips"
+TEST_CLUSTER_DETAILS="regionOne,3,g.standard.xxl,4.15-latest,stable"
 PSI_PARAMS="rhos-d,,,"
 DEPLOY_RHODS_OPERATOR="true"
 RHODS_DEPLOYMENT_TYPE="Cli"
@@ -71,7 +71,7 @@ display_help() {
     echo "   -c, --cluster-action               Set CLUSTER_ACTION_POST_EXECUTION"
     echo "   -ct, --cluster-type                Set CLUSTER_TYPE"
     echo "   -tb, --testbed                     Set TESTBED_TO_USE"
-    echo "   -n, --cluster                      Set TEST_CLUSTER - is the cluster name, must be unique. Check first if there is a cluster already created."
+    echo "   -n, --cluster                      Set CLUSTER_NAME - is the cluster name, must be unique. Check first if there is a cluster already created."
     echo "   -d, --details                      Set TEST_CLUSTER_DETAILS"
     echo "   -pa, --params                      Set PSI_PARAMS"
     echo "   -o, --operator                     Set DEPLOY_RHODS_OPERATOR"
@@ -146,7 +146,7 @@ while (( "$#" )); do
       shift 2
       ;;
     -n|--cluster)
-      TEST_CLUSTER="$2"
+      CLUSTER_NAME="$2"
       shift 2
       ;;
     -d|--details)
@@ -212,7 +212,7 @@ declare -a parameters_array=(
     "CLUSTER_ACTION_POST_EXECUTION=$CLUSTER_ACTION_POST_EXECUTION"
     "CLUSTER_TYPE=$CLUSTER_TYPE"
     "TESTBED_TO_USE=$TESTBED_TO_USE"
-    "TEST_CLUSTER=$TEST_CLUSTER"
+    "CLUSTER_NAME=$CLUSTER_NAME"
     "TEST_CLUSTER_DETAILS=$TEST_CLUSTER_DETAILS"
     "PSI_PARAMS=$PSI_PARAMS"
     "DEPLOY_RHODS_OPERATOR=$DEPLOY_RHODS_OPERATOR"

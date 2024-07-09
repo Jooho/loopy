@@ -16,6 +16,7 @@ openshift:
   cluster_type: psi
   cluster_name: serving-fips
   machine_pool_type: m5.2xlarge
+  product_type: ODH
 
 opendatahub:
   opendatahub_type: opendatahub

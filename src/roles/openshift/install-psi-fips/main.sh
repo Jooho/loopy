@@ -28,7 +28,7 @@ index_role_name=$(basename $ROLE_DIR)
 errorHappened=1 # 0 is true, 1 is false
 ### Main logic ###
 # call the install.sh script
-if [[ ${CLUSTER_NAME} != "serving-ods-ci-fips-ms" ]] 
+if [[ ${CLUSTER_NAME} != "serving-fips" ]] 
 then
   EXTRA_PARAMS="${EXTRA_PARAMS} -n ${CLUSTER_NAME}"
 fi 

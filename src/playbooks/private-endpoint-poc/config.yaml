@@ -1,0 +1,44 @@
+playbook:
+  created_date: "20240613"
+  support: "false"
+  description: >
+    This is a playbook to demonstrate KServe Private Endpoint. It will deploy custom opendatahub operator, kserve operator and odh-model-controller.
+
+    PR list:
+    - kserve - 0.12.1 branch
+      - [Allow KServe to have its own local gateways for Serverless mode](https://github.com/opendatahub-io/kserve/pull/376)
+      - [update local gateway information ](https://github.com/opendatahub-io/kserve/pull/373)
+      - [Prevent the PassthroughCluster for clients/workloads in the service mesh (kserve#3711)](212a77c2fd76255db49569d1efa12b4c075466a8)
+    - opendatahub operator - incubating branch  
+      - [[RHOAIENG-7919] add kserve-local-gateway Gateway and Service](https://github.com/opendatahub-io/opendatahub-operator/pull/1056)
+    - odh model controller - master branch
+      -[Feature: Create cert Secret and update KServe local gateway](https://github.com/opendatahub-io/odh-model-controller/pull/221)
+
+    images:   
+    - quay.io/jooholee/odh-model-controller:private
+    - quay.io/jooholee/kserve-controller:private
+    - quay.io/jooholee/opendatahub-operator:private
+    - quay.io/jooholee/opendatahub-operator-catalog:0.0.0
+  steps:
+    - unit:
+        name: install-authorino-stable-operator
+        description: Install Authorino operator stable version
+    - unit:
+        name: install-odh-stable-operator
+        description: Install ODH operator fast version
+        input_env:
+          CHANNEL: "fast"
+          CATALOGSOURCE_IMAGE: quay.io/jooholee/opendatahub-operator-catalog:v0.0.0
+          CATALOGSOURCE_NAME: private-test
+    - unit:
+        name: install-serverless-stable-operator
+        description: Install Serverless operator stable version
+    - unit:
+        name: install-ossm-stable-operator
+        description: Install ServiceMesh operator stable version
+    - role:
+        name: opendatahub-create-dsci
+        description: Create a default DSCI.
+    - role:
+        name: opendatahub-create-dsc
+        description: Deploy KServe component.

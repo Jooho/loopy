@@ -102,7 +102,7 @@ def load_env_file_if_exist(file):
         if os.path.exists(file):
             with open(file, "r") as file:
                 for line in file:
-                    if not line or line.startswith("#"):  # Skip # part
+                    if not line.strip() or line.startswith("#"):  # Skip # part
                         continue
                     key, value = line.strip().split("=")
                     if '"' in value:

@@ -9,8 +9,8 @@ unit:
     - role:
         name: kserve-sklearn-test
         input_env:
-          PROTOCOL: grpc
-          # PROTOCOL: rest
+          # PROTOCOL: grpc
+          PROTOCOL: rest
           # ISVC_STORAGE_PATH_TYPE: storageuri
           TEST_NAMESPACE: kserve-demo
           STORAGE_CONFIG_TYPE: json

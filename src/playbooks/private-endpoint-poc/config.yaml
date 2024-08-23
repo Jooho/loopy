@@ -20,15 +20,15 @@ playbook:
     - quay.io/jooholee/opendatahub-operator:private
     - quay.io/jooholee/opendatahub-operator-catalog:0.0.0
   steps:
-    - unit:
-        name: install-authorino-stable-operator
-        description: Install Authorino operator stable version
+#    - unit:
+#        name: install-authorino-stable-operator
+#        description: Install Authorino operator stable version
     - unit:
         name: install-odh-stable-operator
         description: Install ODH operator fast version
         input_env:
           CHANNEL: "fast"
-          CATALOGSOURCE_IMAGE: quay.io/jooholee/opendatahub-operator-catalog:v0.0.0
+          CATALOGSOURCE_IMAGE: quay.io/jooholee/opendatahub-operator-catalog:v0.12.1
           CATALOGSOURCE_NAME: private-test
     - unit:
         name: install-serverless-stable-operator

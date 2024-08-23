@@ -20,7 +20,7 @@ playbook:
          CHANNEL: "fast"
    - unit:
        name: install-serverless-stable-operator         
-       description: Install Serverless operator stable version      
+       description: Install Serverless operator stable version  
    - unit:
        name: install-ossm-stable-operator  
        description: Install ServiceMesh operator stable version  

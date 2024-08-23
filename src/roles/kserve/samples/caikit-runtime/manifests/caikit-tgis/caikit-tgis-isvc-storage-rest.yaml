@@ -14,5 +14,5 @@ spec:
       runtime: caikit-tgis-runtime
       storage:
         key: aws-connection-minio
-        path: llm/models/flan-t5-small-caikit
+        path: kserve/llm/models/flan-t5-small-caikit
       

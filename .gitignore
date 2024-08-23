@@ -1,4 +1,6 @@
 /bin
+/dist
+/.pytest_cache
 #test.sh
 env
 __pycache__
@@ -7,3 +9,5 @@ test.py
 config.txt
 summary.txt
 loopy.log
+./loopy_auto*
+/build

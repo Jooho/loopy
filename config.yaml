@@ -17,6 +17,7 @@ keep_env_variables:
   - JENKINS_USER
   - JENKINS_TOKEN
   - JENKINS_URL
+  - CUSTOM_KSERVE_MANIFESTS
 additional_role_dirs: [] #example /home/roles
 additional_unit_dirs: []
 additional_playbook_dirs: []

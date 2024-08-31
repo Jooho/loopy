@@ -210,17 +210,19 @@ def get_report_table_for_unit_role(table, type, report_file, execution_time_min_
             exec_sec_time = execution_time_sec_list[result_line]
             description = ""
             if type == "unit":
+                folder_path=f"{index + "-" + role_name}"
                 steps = config_data[type]["steps"]
                 if "description" in steps[int(index)]["role"]:
                     description = shorten_string(steps[int(index)]["role"]["description"], constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH)
-
+            if type == "role":
+                folder_path=f"{role_name}"
             table.add_row(
                 [
                     final_index.strip(),
                     description if description != "" else role_name.strip(),
                     f"{Fore.GREEN}Success{Style.RESET_ALL}" if result.strip() == "0" else f"{Fore.RED}Fail{Style.RESET_ALL}",
                     f"{exec_min_time}{constants.REPORT_MIN_UNIT} {exec_sec_time}{constants.REPORT_SECOND_UNIT}",
-                    os.path.join(loopy_result_dir, "artifacts", index + "-" + role_name),
+                    os.path.join(loopy_result_dir, "artifacts", folder_path),
                 ]
             )
             result_line += 1

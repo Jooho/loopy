@@ -95,7 +95,7 @@ class Role:
                 with open(log_output_file, "w") as f:
                     # with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
                     with subprocess.Popen(
-                        [target_main_file_type, target_main_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True, env=env
+                        [target_main_file_type, target_main_file], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True, env=env
                     ) as proc:
 
                         for line in proc.stdout:

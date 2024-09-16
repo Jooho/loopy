@@ -1,0 +1,126 @@
+role:
+  created_date: "20240912"
+  name: openshift-rosa-install
+  description: |
+    This role install the ROSA cluster for serving team.        
+
+    Pre-requirements:
+      This need AWS credentials to create AWS resources. If the credential you provided is insufficient, it won't succeed.
+      Moreover, if the region is different, it also will stop the role.
+
+    Input Environment:
+      This role takes input parameters to facilitate the installation of an ROSA OpenShift cluster on AWS.
+
+    The parameters include:
+     - CLUSTER_NAME: openshift cluster name (serving-test)
+     - MACHINE_POOL_TYPE: AWS instance type (m5.2xlarge)
+     - OCM_TOKEN: Set ocm token to access rosa servers. (from https://console.redhat.com/openshift/token/rosa)
+     - WORKER_NODE_COUNT: Openshift worker node count
+     - OCP_ADMIN_ID: Openshift default user id (joe)
+     - OCP_ADMIN_PW: Openshift default user password (ABC12345!!22)
+
+     # Set these parameters provided by devops team
+     - OIDC_CONFIG_ID
+     - PRIVATE_SUBNET 
+     - PUBLIC_SUBNET 
+     - INSTALLER_ROLE
+     - SUPPORT_ROLE 
+     - WORKER_ROLE 
+
+    Output Environment:
+      Upon successful execution, this role outputs environment variables that contain essential information about the installed OpenShift cluster.
+
+    The output variables include:
+      - CLUSTER_CONSOLE_URL: URL of the OpenShift console.
+      - CLUSTER_API_URL: URL of the OpenShift API.
+      - CLUSTER_TYPE: Type of the OpenShift cluster (ROSA).
+      - CLUSTER_ADMIN_ID: Admin user ID of the OpenShift cluster.
+      - CLUSTER_ADMIN_PW: Admin password of the OpenShift cluster.
+      - CLUSTER_TOKEN: Login token for accessing the OpenShift cluster.
+
+    To run it:
+    ./loopy roles run openshift-rosa-install \
+      -p CLUSTER_NAME=serving-test \
+      -p MACHINE_POOL_TYPE=m5.2xlarge \
+      -p OCM_TOKEN=xxx \
+      -p WORKER_NODE_COUNT=2 \
+      -p OCP_ADMIN_ID=joe \
+      -p OCP_ADMIN_PW=ABC12345!!22 \
+      -p OIDC_CONFIG_ID=xxx \
+      -p PRIVATE_SUBNET=subnet-xxx \
+      -p PUBLIC_SUBNET=subnet-xxx \
+      -p INSTALLER_ROLE=arn:aws:iam::xxx \
+      -p SUPPORT_ROLE=arn:aws:iam::xxx \
+      -p WORKER_ROLE=arn:aws:iam::xxx
+
+  input_env:
+    - name: CLUSTER_TYPE
+      description: Platform provider
+      default: ROSA
+
+    - name: CLUSTER_NAME
+      description: Openshift cluster name
+      default: serving-test
+
+    - name: MACHINE_POOL_TYPE
+      description: AWS instance type
+      default: m5.2xlarge
+
+    - name: WORKER_NODE_COUNT
+      description: Openshift worker node count
+      default: "2"
+
+    - name: OCM_TOKEN
+      description: set ocm token to access rosa servers. (from https://console.redhat.com/openshift/token/rosa)
+      required: true
+
+    - name: OCP_ADMIN_ID
+      description: set default openshift console user
+      default: joe
+
+    - name: OCP_ADMIN_PW
+      description: set default openshift console user password
+      default: ABC12345!!22
+
+    - name: OIDC_CONFIG_ID
+      description: set the information that devops team provided
+      required: true
+
+    - name: PRIVATE_SUBNET
+      description: set the information that devops team provided
+      required: true
+
+    - name: PUBLIC_SUBNET
+      description: set the information that devops team provided
+      required: true
+
+    - name: INSTALLER_ROLE
+      description: set the information that devops team provided
+      required: true
+
+    - name: SUPPORT_ROLE
+      description: set the information that devops team provided
+      required: true
+
+    - name: WORKER_ROLE
+      description: set the information that devops team provided
+      required: true
+
+  output_env:
+    - name: CLUSTER_CONSOLE_URL
+      description: openshift console url
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+
+    - name: CLUSTER_TYPE
+      description: openshift cluster type (ROSA)
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token

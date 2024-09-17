@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 def is_positive(input_string):
-    input_string_lower = input_string.lower() 
+    input_string_lower="no"
+
+    if input_string:
+        input_string_lower = input_string.lower()       
     
     # return 0 when input is "yes", "true" 
     if input_string_lower in ["yes", "true"]:

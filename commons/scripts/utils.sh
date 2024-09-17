@@ -310,6 +310,10 @@ function get_root_directory() {
 
 function is_positive() {
   input_val=$1
+  if [[ z$input_val == z ]]
+  then
+    input_val="no"
+  fi
 
   if [[ $input_val == '0' || $input_val == "true" || $input_val == 'True' || $input_val == 'yes' || $input_val == 'Yes' || $input_val == 'y' || $input_val == 'Y' ]]; then
     echo 0

@@ -23,6 +23,7 @@ py_utils_dir = os.path.join(current_dir, "commons", "python")
 sys.path.append(commands_dir)
 sys.path.append(logics_dir)
 sys.path.append(py_utils_dir)
+update_config("py_utils_dir", py_utils_dir)
 
 from roles import list_roles, show_role, test_role, run_role
 from units import list_units, show_unit, run_unit

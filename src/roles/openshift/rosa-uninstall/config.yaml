@@ -1,0 +1,34 @@
+role:
+  created_date: "20240918"
+  name: openshift-rosa-uninstall
+  description: |
+    This role uninstall the ROSA cluster.
+   
+    Pre-requirements:
+      This need AWS credentials to create AWS resources.(~/.aws/config,~/.aws/credential) If the credential you provided is insufficient, it won't succeed.
+      Moreover, if the region is different, it also will stop the role.
+
+    Input Environment:
+      This role takes input parameters to facilitate the uninstallation of an ROSA OpenShift cluster on AWS.
+    
+    The parameters include:
+     - CLUSTER_NAME: openshift cluster name (serving-test)
+     - OCM_TOKEN: Set ocm token to access rosa servers. (from  https://console.redhat.com/openshift/token/rosa)
+
+    To run it:
+    ./loopy roles run openshift-rosa-uninstall \
+      -p CLUSTER_NAME=serving-test \
+      -p OCM_TOKEN=xxx \
+
+  input_env:
+    - name: CLUSTER_TYPE
+      description: Platform provider
+      default: ROSA
+
+    - name: CLUSTER_NAME
+      description: Openshift cluster name
+      default: serving-test
+
+    - name: OCM_TOKEN
+      description: set ocm token to access rosa servers. (from https://console.redhat.com/openshift/token/rosa)
+      required: true

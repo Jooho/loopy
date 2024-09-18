@@ -73,3 +73,15 @@ fi
 wget https://github.com/tektoncd/cli/releases/download/v0.36.0/tkn_0.36.0_Linux_x86_64.tar.gz
 tar xvf tkn_0.36.0_Linux_x86_64.tar.gz
 mv tkn  ${root_directory}/bin/.
+
+# ROSA
+# https://github.com/openshift/rosa/releases/latest
+wget https://github.com/openshift/rosa/releases/latest/download/rosa_Linux_x86_64.tar.gz
+tar xvf rosa_Linux_x86_64.tar.gz
+mv rosa  ${root_directory}/bin/.
+
+# OCM
+# https://github.com/openshift-online/ocm-cli/releases/latest
+curl -L https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-amd64 -o ocm
+chmod +x ocm
+mv ocm ${root_directory}/bin/.

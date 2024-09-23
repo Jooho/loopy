@@ -310,8 +310,7 @@ function get_root_directory() {
 
 function is_positive() {
   input_val=$1
-  if [[ z$input_val == z ]]
-  then
+  if [[ z$input_val == z ]]; then
     input_val="no"
   fi
 
@@ -412,7 +411,7 @@ function check_rosa_access() {
   fi
 
   # 5. can rosa list cluster?
-  rosa list clusters > /dev/null
+  rosa list clusters >/dev/null
 
   if [[ $? != "0" ]]; then
     error "[FAIL] rosa can not list cluster. It would fail to create a new cluster"
@@ -421,4 +420,21 @@ function check_rosa_access() {
   fi
 
   success "[SUCCESS] All checks passed!"
+}
+
+function stop_when_error_happended {
+  local result=$1
+  local index_role_name=$2
+  local report_file=$3
+
+  if [[ $result != "0" ]]; then
+    info "[INFO] There are some errors in the role"
+    should_stop=$(is_positive ${STOP_WHEN_ERROR_HAPPENED})
+    if [[ ${should_stop} == "0" ]]; then
+      echo "${index_role_name}::${result}" >>${report_file}
+      die "[CRITICAL] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all process"
+    else
+      info "[INFO] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
+    fi
+  fi
 }

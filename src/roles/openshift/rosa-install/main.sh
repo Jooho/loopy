@@ -26,87 +26,96 @@ fi
 source $root_directory/commons/scripts/utils.sh
 index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
-result=1
+
+result=1 # 0 is fail, 1 is succeed
+failed_to_create_cluster=1 # 0 is true(fail), 1 is false(succeed)
 
 check_rosa_access
 
 rosa create cluster --sts --oidc-config-id $OIDC_CONFIG_ID --cluster-name=$CLUSTER_NAME --replicas=$WORKER_NODE_COUNT --sts --mode=auto --hosted-cp --subnet-ids=$PRIVATE_SUBNET,$PUBLIC_SUBNET --compute-machine-type $MACHINE_POOL_TYPE --role-arn=$INSTALLER_ROLE --support-role-arn=$SUPPORT_ROLE --worker-iam-role=$WORKER_ROLE
 
-if [[ $? != "0" ]]; then
+result=$?
+
+if [[ $result != "0" ]]; then
   error "[FAIL] ROSA failed to create a cluster"
-  echo "${index_role_name}::1" >>${REPORT_FILE}
-  exit 1
-else   
-  success "[SUCCESS] The ROSA cluster has been created. Please wait until it's ready!"
+  result=1
+  failed_to_create_cluster=0
+  stop_when_error_happended $result $index_role_name $REPORT_FILE
+else
+  info "[INFO] The ROSA cluster has been created. Please wait until it's ready!"
 fi
 
-# Function to check the cluster status
-check_cluster_status() {
-  rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.status.state'
-}
+if [[ $failed_to_create_cluster != 0 ]]; then
+  # Function to check the cluster status
+  check_cluster_status() {
+    rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.status.state'
+  }
 
-# Periodically check the cluster status. (60m)
-# Retry logic variables
-MAX_RETRIES=60
-RETRY_INTERVAL=60 # Interval between retries in seconds
-RETRY_COUNT=0
+  # Periodically check the cluster status. (60m)
+  # Retry logic variables
+  MAX_RETRIES=60
+  RETRY_INTERVAL=60 # Interval between retries in seconds
+  RETRY_COUNT=0
 
-# Infinite loop to check the cluster status
-while true; do
-  STATUS=$(check_cluster_status)
-  RETRY_COUNT=$((RETRY_COUNT + 1))
+  # Infinite loop to check the cluster status
+  while true; do
+    STATUS=$(check_cluster_status)
+    RETRY_COUNT=$((RETRY_COUNT + 1))
 
-  info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+    info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
-  case "$STATUS" in
-  "ready")
-    success "[SUCCESS] The ROSA cluster is now ready!"
-    result=0
-    break
-    ;;
-  "error")
-    error "[FAIL] Cluster status: $STATUS."
-    rosa describe cluster -c "$CLUSTER_NAME" --output json
-    echo "${index_role_name}::1" >>${REPORT_FILE}
-    exit 1
-    ;;
-  *)
-    info "[INFO] Cluster status: $STATUS. Waiting for it to become ready..."
-    ;;
-  esac
+    case "$STATUS" in
+    "ready")
+      success "[SUCCESS] The ROSA cluster is now ready!"
+      result=0
+      break
+      ;;
+    "error")
+      error "[FAIL] Cluster status: $STATUS."
+      rosa describe cluster -c "$CLUSTER_NAME" --output json
+      result=1
+      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      ;;
+    *)
+      info "[INFO] Cluster status: $STATUS. Waiting for it to become ready..."
+      ;;
+    esac
 
-  if ((RETRY_COUNT >= MAX_RETRIES)); then
-    error "[FAIL] Cluster failed to be created after $MAX_RETRIES attempts."
-    echo "${index_role_name}::1" >>${REPORT_FILE}
-    exit 1
+    if ((RETRY_COUNT >= MAX_RETRIES)); then
+      error "[FAIL] Cluster failed to be created after $MAX_RETRIES attempts."
+      result=1
+      stop_when_error_happended $result $index_role_name $REPORT_FILE
+    fi
+
+    sleep $RETRY_INTERVAL
+  done
+
+  info "[INFO] Add a openshift user($OCP_ADMIN_ID)"
+  rosa create idp --cluster=$CLUSTER_NAME --type=htpasswd -u $OCP_ADMIN_ID:$OCP_ADMIN_PW --name htpasswd
+  if [[ $? != 0 ]]; then
+    error "[FAIL] Failed to create a default user"
+    result=1
+    stop_when_error_happended $result $index_role_name $REPORT_FILE
   fi
 
-  sleep $RETRY_INTERVAL
-done
+  info "[INFO] add cluster-admin role to the user($OCP_ADMIN_ID)"
+  rosa grant user cluster-admin --user=$OCP_ADMIN_ID --cluster=$CLUSTER_NAME
+  if [[ $? != 0 ]]; then
+    error "[FAIL] Failed to grant cluster-admin role to the default user"
+    result=1
+    stop_when_error_happended $result $index_role_name $REPORT_FILE
+  fi
+  sleep 10
+  IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
 
-info "[INFO] Add a openshift user($OCP_ADMIN_ID)"
-rosa create idp --cluster=$CLUSTER_NAME --type=htpasswd -u $OCP_ADMIN_ID:$OCP_ADMIN_PW --name htpasswd
-if [[ $? != 0 ]]; then
-  error "[FAIL] Failed to create a default user"
-  exit 1
-fi
-
-info "[INFO] add cluster-admin role to the user($OCP_ADMIN_ID)"
-rosa grant user cluster-admin --user=$OCP_ADMIN_ID --cluster=$CLUSTER_NAME
-if [[ $? != 0 ]]; then
-  error "[FAIL] Failed to grant cluster-admin role to the default user"
-  exit 1
-fi
-sleep 10
-IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
-
-if [[ $IsUserAdded != 1 ]]; then
-  error "[FAIL] Openshift cluster user failed to be added"
-  rosa list users --cluster=$CLUSTER_NAME
-  echo "${index_role_name}::1" >>${REPORT_FILE}
-  exit 1
-else 
-  success "[SUCCESS] The OpenShift cluster-admin user has been successfully added."
+  if [[ $IsUserAdded != 1 ]]; then
+    error "[FAIL] Openshift cluster user failed to be added"
+    rosa list users --cluster=$CLUSTER_NAME
+    result=1
+    stop_when_error_happended $result $index_role_name $REPORT_FILE
+  else
+    success "[SUCCESS] The OpenShift cluster-admin user has been successfully added."
+  fi
 fi
 
 ############# VERIFY #############
@@ -127,7 +136,7 @@ check_cluster_json() {
 info "[INFO] Verifying if the cluster has been created and the user has been added"
 while true; do
   # Fetch cluster information
-  cluster_info_json=$(check_cluster_json)  
+  cluster_info_json=$(check_cluster_json)
   RETRY_COUNT=$((RETRY_COUNT + 1))
 
   info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
@@ -161,7 +170,6 @@ while true; do
       oc_logined=$?
       if [[ $oc_logined -eq 0 ]]; then
         cluster_token=$(oc whoami -t)
-        success "[SUCCESS] Loopy has verified that the cluster ($CLUSTER_NAME) has been successfully created and the user ($OCP_ADMIN_ID) has been added"
         result=0
         break # Exit the loop since the cluster is successfully created
       else
@@ -169,9 +177,15 @@ while true; do
       fi
     fi
   fi
-  
+
   sleep "$RETRY_INTERVAL"
 done
+
+if [[ $result == 0 ]]; then
+  success "[SUCCESS] Loopy has verified that the OpenShift cluster ($CLUSTER_NAME) has been successfully created and the user ($OCP_ADMIN_ID) has been added"
+else
+  error "[FAIL] Failed to create OpenShift cluster($CLUSTER_NAME)"
+fi
 
 ############# OUTPUT #############
 echo "CLUSTER_CONSOLE_URL=${cluster_console_url}" >>${OUTPUT_ENV_FILE}
@@ -183,3 +197,14 @@ echo "CLUSTER_TYPE=${CLUSTER_TYPE}" >>${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
 echo "${index_role_name}::${result}" >>${REPORT_FILE}
+
+############# STOP WHEN RESULT IS FAIL #############
+if [[ $result != "0" ]]; then
+  info "[INFO] The role failed"
+  should_stop=$(is_positive ${STOP_WHEN_FAILED})
+  if [[ ${should_stop} == "0" ]]; then
+    die "[CRITICAL] STOP_WHEN_FAILED(${should_stop}) is set so it will be stoppped."
+  else
+    info "[INFO] STOP_WHEN_FAILED(${should_stop}) is NOT set so skip this error."
+  fi
+fi

@@ -1,0 +1,42 @@
+role:
+  created_date: "20240824"
+  name: openshift-rosa-delete-machinepool
+  description: |
+    This role delete a existing machinepool from the existing ROSA cluster.
+   
+    pre-requirements:
+      This need AWS credentials to create AWS resources. If the credential you provided is insufficient, it won't succeed.
+    Moreover, if the region is different, it also will stop the role. Plus, you have to know the cluster name.
+
+    Input Environment:
+      This role takes input parameters to facilitate the removing a new machinpool of existing ROSA OpenShift cluster on AWS.
+      
+    The parameters include:
+    - CLUSTER_NAME: openshift cluster name  (serving-test)
+    - MACHINE_POOL_NAME: A new mahcinepoolset name (nvidia-gpu-pool)
+    - OCM_TOKEN: Set ocm token to access rosa servers. (from https://console.redhat.com/openshift/token/rosa)
+
+    To run it:
+    ./loopy roles run openshift-rosa-install \
+      -p CLUSTER_NAME=serving-test \
+      -p MACHINE_POOL_NAME=nvidia-gpu-pool \
+      -p OCM_TOKEN=XXX 
+
+  input_env:
+    - name: CLUSTER_TYPE
+      description: Platform provider
+      default: ROSA
+      
+    - name: CLUSTER_NAME
+      description: Openshift cluster name
+      required: true
+      default: serving-test
+
+    - name: MACHINE_POOL_NAME
+      description: New machine pool name 
+      default: nvidia-gpu-pool
+
+    - name: OCM_TOKEN
+      description: Set rosa token to access rosa servers. (from https://console.redhat.com/openshift/token/rosa)
+      required: true
+      

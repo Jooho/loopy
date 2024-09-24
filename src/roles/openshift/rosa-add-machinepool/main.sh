@@ -39,7 +39,7 @@ result=$?
 if [[ $result != "0" ]]; then
   result=1
   stop_when_error_happended $result $index_role_name $REPORT_FILE
-  error "[FAIL] Rosa failed to add a new machinepool"
+  error "[FAIL] ROSA failed to add a new machinepool"
 fi
 
 ############# VERIFY #############

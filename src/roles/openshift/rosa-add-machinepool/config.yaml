@@ -10,8 +10,8 @@ role:
       Moreover, if the region is different, it also will stop the role. Plus, you have to know the cluster name.
 
     Input Environment:
+      This role takes input parameters to facilitate the adding a new machinpool of existing ROSA OpenShift cluster on AWS.
 
-    This role takes input parameters to facilitate the adding a new machinpool of existing ROSA OpenShift cluster on AWS.
     The parameters include:
      - CLUSTER_NAME: openshift cluster name  (serving-test)
      - MACHINE_POOL_TYPE: AWS instance type (g5.4xlarge)
@@ -54,9 +54,9 @@ role:
       default: "1"
 
     - name: OCM_TOKEN
-      description: set rosa token to access rosa servers. (from  https://console.redhat.com/openshift/token/rosa)
+      description: Set rosa token to access rosa servers. (from  https://console.redhat.com/openshift/token/rosa)
       required: true
 
     - name: PRIVATE_SUBNET
-      description: set the information that devops team provided
+      description: Set the information that devops team provided
       required: true

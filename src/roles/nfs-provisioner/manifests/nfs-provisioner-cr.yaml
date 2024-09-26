@@ -1,0 +1,9 @@
+apiVersion: cache.jhouse.com/v1alpha1
+kind: NFSProvisioner
+metadata:
+  name: %nfs_provisioner_name%
+  namespace: %nfs_provisioner_ns%
+spec:
+  storageSize: %storage_size%
+  scForNFSPvc: %pvc_storageclass_name%
+  scForNFS: %nfs_storgeclass_name%

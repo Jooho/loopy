@@ -98,7 +98,7 @@ if [[ $already_deleted != 0 ]]; then
       ;;
     esac
 
-    if ((RETRY_COUNT > MAX_RETRIES)); then
+    if ((RETRY_COUNT >= MAX_RETRIES)); then
       error "[FAIL] Cluster failed to be deleted after $MAX_RETRIES attempts."
       result=0
       break # Exit the max attemption is reached.

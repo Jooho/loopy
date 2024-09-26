@@ -63,7 +63,7 @@ then
 
     info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
-    if ((RETRY_COUNT > MAX_RETRIES)); then
+    if ((RETRY_COUNT >= MAX_RETRIES)); then
       error "[ERROR] The new machinepool($MACHINE_POOL_NAME) is added but it did NOT become READY within the given time."
       result=1
       stop_when_error_happended $result $index_role_name $REPORT_FILE

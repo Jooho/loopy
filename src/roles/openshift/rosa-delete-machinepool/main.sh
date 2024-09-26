@@ -59,7 +59,7 @@ while true; do
   info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
   # Check if the retry count has exceeded the maximum limit
-  if ((RETRY_COUNT > MAX_RETRIES)); then
+  if ((RETRY_COUNT >= MAX_RETRIES)); then
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
     break

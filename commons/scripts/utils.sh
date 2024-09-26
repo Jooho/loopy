@@ -142,7 +142,7 @@ wait_for_pods_ready() {
       echo -n "No pods found with selector '$pod_selector' -n '$pod_namespace'. Pods may not be up yet."
     elif check_pod_status "$pod_selector" "$pod_namespace"; then
       echo "All $pod_selector pods in '$pod_namespace' namespace are running and ready."
-      return
+      return 0
     else
       echo -n "Pods found with selector '$pod_selector' in '$pod_namespace' namespace are not ready yet."
     fi
@@ -151,8 +151,7 @@ wait_for_pods_ready() {
       echo
       oc get pods -l $pod_selector -n $pod_namespace
       error "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
-      echo 1
-      return
+      return 1
     fi
 
     wait_counter=$((wait_counter + 1))
@@ -279,9 +278,9 @@ function oc::wait::return::true() {
     fi
 
     ((ii = ii + 1))
-    if [ $ii -eq 100 ]; then
-      echo "${cmd} did not return a value$"
-      exit 1
+    if [ $ii -eq $iterations ]; then
+      echo "${cmd} did not return a value"
+      return 1
     fi
     sleep $interval
   done
@@ -426,13 +425,21 @@ function stop_when_error_happended {
   local result=$1
   local index_role_name=$2
   local report_file=$3
+  local input_should_stop=$4
 
   if [[ $result != "0" ]]; then
-    info "[INFO] There are some errors in the role"
+    info "[INFO] There are some errors in the role($($index_role_name))"
     should_stop=$(is_positive ${STOP_WHEN_ERROR_HAPPENED})
+    
+    if [[ z${input_should_stop} != z ]] 
+    then
+      info "[INFO] Only for this role($($index_role_name)) set "STOP_WHEN_ERROR_HAPPENED" to ${input_should_stop}" 
+      should_stop=$(is_positive ${input_should_stop})
+    fi
+
     if [[ ${should_stop} == "0" ]]; then
       echo "${index_role_name}::${result}" >>${report_file}
-      die "[CRITICAL] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all process"
+      die "[CRITICAL] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all processes"
     else
       info "[INFO] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
     fi

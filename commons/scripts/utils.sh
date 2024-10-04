@@ -1,54 +1,103 @@
 #!/bin/bash
 
 # Set the color variable
-red='\033[0;31m'
-light_red='\033[0;91m'
-cyan='\033[0;36m'
-green='\033[0;32m'
-yellow='\033[0;33m'
-blue='\033[0;34m'
-light_blue='\033[0;94m'
+dark_red='\e[38;5;124m'
+red='\e[38;5;160m'
+light_red='\e[38;5;196m'
+
+dark_green='\e[38;5;154m'
+green='\e[38;5;155m'
+light_green='\e[38;5;156m'
+
+dark_yellow='\e[38;5;226m'
+yellow='\e[38;5;227m'
+light_yellow='\e[38;5;228m'
+
+dark_purple='\e[38;5;91m'
+purple='\e[38;5;92m'
+light_purple='\e[38;5;93m'
+
+dark_sky='\e[38;5;6m'
+sky='\e[38;5;12m'
+light_sky='\e[38;5;51m'
+
+dark_blue='\e[38;5;27m'
+blue='\e[38;5;33m'
+light_blue='\e[38;5;39m'
+
+# red='\033[0;31m'
+# light_red='\033[0;91m'
+# cyan='\033[0;36m'
+# green='\033[0;32m'
+# yellow='\033[0;33m'
+# blue='\033[0;34m'
+# light_blue='\033[0;94m'
 # Clear the color after that
 clear='\033[0m'
+color_reset='\e[0m'
 
 # Set the color for log level
-info=$cyan
-warning=$yellow
-error=$red
-pending=$light_blue
+info=$sky
+debug=$light_sky
 
+pending=$blue
+
+warn=$dark_red
+error=$red
+fail=$light_red
+die=$light_red
+
+success=$light_green
+pass=$green
+
+
+# When it needs to be exit
 die() {
-  color_red='\e[31m'
-  color_yellow='\e[33m'
-  color_reset='\e[0m'
-  printf "${color_red}FATAL:${color_yellow} $*${color_reset}\n"
+  printf "${die}[FATAL]:$*${color_reset}\n"
   exit 1
 }
 
-light_info() {
-  color_blue='\e[34m'
-  color_reset='\e[0m'
-  printf "${color_blue}$*${color_reset}\n"
+# Provide debug msg
+debug() {
+  if [[ $SHOW_DEBUG_LOG == "true" ]];
+  then
+    printf "${debug}[DEBUG] $*${color_reset}\n"
+  fi
 }
 
+# Provide information msg
 info() {
-  color_reset='\e[0m'
-  printf "${cyan}$*${color_reset}\n"
+  printf "${info}[INFO] $*${color_reset}\n"
 }
 
+# Provide warning msg
+warn() {
+  printf "${warn}[WARN] $*${color_reset}\n"
+}
+
+# When error happen during processes
 error() {
-  color_reset='\e[0m'
-  printf "${error}$*${color_reset}\n"
+  printf "${error}[ERROR] $*${color_reset}\n"
 }
 
+# When component result is 1(failed)
+fail() {
+  printf "${fail}[FAIL] $*${color_reset}\n"
+}
+
+# When one function succeed in the process
+pass() {
+  printf "${pass}[PASS] $*${color_reset}\n"
+}
+
+# When componet result is 0 (succeed)
 success() {
-  color_green='\e[32m'
-  color_reset='\e[0m'
-  printf "${color_green}$*${color_reset}\n"
+  printf "${success}[SUCCESS] $*${color_reset}\n"
 }
 
+# When it is under pending status
 pending() {
-  printf "${pending}$*${color_reset}\n"
+  printf "${pending}[PENDING] $*${color_reset}\n"
 }
 
 check_pod_status() {
@@ -63,11 +112,11 @@ check_pod_status() {
 
   if [[ $oc_exit_code -ne 0 ]]; then
     # kubectl command failed. print the error then wait and retry
-    echo "Error running kubectl command."
+    error "Error running kubectl command."
     echo $pod_status
     return 1
   elif [[ ${#pod_status} -eq 0 ]]; then
-    echo -n "No pods found with selector $pod_selector in $pod_namespace. Pods may not be up yet."
+    error -n "No pods found with selector $pod_selector in $pod_namespace. Pods may not be up yet."
     return 1
   else
     # split string by newline into array
@@ -101,22 +150,22 @@ function wait_pod_containers_ready() {
       desired=$(oc get pod -l ${pod_label} -n ${namespace} --no-headers | head -1 | awk '{print $2}' | cut -d/ -f2)
 
       if [[ $ready == $desired ]]; then
-        success "[SUCCESS] Pod(s) with label '${pod_label}' is(are) Ready!"
+        success "Pod(s) with label '${pod_label}' is(are) Ready!"
         break
       else
-        pending "[PENDING] Pod(s) with label '${pod_label}' is(are) ${red}NOT${clear}${pending} Ready yet: $tempcount times"
-        pending "[PENDING] Wait for 10 seconds"
+        pending "Pod(s) with label '${pod_label}' is(are) ${red}NOT${clear}${pending} Ready yet: $tempcount times"
+        pending "Wait for 10 seconds"
 
         sleep 10
       fi
     else
-      pending "[PENDING] Pod is NOT created yet"
+      pending "Pod is NOT created yet"
       sleep 10
     fi
 
     tempcount=$((tempcount + 1))
     if [[ $checkcount == $tempcount ]]; then
-      error "[ERROR] Pod(s) with label '${pod_label}' is(are) NOT Ready${clear}\n"
+      error "Pod(s) with label '${pod_label}' is(are) NOT Ready${clear}\n"
       exit 1
     fi
   done
@@ -155,7 +204,7 @@ wait_for_pods_ready() {
     fi
 
     wait_counter=$((wait_counter + 1))
-    echo " Waiting 10 secs ..."
+    info "Waiting 10 secs ..."
     sleep 10
   done
 }
@@ -171,10 +220,10 @@ wait_for_pod_name_ready() {
     return
   fi
 
-  echo "Waiting for pod ${pod_name}"
+  info "Waiting for pod ${pod_name}"
   oc wait --for=condition=ready pod/${pod_name} -n $pod_namespace --timeout=300s
   if [[ $? == 0 ]]; then
-    echo "The pod($pod_name) in '$pod_namespace' namespace are running and ready."
+    pass "The pod($pod_name) in '$pod_namespace' namespace are running and ready."
     return
   else
     error "Timed out after 300s waiting for pod($pod_name)"
@@ -428,20 +477,20 @@ function stop_when_error_happended {
   local input_should_stop=$4
 
   if [[ $result != "0" ]]; then
-    info "[INFO] There are some errors in the role($($index_role_name))"
+    info "There are some errors in the role($($index_role_name))"
     should_stop=$(is_positive ${STOP_WHEN_ERROR_HAPPENED})
     
     if [[ z${input_should_stop} != z ]] 
     then
-      info "[INFO] Only for this role($($index_role_name)) set "STOP_WHEN_ERROR_HAPPENED" to ${input_should_stop}" 
+      info "Only for this role($($index_role_name)) set "STOP_WHEN_ERROR_HAPPENED" to ${input_should_stop}" 
       should_stop=$(is_positive ${input_should_stop})
     fi
 
     if [[ ${should_stop} == "0" ]]; then
       echo "${index_role_name}::${result}" >>${report_file}
-      die "[CRITICAL] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all processes"
+      die "STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all processes"
     else
-      info "[INFO] STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
+      info "STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
     fi
   fi
 }

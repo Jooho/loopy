@@ -92,5 +92,8 @@ cli:
   output_env_dir: output
   output_artifacts_dir: artifacts
   output_report_file: report
+  show_debug_log: "false"
   stop_when_failed: "false"
   stop_when_error_happened: "false"
+# stop_when_failed: "true"
+# stop_when_error_happened: "true"

@@ -33,10 +33,13 @@ def init(ctx,verbose=None):
             2: logging.INFO,
             3: logging.DEBUG
         }
-
-        logging_config['handlers']['console']['level']=log_levels.get(verbose, default_log_level)
+        input_log_level=log_levels.get(verbose, default_log_level)
+        logging_config['handlers']['console']['level']=input_log_level
         logging.config.dictConfig(logging_config)
         
+        if input_log_level == logging.DEBUG:
+             os.environ['SHOW_DEBUG_LOG']="true"
+
         # Enable Loopy Report
         enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
         logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")

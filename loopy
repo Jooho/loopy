@@ -44,6 +44,7 @@ def init(default_vars):
     output_dir = os.path.join(date_dir, default_vars["cli"]["output_env_dir"])
     artifacts_dir = os.path.join(date_dir, default_vars["cli"]["output_artifacts_dir"])
     report_file = os.path.join(date_dir, default_vars["cli"]["output_report_file"])
+    show_debug_log = default_vars["cli"]["show_debug_log"]
     stop_when_failed = default_vars["cli"]["stop_when_failed"]
     stop_when_error_happened = default_vars["cli"]["stop_when_error_happened"]
 
@@ -59,6 +60,8 @@ def init(default_vars):
     os.environ["ARTIFACTS_DIR"] = artifacts_dir
     update_config("report_file", report_file)
     os.environ["REPORT_FILE"] = report_file
+    update_config("show_debug_log", show_debug_log)
+    os.environ["SHOW_DEBUG_LOG"] = show_debug_log
     update_config("stop_when_failed", stop_when_failed)
     update_config("stop_when_error_happened", stop_when_error_happened)
     

@@ -1,0 +1,10 @@
+unit:
+  created_date: "20240221"  
+  description: This unit is to test role "openshift-rosa-install".
+  steps: 
+    - role:
+       name: openshift-rosa-install
+       description: "[TEST] Install ROSA Cluster"
+       input_env:
+         CLUSTER_NAME: loopy-role-test
+         MACHINE_POOL_TYPE: m5.2xlarge

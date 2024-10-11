@@ -1,0 +1,17 @@
+unit:
+  created_date: "20240221"  
+  description: This unit is to test role "cert-generate".
+  steps: 
+    - role:
+        name: cert-generate
+        description: "[TEST] SAN_DNS_LIST parameter"
+        input_env:
+          SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
+          STOP_WHEN_FAILED: "True"
+
+    - role:
+        name: cert-generate
+        description: "[TEST] SAN_IP_LIST parameter"
+        input_env:
+         SAN_IP_LIST: "192.168.0.1"
+         STOP_WHEN_FAILED: "True"

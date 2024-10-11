@@ -1,26 +1,72 @@
 unit:
   created_date: "20240221"
-  name: loopy-test-kubectl
-  description: This unit is to explain how to use shell-execute role.
+  description: This unit is to test role "shell-execute".
   steps: 
-    # - role:
-    #     name: cert-generate
-    #     description: "generate certificate"
-    #     input_env:
-    #       SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
-    #       STOP_WHEN_FAILED: "True"
     - role:
        name: shell-execute
-       description: deploy modelmesh 
+       description: "[TEST] Single Command"
        input_env:
          COMMANDS: |
            echo "unit-role1-c1" 
+
     - role:
        name: shell-execute
-       description: deploy modelmesh2 
+       description: "[TEST] Multiple Commands without %%" 
        input_env:
          COMMANDS: |
-           echo "unit-role2-c1" %% echo3 "unit-role2-c2"
+           echo "Test1" > /tmp/a.out 
+           cat /tmp/a.out
+
+    - role:
+       name: shell-execute
+       description: "[TEST] Multiple Commands without %% using env" 
+       input_env:
+         COMMANDS: |
+            export text=Test2
+            echo $text > /tmp/a.out 
+            cat /tmp/a.out
+            echo ${text}
+            if [[ $(cat /tmp/a.out) != "${text}" ]]
+            then
+              echo "environment variable failed to pass to next command" 1>&2
+            fi
+         STOP_WHEN_FAILED: "true"
+
+    - role:
+       name: shell-execute
+       description: "[TEST] Multiple Commands with %%" 
+       input_env:
+         COMMANDS: |
+           echo "Test3" > /tmp/a.out %% cat /tmp/a.out
+         STOP_WHEN_FAILED: "true"
+
+    - role:
+       name: shell-execute
+       description: "[TEST] Multiple Commands in multiple lines with %%"  
+       input_env:
+         COMMANDS: |
+          echo "Test4" > /tmp/a.out %% 
+          cat /tmp/a.out
+         STOP_WHEN_FAILED: "true"  
+
+    - role:
+       name: shell-execute
+       description: "[TEST] Multiple Commands with for statement"  
+       input_env:
+         COMMANDS: |      
+            for i in {1..5}; do
+                echo "$((i * 1000))"
+                sleep 1 
+            done
+         STOP_WHEN_FAILED: "true"  
+
+
+#  - role:
+#        name: shell-execute
+#        description: deploy modelmesh2 
+#        input_env:
+#          COMMANDS: |
+#            echo "unit-role2-c1" %% echo3 "unit-role2-c2"
           # env %%
           # echo ${crt_content}  %%
           # export crt_content=${ROOT_CA_CERT_FILE_PATH}           %%

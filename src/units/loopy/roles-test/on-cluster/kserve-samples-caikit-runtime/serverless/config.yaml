@@ -1,0 +1,69 @@
+unit:
+  created_date: "20241009"  
+  description: This unit is to test role "kserve-samples-caikit-runtime" with Serverless mode.
+  steps: 
+    - role:
+        name: operator-install
+        description: Install Authorino operator
+        input_env:
+          SUBSCRIPTION_NAME: authorino-operator
+          OPERATOR_NAMESPACE: openshift-operators
+          OPERATOR_NAME: authorino-operator
+          CATALOGSOURCE_NAME: community-operators
+          OPERATOR_LABEL: "control-plane=authorino-operator"
+    - role:
+        name: operator-install
+        description: Install OpenDataHub operator
+        input_env:
+          SUBSCRIPTION_NAME: opendatahub-operator
+          OPERATOR_NAMESPACE: openshift-operators
+          OPERATOR_NAME: opendatahub-operator
+          OPERATOR_LABEL: "name=error"
+          OPERATOR_POD_PREFIX: "opendatahub"
+    - role:
+        name: operator-install
+        description: Install Knative operator
+        input_env:
+          SUBSCRIPTION_NAME: serverless-operator
+          OPERATOR_NAMESPACE: rhoai-serverless
+          OPERATOR_NAME: serverless-operator
+          CATALOGSOURCE_NAME: redhat-operators
+          OPERATOR_LABEL: "name=knative-openshift"
+    - role:
+        name: operator-install
+        description: Install OSSM operator
+        input_env:
+          SUBSCRIPTION_NAME: servicemeshoperator
+          OPERATOR_NAMESPACE: openshift-operators
+          OPERATOR_NAME: servicemeshoperator
+          CATALOGSOURCE_NAME: redhat-operators
+          OPERATOR_LABEL: "name=istio-operator"
+    - role:
+        name: opendatahub-create-dsci         
+        description: Create a default DSCI.
+    - role:
+        name: opendatahub-create-dsc
+        description: Install KServe component.
+        input_env:
+            ENABLE_KSERVE: Managed
+            ENABLE_KSERVE_KNATIVE: Managed     
+            DEFAULT_DEPLOYMENTMODE: Serverless
+    - role:
+        name: minio-deploy
+        description: Install Minio
+    - role:
+        name: kserve-caikit-test
+        description: "[TEST] Serverless mode"
+        input_env:
+          CAIKIT_ARCH_TYPE: caikit-tgis
+          PROTOCOL: rest
+          ISVC_STORAGE_PATH_TYPE: storage
+          TEST_NAMESPACE: kserve-demo
+          STORAGE_CONFIG_TYPE: json
+
+
+# TO-DO
+#     - role:
+        # name: shell-execute
+        # description: "Clean up"
+

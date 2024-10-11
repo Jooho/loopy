@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-if [[ $DEBUG == "0" ]]
-then 
-  set -x 
-fi  
+if [[ $DEBUG == "0" ]]; then
+  set -x
+fi
 
 root_directory=$1
 current_dir=$2
@@ -32,13 +31,10 @@ echo
 
 curl -kL -H 'Content-Type: application/json' -d '{"model_id": "flan-t5-small-caikit", "inputs": "At what temperature does Nitrogen boil?"}' https://${KSVC_HOSTNAME}/api/v1/task/server-streaming-text-generation
 
-
-
-if [[ $? == 0 ]]
-then
-  success "[SUCCESS] Role($role_name) sanity test"
+if [[ $? == 0 ]]; then
+  success "Role($role_name) sanity test"
   info "Start to clean up"
   # $current_dir/clean.sh ${root_directory}  ${current_dir} ${role_name}
 else
-  error "[FAIL] Role($role_name) sanity test"
+  error "Role($role_name) sanity test"
 fi

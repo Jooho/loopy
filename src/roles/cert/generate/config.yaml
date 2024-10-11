@@ -1,20 +1,31 @@
 role:
   created_date: "20240215"
   name: cert-generate
-  # output_filename: operator-install-output.sh
-  description: |
-    This role help to generate self singed certificate. The default execution create a SAN certificate for minio
-
-    (Example)
-    ./loopy roles run cert-generate -p SAN_DNS_LIST=minio.minio.svc.cluster
   files:
     openssl-san: ./files/openssl-san.config
+  description: |
+    This role help to generate self singed certificate. 
+    The default execution create a SAN certificate for minio
+
+    pre-requirements:
+      N/A
+
+    Input Environment:
+      The parameters include:
+      - SAN_DNS_LIST: Set SAN DNS hostname (ex "minio.minio.svc.cluster.local,minio-minio.test"). You can generate wildcard cert as well (ex, *.example.com")
+      - SAN_IP_LIST: Set SAN IP address (ex "192.0.0.1,192.0.0.2")
+      
+      You can set both paramters. For more parameters, you can check config.yaml file.
+
+    To run it:
+    ./loopy roles run cert-generate  \
+    -p SAN_DNS_LIST=minio.minio.svc.cluster \
+    -p SAN_IP_LIST=192.0.0.1    
   input_env:
     - name: SAN_DNS_LIST
       description: |
         Set SAN DNS hostname (ex "minio.minio.svc.cluster.local,minio-minio.test")
         You can generate wildcard cert as well (ex, *.example.com")
-      required: true
     - name: SAN_IP_LIST
       description: Set SAN IP address (ex "192.0.0.1,192.0.0.2")
     - name: ROOT_CA_CERT

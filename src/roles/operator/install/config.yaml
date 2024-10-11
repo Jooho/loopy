@@ -62,6 +62,9 @@ role:
     - name: OPERATOR_VERSION
       description: The target operator version to be installed
 
+    - name: TARGET_NAMESPACES
+      description: Set namspaces list (a,b,c)
+
     - name: CATALOGSOURCE_NAME
       description: The catalog source name that contains the target operator
 

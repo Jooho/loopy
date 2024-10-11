@@ -1,7 +1,6 @@
-if [[ $DEBUG == "0" ]]
-then 
-  set -x 
-fi  
+if [[ $DEBUG == "0" ]]; then
+  set -x
+fi
 
 # Get the directory where this script is located
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

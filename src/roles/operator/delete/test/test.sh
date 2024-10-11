@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-if [[ $DEBUG == "0" ]]
-then 
-  set -x 
-fi  
+if [[ $DEBUG == "0" ]]; then
+  set -x
+fi
 
 ## INIT START ##
 # Get the directory where this script is located
@@ -17,7 +16,7 @@ done
 # If the .github folder is found, set root_directory
 if [ -d "$github_dir/.git" ]; then
   root_directory="$github_dir"
-  if [[ $DEBUG == "0" ]]; then echo "The root directory is: $root_directory" ;fi
+  if [[ $DEBUG == "0" ]]; then echo "The root directory is: $root_directory"; fi
 else
   echo "Error: Unable to find .github folder."
 fi

@@ -45,7 +45,7 @@ role:
       description: New machine pool name 
       default: nvidia-gpu-pool
 
-    - name: MACHINE_POOL_TYPE
+    - name: NEW_MACHINE_POOL_TYPE
       description: AWS instance type 
       default: g5.4xlarge
 

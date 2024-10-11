@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-if [[ $DEBUG == "0" ]]
-then 
-  set -x 
-fi  
+if [[ $DEBUG == "0" ]]; then
+  set -x
+fi
 
 root_directory=$1
 current_dir=$2
@@ -15,9 +14,9 @@ source $root_directory/commons/scripts/utils.sh
 
 # if [[ $? == 0 ]]
 # then
-#   success "[SUCCESS] Role($role_name) sanity test"
+#   success "Role($role_name) sanity test"
 #   info "Start to clean up"
 #   # $current_dir/clean.sh ${root_directory}  ${current_dir} ${role_name}
 # else
-#   error "[FAIL] Role($role_name) sanity test"
+#   error "Role($role_name) sanity test"
 # fi

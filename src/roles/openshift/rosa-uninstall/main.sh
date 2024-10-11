@@ -27,14 +27,14 @@ source $root_directory/commons/scripts/utils.sh
 index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 
-result=1        # 0 is fail, 1 is succeed
-already_deleted=1  # 0 is true(fail), 1 is false(succeed)
+result=1          # 0 is "succeed", 1 is "fail"
+already_deleted=1 # 0 is true(fail), 1 is false(succeed)
 
 check_rosa_access
 # Get operator_role_prefix to clean up operator role (refer https://docs.google.com/document/d/1DQgZwj0GjCASfolFeAMXQQ1ZFRvFUp_4p1ZI_GDE42c/edit#heading=h.wmvtisowiku)
-operator_role_prefix=$(rosa describe cluster -c "$CLUSTER_NAME" --output json |jq -r '.aws.sts.operator_role_prefix')
+operator_role_prefix=$(rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.aws.sts.operator_role_prefix')
 
-info "[INFO] Start to delete the rosa cluster($CLUSTER_NAME)"
+info "Start to delete the rosa cluster($CLUSTER_NAME)"
 rosa delete cluster --cluster $CLUSTER_NAME -y
 
 result=$?
@@ -42,14 +42,14 @@ result=$?
 if [[ $result != "0" ]]; then
   rosa delete cluster --cluster $CLUSTER_NAME -y 2>&1 | tee output.log
   if grep -q "There is no cluster with identifier" output.log; then
-      already_deleted=0
+    already_deleted=0
   fi
 
   if [[ $already_deleted == 0 ]]; then
-    info "[INFO] The cluster($CLUSTER_NAME) does not exist"    
+    info "The cluster($CLUSTER_NAME) does not exist"
     result=0
   else
-    error "[FAIL] ROSA failed to delete a cluster"
+    error "ROSA failed to delete a cluster"
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
   fi
@@ -71,21 +71,21 @@ if [[ $already_deleted != 0 ]]; then
     STATUS=$(check_cluster_status)
     RETRY_COUNT=$((RETRY_COUNT + 1))
 
-    info "[INFO] Attempt $((RETRY_COUNT)) of $MAX_RETRIES."
+    info "Attempt $((RETRY_COUNT)) of $MAX_RETRIES."
 
     case "$STATUS" in
     "uninstalling")
-      info "[INFO] Cluster is being uninstalled!"
+      info "Cluster is being uninstalled!"
       ;;
     "error")
-      error "[FAIL] Cluster status: $STATUS."
+      error "Cluster status: $STATUS."
       result=1
-      rosa describe cluster -c "$CLUSTER_NAME" --output json  
+      rosa describe cluster -c "$CLUSTER_NAME" --output json
       stop_when_error_happended $result $index_role_name $REPORT_FILE
       break # Exit the loop as the cluster log show error
       ;;
     "")
-      CLUSTER_EXISTS=$(rosa list clusters | grep  "$CLUSTER_NAME"|wc -l)
+      CLUSTER_EXISTS=$(rosa list clusters | grep "$CLUSTER_NAME" | wc -l)
       if [[ $CLUSTER_EXISTS == 0 ]]; then
         result=0
         break # Exit the loop as the cluster is successfully uninstalled
@@ -99,7 +99,7 @@ if [[ $already_deleted != 0 ]]; then
     esac
 
     if ((RETRY_COUNT >= MAX_RETRIES)); then
-      error "[FAIL] Cluster failed to be deleted after $MAX_RETRIES attempts."
+      error "Cluster failed to be deleted after $MAX_RETRIES attempts."
       result=0
       break # Exit the max attemption is reached.
     fi
@@ -108,7 +108,7 @@ if [[ $already_deleted != 0 ]]; then
   done
 
   # Remove operator roles
-  info "[INFO] Remove operator roles for the cluster($CLUSTER_NAME)"
+  info "Remove operator roles for the cluster($CLUSTER_NAME)"
   rosa delete operator-roles --prefix $operator_role_prefix -m auto -y
 fi
 ############# VERIFY #############
@@ -117,22 +117,21 @@ MAX_RETRIES=30
 RETRY_INTERVAL=60 # Interval between retries in seconds
 RETRY_COUNT=0
 
-info "[INFO] Verify if cluster is uninstalled"
+info "Verify if cluster is uninstalled"
 while true; do
   RETRY_COUNT=$((RETRY_COUNT + 1))
-  info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+  info "Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
   # Check if the retry count has exceeded the maximum limit
   if ((RETRY_COUNT >= MAX_RETRIES)); then
-    error "[FAIL] Cluster($CLUSTER_NAME) is still in the cluster list."
+    error "Cluster($CLUSTER_NAME) is still in the cluster list."
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
     break
   fi
 
-  CLUSTER_EXISTS=$(rosa list clusters| grep "$CLUSTER_NAME" |wc -l)
-  if [[ $CLUSTER_EXISTS == 0 ]] 
-  then
+  CLUSTER_EXISTS=$(rosa list clusters | grep "$CLUSTER_NAME" | wc -l)
+  if [[ $CLUSTER_EXISTS == 0 ]]; then
     result=0
     break
   fi
@@ -140,11 +139,10 @@ while true; do
   sleep $RETRY_INTERVAL
 done
 
-if [[ $result == 0 ]]
-then
-  success "[SUCCESS] The OpenShift cluster($CLUSTER_NAME) is successfully uninstalled!"
+if [[ $result == 0 ]]; then
+  success "The OpenShift cluster($CLUSTER_NAME) is successfully uninstalled!"
 else
-  error "[FAIL] Cluster($CLUSTER_NAME) is NOT uninstalled."
+  error "Cluster($CLUSTER_NAME) is NOT uninstalled."
 fi
 
 ############# OUTPUT #############
@@ -153,14 +151,12 @@ fi
 echo "${index_role_name}::${result}" >>${REPORT_FILE}
 
 ############# STOP WHEN RESULT IS FAIL #############
-if [[ $result != "0" ]] 
-then
-  info "[INFO] The role failed"
+if [[ $result != "0" ]]; then
+  info "The role failed"
   should_stop=$(is_positive ${STOP_WHEN_FAILED})
-  if [[ ${should_stop} == "0" ]]
-  then
+  if [[ ${should_stop} == "0" ]]; then
     die "[CRITICAL] STOP_WHEN_FAILED(${should_stop}) is set so it will be stoppped."
   else
-    info "[INFO] STOP_WHEN_FAILED(${should_stop}) is NOT set so skip this error."
+    info "STOP_WHEN_FAILED(${should_stop}) is NOT set so skip this error."
   fi
-fi  
+fi

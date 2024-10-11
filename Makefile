@@ -15,7 +15,9 @@ download-cli:
 
 .PHONY: install-lib
 install-lib:
+	pip install --upgrade pip
 	pip install -r requirements.txt
+	cat Dockerfile | grep "^RUN dnf" | sed 's/^RUN //'| sh -x
 
 .PHONY: init
 init: download-cli install-lib

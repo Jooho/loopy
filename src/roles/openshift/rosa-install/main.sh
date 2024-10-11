@@ -27,7 +27,7 @@ source $root_directory/commons/scripts/utils.sh
 index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 
-result=1 # 0 is fail, 1 is succeed
+result=1                   # 0 is "succeed", 1 is "fail"
 failed_to_create_cluster=1 # 0 is true(fail), 1 is false(succeed)
 
 check_rosa_access
@@ -37,12 +37,12 @@ rosa create cluster --sts --oidc-config-id $OIDC_CONFIG_ID --cluster-name=$CLUST
 result=$?
 
 if [[ $result != "0" ]]; then
-  error "[FAIL] ROSA failed to create a cluster"
+  error "ROSA failed to create a cluster"
   result=1
   failed_to_create_cluster=0
   stop_when_error_happended $result $index_role_name $REPORT_FILE
 else
-  info "[INFO] The ROSA cluster has been created. Please wait until it's ready!"
+  info "The ROSA cluster has been created. Please wait until it's ready!"
 fi
 
 if [[ $failed_to_create_cluster != 0 ]]; then
@@ -62,27 +62,27 @@ if [[ $failed_to_create_cluster != 0 ]]; then
     STATUS=$(check_cluster_status)
     RETRY_COUNT=$((RETRY_COUNT + 1))
 
-    info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+    info "Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
     case "$STATUS" in
     "ready")
-      success "[SUCCESS] The ROSA cluster is now ready!"
+      success "The ROSA cluster is now ready!"
       result=0
       break
       ;;
     "error")
-      error "[FAIL] Cluster status: $STATUS."
+      error "Cluster status: $STATUS."
       rosa describe cluster -c "$CLUSTER_NAME" --output json
       result=1
       stop_when_error_happended $result $index_role_name $REPORT_FILE
       ;;
     *)
-      info "[INFO] Cluster status: $STATUS. Waiting for it to become ready..."
+      info "Cluster status: $STATUS. Waiting for it to become ready..."
       ;;
     esac
 
     if ((RETRY_COUNT >= MAX_RETRIES)); then
-      error "[FAIL] Cluster failed to be created after $MAX_RETRIES attempts."
+      error "Cluster failed to be created after $MAX_RETRIES attempts."
       result=1
       stop_when_error_happended $result $index_role_name $REPORT_FILE
     fi
@@ -90,18 +90,18 @@ if [[ $failed_to_create_cluster != 0 ]]; then
     sleep $RETRY_INTERVAL
   done
 
-  info "[INFO] Add a openshift user($OCP_ADMIN_ID)"
+  info "Add a openshift user($OCP_ADMIN_ID)"
   rosa create idp --cluster=$CLUSTER_NAME --type=htpasswd -u $OCP_ADMIN_ID:$OCP_ADMIN_PW --name htpasswd
   if [[ $? != 0 ]]; then
-    error "[FAIL] Failed to create a default user"
+    error "Failed to create a default user"
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
   fi
 
-  info "[INFO] add cluster-admin role to the user($OCP_ADMIN_ID)"
+  info "add cluster-admin role to the user($OCP_ADMIN_ID)"
   rosa grant user cluster-admin --user=$OCP_ADMIN_ID --cluster=$CLUSTER_NAME
   if [[ $? != 0 ]]; then
-    error "[FAIL] Failed to grant cluster-admin role to the default user"
+    error "Failed to grant cluster-admin role to the default user"
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
   fi
@@ -109,12 +109,12 @@ if [[ $failed_to_create_cluster != 0 ]]; then
   IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
 
   if [[ $IsUserAdded != 1 ]]; then
-    error "[FAIL] Openshift cluster user failed to be added"
+    error "Openshift cluster user failed to be added"
     rosa list users --cluster=$CLUSTER_NAME
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
   else
-    success "[SUCCESS] The OpenShift cluster-admin user has been successfully added."
+    success "The OpenShift cluster-admin user has been successfully added."
   fi
 fi
 
@@ -133,17 +133,17 @@ check_cluster_json() {
 }
 
 # Infinite loop to check the cluster status
-info "[INFO] Verifying if the cluster has been created and the user has been added"
+info "Verifying if the cluster has been created and the user has been added"
 while true; do
   # Fetch cluster information
   cluster_info_json=$(check_cluster_json)
   RETRY_COUNT=$((RETRY_COUNT + 1))
 
-  info "[INFO] Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+  info "Attempt ${RETRY_COUNT} of $MAX_RETRIES."
 
   # Check if the retry count has exceeded the maximum limit
   if ((RETRY_COUNT > MAX_RETRIES)); then
-    error "[FAIL] Failed to create the cluster after $MAX_RETRIES attempts."
+    error "Failed to create the cluster after $MAX_RETRIES attempts."
     echo "${index_role_name}::1" >>"${REPORT_FILE}"
     break
   fi
@@ -156,16 +156,16 @@ while true; do
     error "[ERROR] Console URL not available yet. Waiting..."
     ((RETRY_COUNT++))
   else
-    info "[INFO] Cluster console URL: $cluster_console_url"
+    info "Cluster console URL: $cluster_console_url"
 
     # Check if the API URL is present
     if [[ $cluster_console_url == null ]]; then
-      info "[INFO] API URL not available yet. Waiting..."
+      info "API URL not available yet. Waiting..."
     else
-      info "[INFO] Cluster API URL: $cluster_api_url"
+      info "Cluster API URL: $cluster_api_url"
 
       # Attempt to login to the cluster
-      info "[INFO] oc login -u $OCP_ADMIN_ID -p XXX --server $cluster_api_url --insecure-skip-tls-verify=true"
+      info "oc login -u $OCP_ADMIN_ID -p XXX --server $cluster_api_url --insecure-skip-tls-verify=true"
       oc login -u "$OCP_ADMIN_ID" -p "$OCP_ADMIN_PW" --server "$cluster_api_url" --insecure-skip-tls-verify=true
       oc_logined=$?
       if [[ $oc_logined -eq 0 ]]; then
@@ -182,9 +182,9 @@ while true; do
 done
 
 if [[ $result == 0 ]]; then
-  success "[SUCCESS] Loopy has verified that the OpenShift cluster ($CLUSTER_NAME) has been successfully created and the user ($OCP_ADMIN_ID) has been added"
+  success "Loopy has verified that the OpenShift cluster ($CLUSTER_NAME) has been successfully created and the user ($OCP_ADMIN_ID) has been added"
 else
-  error "[FAIL] Failed to create OpenShift cluster($CLUSTER_NAME)"
+  error "Failed to create OpenShift cluster($CLUSTER_NAME)"
 fi
 
 ############# OUTPUT #############
@@ -200,11 +200,11 @@ echo "${index_role_name}::${result}" >>${REPORT_FILE}
 
 ############# STOP WHEN RESULT IS FAIL #############
 if [[ $result != "0" ]]; then
-  info "[INFO] The role failed"
+  info "The role failed"
   should_stop=$(is_positive ${STOP_WHEN_FAILED})
   if [[ ${should_stop} == "0" ]]; then
     die "[CRITICAL] STOP_WHEN_FAILED(${should_stop}) is set so it will be stoppped."
   else
-    info "[INFO] STOP_WHEN_FAILED(${should_stop}) is NOT set so skip this error."
+    info "STOP_WHEN_FAILED(${should_stop}) is NOT set so skip this error."
   fi
 fi

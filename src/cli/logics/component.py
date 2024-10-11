@@ -78,7 +78,20 @@ class Role:
         logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing bash script{Fore.RESET}")
         # print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}")
         log_output_file = os.path.join(role_dir_path, "log")
+        
         output_env_file_full_path = get_output_env_file_path(self.index, output_env_dir_path, self.role_config_dir_path, self.param_output_env_file)
+        if os.path.exists(output_env_file_full_path):
+            # Safety check: Raise an error if the file path is "/" or an empty path
+            if output_env_file_full_path in ["/", ""]:
+                raise ValueError("Root directory or an empty path cannot be used as a file path.")
+            
+            # Safety check: Raise an error if the file path is a directory
+            if os.path.isdir(output_env_file_full_path):
+                raise IsADirectoryError(f"{output_env_file_full_path} is a directory, not a file.")
+
+            os.remove(output_env_file_full_path)
+            logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Removing existing output file({output_env_file_full_path}){Fore.RESET}")
+            
         os.environ["OUTPUT_ENV_FILE"] = output_env_file_full_path
         try:
             target_main_file_type = "bash"
@@ -92,14 +105,16 @@ class Role:
                 # This show logs and also save it to file
                 env = os.environ.copy()
                 env["PYTHONUNBUFFERED"] = "1"
+                # shell_isolate= utils.is_positive(os.getenv("SHELL_ISOLATE"))                
+                # shell_isolate=True
                 with open(log_output_file, "w") as f:
                     # with subprocess.Popen([target_main_file_type, target_main_file], stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True) as proc:
                     with subprocess.Popen(
-                        [target_main_file_type, target_main_file], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, text=True, bufsize=1, universal_newlines=True, close_fds=True, env=env
+                        [target_main_file_type, target_main_file], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, text=True, bufsize=1,universal_newlines=True, close_fds=True, env=env
                     ) as proc:
-
                         for line in proc.stdout:
                             print(line, end="")
+                            # sys.stdout.flush()
                             f.write(line)
                             f.flush()
 

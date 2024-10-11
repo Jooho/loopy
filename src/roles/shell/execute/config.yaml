@@ -5,4 +5,7 @@ role:
     - name: COMMANDS
       description: Set command list (ex "oc get pod %% ls")
       required: true
+    - name: SHOW_COMMAND
+      description: Set true, if you want to print command 
+      default: "true"
       

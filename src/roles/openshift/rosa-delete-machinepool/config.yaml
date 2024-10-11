@@ -6,7 +6,7 @@ role:
    
     pre-requirements:
       This need AWS credentials to create AWS resources. If the credential you provided is insufficient, it won't succeed.
-    Moreover, if the region is different, it also will stop the role. Plus, you have to know the cluster name.
+      Moreover, if the region is different, it also will stop the role. Plus, you have to know the cluster name.
 
     Input Environment:
       This role takes input parameters to facilitate the removing a new machinpool of existing ROSA OpenShift cluster on AWS.

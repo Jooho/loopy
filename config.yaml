@@ -6,6 +6,7 @@ enable_loopy_log: true
 ignore_validate_env_input: false
 keep_env_variables:
   - CLUSTER_API_URL
+  - CLUSTER_TYPE
   - CLUSTER_ADMIN_ID
   - CLUSTER_ADMIN_PW
   - CLUSTER_TOKEN

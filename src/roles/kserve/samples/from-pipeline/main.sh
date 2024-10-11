@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 ## INIT START ##
-if [[ $DEBUG == "0" ]]
-then 
-  set -x 
-fi  
+if [[ $DEBUG == "0" ]]; then
+  set -x
+fi
 # Get the directory where this script is located
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Traverse up the directory tree to find the .github folder
@@ -21,10 +20,9 @@ fi
 ## INIT END ##
 
 # Check if tkn command exists
-if ! command -v tkn &> /dev/null
-then
-    echo "Tekton CLI (tkn) could not be found"
-    exit 1
+if ! command -v tkn &>/dev/null; then
+  echo "Tekton CLI (tkn) could not be found"
+  exit 1
 fi
 ## Parameters Preparation #######################################
 
@@ -40,31 +38,31 @@ if [ "${CLUSTER_TOKEN}" = "" ]; then
 fi
 
 declare envs=(
-    "GIT_URL=${GIT_URL}"
-    "GIT_REVISION=${GIT_REVISION}"
-    "CLUSTER_API_URL=${CLUSTER_API_URL}"
-    "CLUSTER_TOKEN=${CLUSTER_TOKEN}"
-    "MINIO_ACCESS_KEY_ID=${MINIO_ACCESS_KEY_ID}"
-    "MINIO_SECRET_ACCESS_KEY=${MINIO_SECRET_ACCESS_KEY}"
-    "MINIO_S3_SVC_URL=${MINIO_S3_SVC_URL}"
-    "WORKING_NAMESPACE=${WORKING_NAMESPACE}"
-    "PYTHON_IMAGE=${PYTHON_IMAGE}"
-    "OC_IMAGE=${OC_IMAGE}"
-    "ISVC_DEPLOYMENT_VERBOSE=${ISVC_DEPLOYMENT_VERBOSE}"
-    "DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}"
-    "MINIO_REGION=${MINIO_REGION}"
+  "GIT_URL=${GIT_URL}"
+  "GIT_REVISION=${GIT_REVISION}"
+  "CLUSTER_API_URL=${CLUSTER_API_URL}"
+  "CLUSTER_TOKEN=${CLUSTER_TOKEN}"
+  "MINIO_ACCESS_KEY_ID=${MINIO_ACCESS_KEY_ID}"
+  "MINIO_SECRET_ACCESS_KEY=${MINIO_SECRET_ACCESS_KEY}"
+  "MINIO_S3_SVC_URL=${MINIO_S3_SVC_URL}"
+  "WORKING_NAMESPACE=${WORKING_NAMESPACE}"
+  "PYTHON_IMAGE=${PYTHON_IMAGE}"
+  "OC_IMAGE=${OC_IMAGE}"
+  "ISVC_DEPLOYMENT_VERBOSE=${ISVC_DEPLOYMENT_VERBOSE}"
+  "DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}"
+  "MINIO_REGION=${MINIO_REGION}"
 )
 
 # Loop through the environment variables and remove the empty ones
 PARAMS=""
 for env in "${envs[@]}"; do
-    # Split the environment variable into name and value
-    IFS='=' read -r name value <<< "$env"
-    # Check if the value is empty
-    if [ -n "$value" ]; then
-        # use only the set parameters
-        PARAMS+="--param ${name}=${value} "
-    fi
+  # Split the environment variable into name and value
+  IFS='=' read -r name value <<<"$env"
+  # Check if the value is empty
+  if [ -n "$value" ]; then
+    # use only the set parameters
+    PARAMS+="--param ${name}=${value} "
+  fi
 done
 ## Parameters Preparation End ###################################
 
@@ -75,55 +73,52 @@ index_role_name=$(basename $ROLE_DIR)
 errorHappened=1 # 0 is true, 1 is false
 
 # create the working namespace
-oc get ns ${WORKING_NAMESPACE} > /dev/null 2>&1 ||  oc new-project ${WORKING_NAMESPACE} > /dev/null 2>&1
+oc get ns ${WORKING_NAMESPACE} >/dev/null 2>&1 || oc new-project ${WORKING_NAMESPACE} >/dev/null 2>&1
 oc project
 
 manifests_dir="${current_dir}/manifests"
-for yaml in `find ${manifests_dir} -name "*.yaml"`; do
+for yaml in $(find ${manifests_dir} -name "*.yaml"); do
   if [ "${yaml}" != "pvc.yaml" ]; then
     echo "Applying yaml file: $yaml"
-    oc apply -f $yaml;
+    oc apply -f $yaml
   fi
 done
 
 result=1
 echo "Triggering the pipeline caikit-e2e-inference-pipeline with the following parameters: ${PARAMS}"
-tkn pipeline start caikit-e2e-inference-pipeline  \
+tkn pipeline start caikit-e2e-inference-pipeline \
   ${PARAMS} \
   -w name=shared-workspace,volumeClaimTemplateFile=${manifests_dir}/pvc.yaml \
   --use-param-defaults --showlog --pipeline-timeout=30m
-succeded_pipeline=$(oc get pipelinerun $(oc get pipelinerun --no-headers|awk '{print $1}') -ojsonpath='{.status.conditions[0].status}')
+succeded_pipeline=$(oc get pipelinerun $(oc get pipelinerun --no-headers | awk '{print $1}') -ojsonpath='{.status.conditions[0].status}')
 
 ############# VERIFY #############
-if [[ ${succeded_pipeline} != "False" ]]
-then
+if [[ ${succeded_pipeline} != "False" ]]; then
   result="0"
-else  
+else
   errorHappened="0"
-fi  
+fi
 
-if [[ $errorHappened == "0" ]]
-then
+if [[ $errorHappened == "0" ]]; then
   info "There are some errors in the role"
   stop_when_failed=$(is_positive ${STOP_WHEN_FAILED})
-  if [[ ${stop_when_failed} == "0" ]]
-  then
+  if [[ ${stop_when_failed} == "0" ]]; then
     die "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is set and there are some errors detected so stop all process"
   else
     info "STOP_WHEN_FAILED(${STOP_WHEN_FAILED}) is NOT set so skip this error."
   fi
-fi 
+fi
 ############# OUTPUT #############
 ############# REPORT #############
-echo ${index_role_name}::$result >> ${REPORT_FILE}
+echo ${index_role_name}::$result >>${REPORT_FILE}
 
 ############# CLEAN UP #############
 if [ "${KEEP_NAMESPACE}" == "true" ]; then
   echo "Keeping the namespace ${WORKING_NAMESPACE}"
 else
-  for yaml in `find ${manifests_dir} -name "*.yaml"`; do
+  for yaml in $(find ${manifests_dir} -name "*.yaml"); do
     echo "Deleting resource: $yaml"
-    oc delete -f $yaml;
+    oc delete -f $yaml
   done
   oc delete project ${WORKING_NAMESPACE}
 fi

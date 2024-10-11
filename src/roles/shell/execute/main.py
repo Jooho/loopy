@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 ## INIT START ##
 import os
-import yaml
 import sys
+
+import yaml
+
 def find_root_directory(cur_dir):
     while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
         cur_dir = os.path.dirname(cur_dir)
@@ -28,7 +30,9 @@ script_dir = os.path.join(root_directory, "commons", "python")
 sys.path.append(root_directory)
 sys.path.append(script_dir)
 import py_utils
-from config import summary_dict,update_summary,load_summary
+
+from config import load_summary, summary_dict, update_summary
+
 OUTPUT_DIR = config_dict["output_dir"]
 ARTIFACTS_DIR = config_dict["artifacts_dir"]
 if os.environ["ROLE_DIR"] == "":
@@ -44,77 +48,95 @@ else:
 #################################################################
 import subprocess
 import time
+
 index_role_name = os.path.basename(ROLE_DIR)
 role_name = config_data.get("role", {}).get("name", "")
 
 commands_list = os.environ.get("COMMANDS", "").split("%%")
 results = []
-errorHappened = 1  # 0 is true, 1 is false
 
 load_summary()
-start_time=summary_dict["start_time"]
+start_time = summary_dict["start_time"]
 if "end_time" in summary_dict:
-    end_time=summary_dict["end_time"]
+    end_time = summary_dict["end_time"]
 else:
-    end_time=[]    
+    end_time = []
 for index, command in enumerate(commands_list):
     load_summary()
     command = command.strip()
-    if command.strip() != '':
+    env = os.environ.copy()
+    env["PYTHONUNBUFFERED"] = "1"
+
+    result = {"stdout": "", "stderr": "", "returncode": None}
+    if command.strip() != "":
         try:
             if not command.startswith("#"):
                 start_time.append(time.time())
-                result = subprocess.run(command, shell=True, capture_output=True, text=True)
+                
+                showCommand=py_utils.is_positive(os.environ["SHOW_COMMAND"])
+                if showCommand == 0:
+                    print(command, end="\n")  
+ 
+                with subprocess.Popen(
+                    command,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    bufsize=1,
+                    universal_newlines=True,
+                    close_fds=True,
+                ) as process:
+                    try:
+                        for line in process.stdout:
+                            print(line, end="")  # Print in real time
+                            result["stdout"] += line  # store stdout to result
+                        for line in process.stdout:
+                            print(line, end="", file=sys.stderr) # Print in real time
+                            result["stderr"] += line  # store stderr to result
+                    except Exception as e:
+                        print(f"Error occurred: {e}")
+                process.wait()
+                result["returncode"] = process.returncode
+                
                 end_time.append(time.time())
                 update_summary("start_time", start_time)
                 update_summary("end_time", end_time)
-
-                print(result.stdout, end="")  # print to stdout to pass it to log file
+                
                 with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
                     each_command_output_file.write(f"######## {index} command #######\n")
                     each_command_output_file.write(f"COMMAND: {command}\n")
                     each_command_output_file.write("STDOUT: ")
-                    each_command_output_file.write(result.stdout)
+                    if isinstance(result["stdout"], str):
+                        each_command_output_file.write(result["stdout"])
                     each_command_output_file.write("\n\n")
-                    if result.stderr:
+                    if result["stderr"]:
                         each_command_output_file.write("STDERR:\n")
-                        each_command_output_file.write(result.stderr)
+                        if isinstance(result["stderr"], str):
+                            each_command_output_file.write(result["stderr"])
+                        # each_command_output_file.write(result.stderr)
                         each_command_output_file.write("\n")
-                        errorHappened = "0"
+                        py_utils.stop_when_error_happended(1, index_role_name, REPORT_FILE)
 
                 with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
                     all_command_output_file.write(f"######## {index} command #######\n")
                     all_command_output_file.write(f"COMMAND: {command}\n")
-                    all_command_output_file.write("STDOUT: ")
-                    all_command_output_file.write(result.stdout)
+                    all_command_output_file.write("STDOUT: ")                   
+                    if isinstance(result["stdout"], str):
+                        all_command_output_file.write(result["stdout"])
                     all_command_output_file.write("\n\n")
-                    if result.stderr:
+                    if result["stderr"]:
                         all_command_output_file.write("STDERR:\n")
-                        all_command_output_file.write(result.stderr)
+                        if isinstance(result["stderr"], str):
+                            all_command_output_file.write(result["stderr"])
                         all_command_output_file.write("\n")
-                        errorHappened = "0"
-                    results.append(f"{index_role_name}::command::{index+1}::{result.returncode}")
-
+                        py_utils.stop_when_error_happended(1, index_role_name, REPORT_FILE)
+                    results.append(f"{index_role_name}::command::{index+1}::{result["returncode"] }")
 
         except Exception as e:
             print(f"Error occurred while executing command '{command}': {e}")
-    
-    if errorHappened == "0":
-        print("There are some errors in the role")
-        stop_when_failed = py_utils.is_positive(os.environ["STOP_WHEN_FAILED"])
-        if stop_when_failed == "0":
-            print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is set and there are some errors detected so stop all process")
-            sys.exit(10)
-        else:
-            print(f"STOP_WHEN_FAILED({os.environ['STOP_WHEN_FAILED']}) is NOT set so skip this error.")
 
-    ############# REPORT #############
-
+############# REPORT #############
 with open(f"{REPORT_FILE}", "a") as report_file:
-    if len(results) > 1:
-        if errorHappened == "0":
-            report_file.write(f"{index_role_name}::command::0::1\n")
-        else:
-            report_file.write(f"{index_role_name}::command::0::0\n")
     for result in results:
         report_file.write(f"{result}\n")

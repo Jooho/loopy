@@ -6,15 +6,15 @@ role:
 
     This role facilitates easy installation and testing of MinIO by providing straightforward setup. With no required values, it can be executed immediately, and the ID/PW can be checked with 'loopy roles show minio-deploy'. Additionally, installation information for MinIO is specified in the output folder.
 
-    (Example)
-    loopy roles run minio-deploy
-
-    (Example output)
-    MINIO_S3_SVC_URL=http://minio.minio.svc.cluster.local:9000
-    MINIO_DEFAULT_BUCKET_NAME=modelmesh-example-models
-    MINIO_ACCESS_KEY_ID=admin
-    MINIO_SECRET_ACCESS_KEY=password
-    MINIO_REGION=us-east-1
+    Pre-requirements:
+      N/A
+    
+    The output variables(ex) include:
+      MINIO_S3_SVC_URL=http://minio.minio.svc.cluster.local:9000
+      MINIO_DEFAULT_BUCKET_NAME=modelmesh-example-models
+      MINIO_ACCESS_KEY_ID=admin
+      MINIO_SECRET_ACCESS_KEY=password
+      MINIO_REGION=us-east-1
   # output_filename: operator-install-output.sh
   manifests:
     minio_deployment: ./manifests/minio.yaml

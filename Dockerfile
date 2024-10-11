@@ -3,7 +3,7 @@ ENV LOOPY_PATH="/home/loopy"
 ENV LOOPY_CONFIG_PATH="/home/loopy/config.yaml"
 ENV PATH="$PATH:${LOOPY_PATH}:${LOOPY_PATH}/bin"
 
-RUN dnf -y install sudo git wget make python-devel openssl-devel net-tools bind-utils bash-completion python3.11 which
+RUN dnf -y install sudo git wget make python-devel openssl-devel net-tools bind-utils bash-completion python3.11 which procps gettext
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /home

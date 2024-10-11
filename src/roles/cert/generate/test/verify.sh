@@ -16,9 +16,9 @@ openssl verify -CAfile ${ROLE_DIR}/${ROOT_CA_CERT_NAME} ${ROLE_DIR}/${CERT_NAME}
 
 if [[ $? == 0 ]]
 then
-  success "[SUCCESS] Role($role_name) sanity test"
+  success "Role($role_name) sanity test"
   info "Start to clean up"
   # $current_dir/clean.sh ${root_directory}  ${current_dir} ${role_name}
 else
-  error "[FAIL] Role($role_name) sanity test"
+  fail "[FAIL] Role($role_name) sanity test"
 fi

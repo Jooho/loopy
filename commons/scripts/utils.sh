@@ -25,14 +25,6 @@ dark_blue='\e[38;5;27m'
 blue='\e[38;5;33m'
 light_blue='\e[38;5;39m'
 
-# red='\033[0;31m'
-# light_red='\033[0;91m'
-# cyan='\033[0;36m'
-# green='\033[0;32m'
-# yellow='\033[0;33m'
-# blue='\033[0;34m'
-# light_blue='\033[0;94m'
-# Clear the color after that
 clear='\033[0m'
 color_reset='\e[0m'
 
@@ -50,17 +42,15 @@ die=$light_red
 success=$light_green
 pass=$green
 
-
 # When it needs to be exit
 die() {
-  printf "${die}[FATAL]:$*${color_reset}\n"
+  printf "${die}[FATAL]$*${color_reset}\n"
   exit 1
 }
 
 # Provide debug msg
 debug() {
-  if [[ $SHOW_DEBUG_LOG == "true" ]];
-  then
+  if [[ $SHOW_DEBUG_LOG == "true" ]]; then
     printf "${debug}[DEBUG] $*${color_reset}\n"
   fi
 }
@@ -186,20 +176,19 @@ wait_for_pods_ready() {
     if [[ $oc_exit_code -ne 0 ]]; then
       # kubectl command failed. print the error then wait and retry
       echo $pod_status
-      echo -n "Error running kubectl command."
+      error "Error running kubectl command."
     elif [[ ${#pod_status} -eq 0 ]]; then
-      echo -n "No pods found with selector '$pod_selector' -n '$pod_namespace'. Pods may not be up yet."
+      pending "No pods found with selector '$pod_selector' -n '$pod_namespace'. Pods may not be up yet."
     elif check_pod_status "$pod_selector" "$pod_namespace"; then
-      echo "All $pod_selector pods in '$pod_namespace' namespace are running and ready."
+      pass "All $pod_selector pods in '$pod_namespace' namespace are running and ready."
       return 0
     else
-      echo -n "Pods found with selector '$pod_selector' in '$pod_namespace' namespace are not ready yet."
+      echo "Pods found with selector '$pod_selector' in '$pod_namespace' namespace are not ready yet."
     fi
 
     if [[ $wait_counter -ge 30 ]]; then
-      echo
       oc get pods -l $pod_selector -n $pod_namespace
-      error "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
+      fail "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
       return 1
     fi
 
@@ -405,27 +394,29 @@ function check_oc_status() {
   fi
 }
 
-retry_if_http_code_is_not_200() {
-  local retries=$1
-  local interval=$2
-  local result_var=$3
-  shift 3
-  local cmd=("$@")
-  local result
+# retry_if_http_code_is_not_200() {
+#   local retries=$1
+#   local interval=$2
+#   local result_var=$3
+#   shift 3
+#   local cmd=("$@")
+#   local result
 
-  for ((i = 0; i < retries; i++)); do
-    result=$("${cmd[@]}")
-    if [[ $result == "200" ]]; then
-      eval "$result_var=\"$result\""
-      return 0
-    else
-      info "return code is not 200. retry"
-      sleep $interval
-    fi
-  done
-  eval "$result_var=\"$result\""
-  return 1
-}
+#   for ((i = 0; i < retries; i++)); do
+#     result=$("${cmd[@]}")
+#     if [[ $result == "200" ]]; then
+#       # eval "$result_var=\"$result\""
+#       printf -v "$result_var" "%s" "$result"
+#       return 0
+#     else
+#       info "return code($result) is not 200. retry"
+#       sleep $interval
+#     fi
+#   done
+#   # eval "$result_var=\"$result\""
+#   printf -v "$result_var" "%s" "$result"
+#   return 1
+# }
 
 function check_rosa_access() {
   info "[INFO] Checking ROSA access"
@@ -462,27 +453,29 @@ function check_rosa_access() {
   rosa list clusters >/dev/null
 
   if [[ $? != "0" ]]; then
-    error "[FAIL] rosa can not list cluster. It would fail to create a new cluster"
-    error "       please check region and permission"
+    error "rosa can not list cluster. It would fail to create a new cluster"
+    error "please check region and permission"
     exit 1
   fi
 
-  success "[SUCCESS] All checks passed!"
+  success "All checks passed!"
 }
 
 function stop_when_error_happended {
   local result=$1
   local index_role_name=$2
   local report_file=$3
-  local input_should_stop=$4
+  local input_should_stop=false
+  if [[ z${4} != z ]]; then
+    input_should_stop=$4
+  fi
 
   if [[ $result != "0" ]]; then
-    info "There are some errors in the role($($index_role_name))"
+    info "There are some errors in the role($index_role_name)"
     should_stop=$(is_positive ${STOP_WHEN_ERROR_HAPPENED})
-    
-    if [[ z${input_should_stop} != z ]] 
-    then
-      info "Only for this role($($index_role_name)) set "STOP_WHEN_ERROR_HAPPENED" to ${input_should_stop}" 
+
+    if [[ ${input_should_stop} == true ]]; then
+      warn "Only for this role($index_role_name) set "STOP_WHEN_ERROR_HAPPENED" to ${input_should_stop}"
       should_stop=$(is_positive ${input_should_stop})
     fi
 
@@ -490,7 +483,7 @@ function stop_when_error_happended {
       echo "${index_role_name}::${result}" >>${report_file}
       die "STOP_WHEN_ERROR_HAPPENED(${should_stop}) is set and there are some errors detected so stop all processes"
     else
-      info "STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
+      warn "STOP_WHEN_ERROR_HAPPENED(${should_stop}) is NOT set so skip this error."
     fi
   fi
 }

@@ -8,6 +8,9 @@ pytest == 8.0.0
 jsonschema == 4.21.1
 prettytable
 pytest-xdist
+virtualenv 
+virtualenvwrapper
+
 #argparse == 1.4.0 
 
 

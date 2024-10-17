@@ -88,11 +88,11 @@ def is_positive(input_string):
 
 def stop_when_error_happended(result, index_role_name, report_file, input_should_stop=False):
     if result != "0":
-        info(f"There are some errors in the role({index_role_name})")
+        warn(f"There are some errors in the role({index_role_name})")
         should_stop = is_positive(os.environ["STOP_WHEN_FAILED"])
 
         if input_should_stop:
-            info(f"Only for this role({index_role_name}) set 'STOP_WHEN_ERROR_HAPPENED' to {input_should_stop}")
+            warn(f"Only for this role({index_role_name}) set 'STOP_WHEN_ERROR_HAPPENED' to {input_should_stop}")
             should_stop = is_positive(input_should_stop)
 
         if should_stop == 0:
@@ -100,4 +100,4 @@ def stop_when_error_happended(result, index_role_name, report_file, input_should
                 f.write(f"{index_role_name}::{result}\n")
             die(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is set and there are some errors detected, stopping all processes.")
         else:
-            info(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is NOT set, so skipping this error.")
+            warn(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is NOT set, so skipping this error.")

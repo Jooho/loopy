@@ -6,7 +6,6 @@ playbook:
         description: Install ROSA Openshift Cluster
         input_env:
           STOP_WHEN_FAILED: "true"
-          STOP_WHEN_ERROR_HAPPENED: "true"
 
     - role:
         name: openshift-rosa-add-machinepool
@@ -15,7 +14,6 @@ playbook:
           MACHINE_POOL_REPLICA_COUNT: "2"
           NEW_MACHINE_POOL_TYPE: g5.8xlarge
           STOP_WHEN_FAILED: "true"
-          STOP_WHEN_ERROR_HAPPENED: "true"
 
     - role:
         name: operator-install
@@ -102,6 +100,7 @@ playbook:
 
             curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/2.download-model-to-pvc.yaml 
             export MODEL=meta-llama/Meta-Llama-3-8B-Instruct
+            cat 2.download-model-to-pvc.yaml|oc delete -n vllm-multinode -f -
             cat 2.download-model-to-pvc.yaml|envsubst |oc apply -n vllm-multinode -f -
 
     - role:
@@ -126,11 +125,11 @@ playbook:
 
     - role:
         name: shell-execute
-        description: Create VLLM Multi Node ServingRuntime
+        description: Create vLLM Multi Node ServingRuntime
         input_env:
           COMMANDS: |
-            oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-multinode-template-image.yaml
-            oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -
+            oc apply -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-multinode-template-image.yaml  
+            oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -  
 
     - role:
         name: shell-execute

@@ -3,7 +3,7 @@ default_vars_file: commons/default-variables.yaml
 enable_loopy_report: true
 enable_loopy_logo: true
 enable_loopy_log: true
-ignore_validate_env_input: false
+ignore_validate_env_input: true
 keep_env_variables:
   - CLUSTER_API_URL
   - CLUSTER_TYPE
@@ -19,6 +19,7 @@ keep_env_variables:
   - JENKINS_TOKEN
   - JENKINS_URL
   - CUSTOM_KSERVE_MANIFESTS
+  - HF_TEST_TOKEN
 additional_role_dirs: [] #example /home/roles
 additional_unit_dirs: []
 additional_playbook_dirs: []

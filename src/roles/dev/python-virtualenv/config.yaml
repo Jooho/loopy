@@ -1,0 +1,39 @@
+role:
+  created_date: "20240912"
+  name: dev-python-virtualenv
+  description: |
+    This role help dev environment setup for python virtualEnv
+
+    Input Environment:
+      This role accepts input parameters to simplify the use of virtualwrapper CLI options.
+
+    The parameters include:
+     - ENV_NAME: virtual environment name. This must be unique (serving-test)
+     - OP: Operation command for virtualwrapper(ls) 
+           
+           These are available values:
+           - create: Creates a new virtual environment with the specified name.
+           - cd: Changes the current directory to the root of the active virtual environment.
+           - use: Activates the specified virtual environment by its name.
+           - done: Deactivates the currently active virtual environment.
+           - ls: Lists all virtual environments managed by virtualenvwrapper.
+           - ls-pkg: Lists all installed packages in the site-packages directory of the currently active virtual environment.
+           - show: Displays the directory path of the currently active virtual environment.
+           - rm: Deletes the specified virtual environment.
+
+  input_env:
+    - name: ENV_NAME
+      description: independent virtual environment name
+      required: true
+
+    - name: OP
+      description: operatoration with virtual environment (create, use, deactivate, ls, rm)
+      default: ls
+
+    - name: WORKON_HOME
+      description: The root directory contains virtual environments
+      default: $HOME/.virtualenvs_loopy
+
+    # - name: PYTHON_VERSION
+    #   description: Python version that will use in the virtual environment
+    #   default: "3.11"

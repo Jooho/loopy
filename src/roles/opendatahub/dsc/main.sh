@@ -77,6 +77,9 @@ sed -e "s+%datasciencecluster_name%+$DATASCIENCECLUSTER_NAME+g; \
         s+%enable_modelmesh%+$ENABLE_MODELMESH+g; \
         s+%enable_ray%+$ENABLE_RAY+g; \
         s+%enable_trustyai%+$ENABLE_TRUSTYAI+g; \
+        s+%enable_trainingoperator%+$ENABLE_TRAININGOPERATOR+g; \
+        s+%enable_kueue%+$ENABLE_KUEUE+g; \
+        s+%enable_modelregistry%+$ENABLE_MODELREGISTRY+g; \
         s+%enable_workbenches%+$ENABLE_WORKBENCHES+g" $dsc_manifests_path >${ROLE_DIR}/$(basename $dsc_manifests_path)
 
 debug "oc apply -f ${ROLE_DIR}/$(basename $dsc_manifests_path)"

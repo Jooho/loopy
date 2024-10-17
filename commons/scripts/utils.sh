@@ -234,10 +234,10 @@ function wait_for_just_created_pod_ready() {
       oc get pods $pod_name -n $namespace
       exit 1
     fi
-    echo "No pods created in $namespace. Pods may not be up yet."
+    pending "No pods created in $namespace. Pods may not be up yet."
 
     wait_counter=$((wait_counter + 1))
-    echo "Waiting 5 secs ..."
+    pending "Waiting 5 secs ..."
     sleep 5
 
   done
@@ -251,27 +251,27 @@ function wait_for_csv_installed() {
   namespace=$2
   ii=0
   echo
-  echo "[START] Watching if CSV \"$csv\" is installed"
+  info "[START] Watching if CSV \"$csv\" is installed"
   csv_status=$(oc get csv -n $namespace 2>&1 | grep $csv | awk '{print $NF}')
   while [[ $csv_status != 'Succeeded' ]]; do
     echo -n "."
     ((ii = ii + 1))
     if [ $ii -eq 100 ]; then
-      echo "CSV \"$csv\" is NOT installed and it exceeds maximum tries(300s)"
-      echo "[FAILED] please check the CSV \"$csv\""
+      fail "CSV \"$csv\" is NOT installed and it exceeds maximum tries(300s)"
+      fail "please check the CSV \"$csv\""
       exit 1
     fi
     sleep 3
 
     if [ $(expr $ii % 20) == "0" ]; then
       echo ""
-      echo "CSV \"$csv\" is NOT installed yet"
+      pending "CSV \"$csv\" is NOT installed yet"
     fi
 
     csv_status=$(oc get csv -n $namespace 2>&1 | grep $csv | awk '{print $NF}')
   done
   echo
-  echo "[END] CSV \"$csv\" is successfully installed"
+  success "[END] CSV \"$csv\" is successfully installed"
 }
 
 function oc::wait::object::availability() {
@@ -280,7 +280,7 @@ function oc::wait::object::availability() {
   local iterations=$3 # How many times we attempt to run the command
 
   ii=0
-  echo "[START] Wait for \"${cmd}\" "
+  info "[START] Wait for \"${cmd}\" "
   while [ $ii -le $iterations ]; do
 
     token=$($cmd &>/dev/null) && returncode=$? || returncode=$?
@@ -292,12 +292,12 @@ function oc::wait::object::availability() {
 
     ((ii = ii + 1))
     if [ $ii -eq 100 ]; then
-      echo "${cmd} did not return a value$"
+      warn "${cmd} did not return a value$"
       exit 1
     fi
     sleep $interval
   done
-  echo "[END] \"${cmd}\" is successfully done"
+  success "[END] \"${cmd}\" is successfully done"
 }
 
 function oc::wait::return::true() {
@@ -306,7 +306,7 @@ function oc::wait::return::true() {
   local iterations=$3 # How many times we attempt to run the command
 
   ii=0
-  echo "[START] Wait for \"${cmd}\" "
+  info "[START] Wait for \"${cmd}\" "
   while [ $ii -le $iterations ]; do
 
     echo "$cmd " | sh
@@ -317,12 +317,12 @@ function oc::wait::return::true() {
 
     ((ii = ii + 1))
     if [ $ii -eq $iterations ]; then
-      echo "${cmd} did not return a value"
+      warn "${cmd} did not return a value"
       return 1
     fi
     sleep $interval
   done
-  echo "[END] \"${cmd}\" return 'true' successfully"
+  success "[END] \"${cmd}\" return 'true' successfully"
 }
 
 function get_root_directory() {
@@ -371,7 +371,7 @@ function check_if_result() {
 }
 
 function check_oc_status() {
-  info "[INFO] Checking oc connection and user role"
+  info "Checking oc connection and user role"
   userName=$(oc whoami) && connected=$? || connected=$?
 
   if [[ ${connected} -eq '0' ]]; then
@@ -380,55 +380,32 @@ function check_oc_status() {
     for groupName in $groupNames; do
       clusterAdmin=$(oc get clusterrolebindings -o json | jq '.items[] | select(.metadata.name| startswith("cluster-admin")) | .subjects[].name' | egrep "$userName|$groupName" | wc -l)
       if ((${clusterAdmin} >= 1)); then
-        success "[PASS] You logged to the cluster as a cluster-admin"
+        pass "You logged to the cluster as a cluster-admin"
         break
       else
-        error "[FAIL] You logged to the cluster but you are not cluster-admin"
+        error "You logged to the cluster but you are not cluster-admin"
         light_info "        Please log in to your cluster as a cluster-admin"
         exit 1
       fi
     done
   else
-    error "[FAIL] You are NOT logged to the cluster. Please log in to your cluster"
+    error "You are NOT logged to the cluster. Please log in to your cluster"
     exit 1
   fi
 }
 
-# retry_if_http_code_is_not_200() {
-#   local retries=$1
-#   local interval=$2
-#   local result_var=$3
-#   shift 3
-#   local cmd=("$@")
-#   local result
-
-#   for ((i = 0; i < retries; i++)); do
-#     result=$("${cmd[@]}")
-#     if [[ $result == "200" ]]; then
-#       # eval "$result_var=\"$result\""
-#       printf -v "$result_var" "%s" "$result"
-#       return 0
-#     else
-#       info "return code($result) is not 200. retry"
-#       sleep $interval
-#     fi
-#   done
-#   # eval "$result_var=\"$result\""
-#   printf -v "$result_var" "%s" "$result"
-#   return 1
-# }
 
 function check_rosa_access() {
-  info "[INFO] Checking ROSA access"
+  info "Checking ROSA access"
   # 1. does ~/.aws folder exist?
   if [ ! -d "$HOME/.aws" ]; then
-    error "[FAIL] ~/.aws directory does not exist."
+    error "~/.aws directory does not exist."
     exit 1
   fi
 
   # 2. does credentials file exist?
   if [ ! -f "$HOME/.aws/credentials" ]; then
-    error "[FAIL]: credentials file does not exist in ~/.aws."
+    error "credentials file does not exist in ~/.aws."
     exit 1
   fi
 
@@ -436,7 +413,7 @@ function check_rosa_access() {
   if [ ! -f "$HOME/.aws/config" ]; then
     # if config does not exist, does AWS_REGION env parameter set?
     if [ -z "$AWS_REGION" ]; then
-      error "[FAIL]: Neither config file exists in ~/.aws nor AWS_REGION environment variable is set."
+      error "Neither config file exists in ~/.aws nor AWS_REGION environment variable is set."
       exit 1
     fi
   fi
@@ -445,7 +422,7 @@ function check_rosa_access() {
   rosa login --token=$OCM_TOKEN
 
   if [[ $? != "0" ]]; then
-    error "[FAIL] rosa login failed"
+    error "rosa login failed"
     exit 1
   fi
 

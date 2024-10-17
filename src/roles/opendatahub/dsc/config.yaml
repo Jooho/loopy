@@ -52,6 +52,15 @@ role:
 
     - name: ENABLE_WORKBENCHES
       description: Deploy workbenches (Removed, Managed)
+      
+    - name: ENABLE_TRAININGOPERATOR
+      description: Deploy training operator (Removed, Managed)
+
+    - name: ENABLE_KUEUE
+      description: Deploy kueue (Removed, Managed)
+
+    - name: ENABLE_MODELREGISTRY
+      description: Deploy model registry (Removed, Managed)                  
 
     - name: CLUSTER_TYPE
       description: openshift platform

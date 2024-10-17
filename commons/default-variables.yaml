@@ -30,10 +30,13 @@ opendatahub:
   custom_odh_model_controller_manifiests: ""
   enable_kserve_knative: Managed
   enable_modelmesh: Removed
-  custom_modelmesh_manifiests: ""
   enable_ray: Removed
   enable_trustyai: Removed
   enable_workbenches: Removed
+  enable_trainingoperator: Removed
+  enable_kueue: Removed
+  enable_modelregistry: Removed
+  custom_modelmesh_manifiests: ""
 
   default_deploymentmode: Serverless
 

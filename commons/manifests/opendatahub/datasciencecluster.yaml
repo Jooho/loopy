@@ -22,7 +22,7 @@ spec:
       serving:
         ingressGateway:
           certificate:
-            type: SelfSigned
+            type: OpenshiftDefaultIngress
         managementState: %enable_kserve_knative%
         name: knative-serving
     modelmeshserving:
@@ -33,3 +33,10 @@ spec:
       managementState: %enable_trustyai%
     workbenches:
       managementState: %enable_workbenches%
+    trainingoperator:
+      managementState: %enable_trainingoperator%
+    kueue:
+      managementState: %enable_kueue%
+    modelregistry:
+      registriesNamespace: odh-model-registries
+      managementState: %enable_modelregistry%

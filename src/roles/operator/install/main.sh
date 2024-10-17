@@ -165,6 +165,7 @@ if [[ z$OPERATOR_POD_PREFIX != z && $OPERATOR_POD_PREFIX != "NONE" ]]; then
       break
     fi
   done
+  wait_for_pod_name_ready ${pod_name} ${OPERATOR_NAMESPACE}
 else
   wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1
   result=$?

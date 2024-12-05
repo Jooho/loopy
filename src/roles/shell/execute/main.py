@@ -69,6 +69,7 @@ for index, command in enumerate(commands_list):
     rcresult = {"stdout": "", "stderr": "", "returncode": None}
     if command.strip() != "":
         try:
+            command=py_utils.remove_comment_lines(command)
             if not command.startswith("#"):
                 start_time.append(time.time())
                 
@@ -138,6 +139,7 @@ for index, command in enumerate(commands_list):
 
         except Exception as e:
             print(f"Error occurred while executing command '{command}': {e}")
+
 
 ############# REPORT #############
 with open(f"{REPORT_FILE}", "a") as report_file:

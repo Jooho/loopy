@@ -7,7 +7,7 @@ unit:
     - role:
         name: cert-generate
         input_env:
-          SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
+          SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc.cluster.local,minio.minio.svc
           STOP_WHEN_FAILED: "True"
     - role:
         name: minio-deploy

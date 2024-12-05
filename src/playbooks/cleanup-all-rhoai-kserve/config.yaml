@@ -7,88 +7,85 @@ playbook:
         name: shell-execute
         input_env:
           COMMANDS: |
-            # webhook
-            oc delete validatingwebhookconfiguration inferencegraph.serving.kserve.io                        %%
-            oc delete validatingwebhookconfiguration inferenceservice.serving.kserve.io                      %%
-            oc delete validatingwebhookconfiguration modelmesh-servingruntime.serving.kserve.io              %%
-            oc delete validatingwebhookconfiguration servingruntime.serving.kserve.io                        %%
-            oc delete validatingwebhookconfiguration trainedmodel.serving.kserve.io                          %%
-            oc delete validatingwebhookconfiguration istio-validator-data-science-smcp-istio-system          %%
-            oc delete validatingwebhookconfiguration config.webhook.istio.networking.internal.knative.dev    %%
-            oc delete validatingwebhookconfiguration openshift-operators.servicemesh-resources.maistra.io    %%
-            oc delete validatingwebhookconfiguration config.webhook.istio.networking.internal.knative.dev    %%         
-            oc delete validatingwebhookconfiguration config.webhook.serving.knative.dev                      %%         
-            oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration|grep validating.knativeeventings.operator.serverless.openshift|awk '{print $1}') %%
-            oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration|grep validating.knativekafkas.operator.serverless.openshift.io|awk '{print $1}')  %%
-            oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration|grep validating.knativeservings.operator.serverless.openshift|awk '{print $1}')  %%
-            oc delete validatingwebhookconfiguration validation.webhook.domainmapping.serving.knative.dev             %% 
-            oc delete validatingwebhookconfiguration validation.webhook.serving.knative.dev                          %%
+            oc login -u $CLUSTER_ADMIN_ID -p $CLUSTER_ADMIN_PW $CLUSTER_API_URL --insecure-skip-tls-verify=true
+            # scale down opendatahub-operator|redhat-ods-operator
+            #oc scale deploy/opendatahub-operator --replicas=0 -n openshift-operators &&
+            #oc scale deploy/rhods-operator --replicas=0 -n openshift-operators &&
 
-            oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration |grep mutating.knativeeventings.operator.serverless.openshift |awk '{print $1}')   %%
-            oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration |grep mutating.knativeservings.operator.serverless.openshift.io |awk '{print $1}')   %%
-            oc delete mutatingwebhookconfiguration webhook.domainmapping.serving.knative.dev                          %%
-            oc delete mutatingwebhookconfiguration webhook.istio.networking.internal.knative.dev                      %%
-            oc delete mutatingwebhookconfiguration webhook.serving.knative.dev                                        %%
-            oc delete mutatingwebhookconfiguration istiod-data-science-smcp-istio-system                              %%
-            oc delete mutatingwebhookconfiguration webhook.istio.networking.internal.knative.dev                      %%
-            oc delete mutatingwebhookconfiguration  $(oc get mutatingwebhookconfiguration |grep mutating.knativeeventings.operator.serverless.openshift |awk '{print $1}')    %%
-            oc delete mutatingwebhookconfiguration  $(oc get mutatingwebhookconfiguration |grep mutating.knativeservings.operator.serverless.openshift.io |awk '{print $1}')    %%
-            oc delete mutatingwebhookconfiguration inferenceservice.serving.kserve.io                                 %%
+            # webhook
+            oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
+            oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
 
             # Test NS
-            oc delete pod,isvc,servingruntime --all --force --grace-period=0 -n kserve-demo                           %%
+            oc delete pod,isvc,ksvc,smm,revision,deploy,servingruntime --all --force --grace-period=0 -n kserve-demo                           %%
             oc patch ns kserve-demo -p '{"metadata": {"finalizers": []}}' --type=merge                                %%
             oc delete ns kserve-demo --force --grace-period=0                                                         %%
 
-            oc delete pod,isvc,servingruntime --all --force --grace-period=0 -n pipeline-demo                           %%
-            oc patch ns pipeline-demo -p '{"metadata": {"finalizers": []}}' --type=merge                                %%
+            oc delete pod,isvc,servingruntime --all --force --grace-period=0 -n pipeline-demo                         %%
+            oc patch ns pipeline-demo -p '{"metadata": {"finalizers": []}}' --type=merge                              %%
             oc delete ns pipeline-demo --force --grace-period=0               
 
+            oc project minio                                                                                          %% 
             oc delete pod --all --force --grace-period=0                                                              %%
             oc delete ns minio --force --grace-period=0                                                               %%
 
             # Delete Kserve
-            oc patch dsc rhoai -p '{"metadata": {"finalizers": []}}' --type=merge         %%
-            oc patch dsci default-dsci -p '{"metadata": {"finalizers": []}}' --type=merge %%
-            oc delete dsc --all --force --grace-period=0                                  %%
-            oc delete dsci --all --force --grace-period=0                                 %%
-            sleep 10                                                                      %%
-            oc delete pods -n redhat-ods-applications --all --force --grace-period=0      %%
-            oc delete ns redhat-ods-applications --force --grace-period=0                 %%
+            oc patch dsc default-dsc -p '{"metadata": {"finalizers": []}}' --type=merge         %%
+            oc patch dsc rhoai -p '{"metadata": {"finalizers": []}}' --type=merge               %%
+            oc delete dsc --all --force --grace-period=0  --wait                                %%
+            oc patch dsci default-dsci -p '{"metadata": {"finalizers": []}}' --type=merge       %%
+            oc delete dsci --all --force --grace-period=0  --wait                               %%
+            sleep 10                                                                            %%
+            oc delete all -n redhat-ods-applications --all --force --grace-period=0             %%
+            oc delete ns redhat-ods-applications --force --grace-period=0                       %%
 
             # Delete redhat-ods-operator
             oc delete sub,pod --all --force --grace-period=0 -n redhat-ods-operator             %% 
             oc patch ns redhat-ods-operator -p '{"metadata": {"finalizers": []}}' --type=merge  %%
             oc delete ns redhat-ods-operator redhat-ods-monitoring --force --grace-period=0     %%
 
-            # Dependences
+            # OPENDATAHUB
+            oc delete sub --all --force --grace-period=0 -n opendatahub                     %%
+            oc delete all -n opendatahub --all --force --grace-period=0                     %%
+            oc patch ns opendatahub -p '{"metadata": {"finalizers": []}}' --type=merge      %% 
+            oc delete ns opendatahub --force --grace-period=0                               %%
+            
+            # Dependencies
+            # ISTIO
             oc delete ServiceMeshControlPlane,pod --all -n istio-system --force --grace-period=0  -n istio-system %%
             # deletes the data-science-smcp, if hangs here, make sure to delete the miastra mutating webhook as well.
             oc patch smcp $(oc get smcp -n istio-system | awk 'NR>1 {print $1}') -n istio-system -p '{"metadata": {"finalizers": []}}' --type=merge %%
             oc delete smcp -n istio-system $(oc get smcp -n istio-system | awk 'NR>1 {print $1}')                                                   %%
             oc patch smmr $(oc get smmr -n istio-system | awk 'NR>1 {print $1}') -n istio-system -p '{"metadata": {"finalizers": []}}' --type=merge %%
+            oc delete smm --all --force --grace-period=0  -A
             oc delete smmr,smm --all --force --grace-period=0  -n istio-system                                                                      %%
-
-            oc delete KnativeServing,pod --all -n rhoai-serverless --force --grace-period=0  %%
-            oc patch ns rhoai-serverless -p '{"metadata": {"finalizers": []}}' --type=merge  %%
-            oc patch ns knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge   %%
-            oc patch ns knative-eventing -p '{"metadata": {"finalizers": []}}' --type=merge  %%
-            oc delete pod,deployment,all --all -n knative-serving  --force --grace-period=0  %%
-            oc patch knativeservings.operator.knative.dev knative-serving -n knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %% 
-            oc delete knativeservings.operator.knative.dev --all -n knative-serving --force --grace-period=0 %%
-
-            oc delete ns rhoai-serverless knative-serving knative-eventing                  %%
-
             oc patch ns istio-system -p '{"metadata": {"finalizers": []}}' --type=merge     %%
             oc delete ns istio-system                                                       %%
+            
+            # KNative 
+            oc delete all --all -n rhoai-serverless --force --grace-period=0  %%
+            oc delete all --all -n openshift-serverless --force --grace-period=0  %%
+            oc patch knativeservings.operator.knative.dev knative-serving -n knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge  %% 
+            oc delete KnativeServing --all -n knative-serving --force --grace-period=0  %%
+            oc delete pod,deployment,all --all -n knative-serving  --force --grace-period=0  %%
+            oc patch ns knative-serving -p '{"metadata": {"finalizers": []}}' --type=merge   %%
+            oc patch ns knative-eventing -p '{"metadata": {"finalizers": []}}' --type=merge  %%
+            oc patch ns rhoai-serverless -p '{"metadata": {"finalizers": []}}' --type=merge  %%
+            oc patch ns openshift-serverless -p '{"metadata": {"finalizers": []}}' --type=merge  %%
+            oc delete ns rhoai-serverless knative-serving knative-eventing openshift-serverless %%         
 
-            # OPENDATAHUB
-            oc delete sub,pod --all --force --grace-period=0 -n opendatahub                 %%
-            oc patch ns opendatahub -p '{"metadata": {"finalizers": []}}' --type=merge      %% 
-            oc delete ns opendatahub --force --grace-period=0                               %%
+            # Authorino
+            oc delete pod,authorino --all -n redhat-ods-applications-auth-provider %%
+            oc delete pod,authorino --all -n authorino-auth-provider               %%
+            oc delete ns redhat-ods-applications-auth-provider                     %%
+            oc delete ns authorino-auth-provider                                   %%
+
+            # Delete webhook again for sure
+            oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
+            oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
 
             # openshift-operators
-            oc delete sub opendatahub-operator --force --grace-period=0 -n openshift-operators                           %%
+            oc delete subs opendatahub-operator --force --grace-period=0 -n openshift-operators                           %%
             oc delete csv -n openshift-operators $(oc get csv -n openshift-operators |grep opendatahub|awk '{print $1}') %%
 
             oc delete sub authorino-operator --force --grace-period=0 -n openshift-operators                                    %%
@@ -105,5 +102,9 @@ playbook:
             oc delete csv $(oc get csv -n openshift-operators | grep openshift-pipelines-operator-rh |awk '{print $1}') -n openshift-operators %%
 
             oc delete csv OperatorGroup serverless-operators -n openshift-serverless                                               %%
-            # InstallPlan
-            for installplan in $(oc get installPlan -n openshift-operators|egrep 'authorino|serverless|servicemeshoperator|pipeline'|awk '{print $1}'); do        oc delete installPlan -n openshift-operators $installplan; done 
+
+            # InstallPlan %%
+            for installplan in $(oc get installPlan -n openshift-operators|grep -E 'authorino|serverless|servicemeshoperator|opendatahub|pipeline'|awk '{print $1}')
+            do  
+               oc delete installPlan -n openshift-operators $installplan
+            done 

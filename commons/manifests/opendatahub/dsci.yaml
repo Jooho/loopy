@@ -1,7 +1,7 @@
 apiVersion: dscinitialization.opendatahub.io/v1
 kind: DSCInitialization
 metadata:
-  name: default-dsci
+  name: %dsci_name%
   labels:
     app.kubernetes.io/created-by: rhods-operator
     app.kubernetes.io/instance: default-dsci
@@ -9,16 +9,16 @@ metadata:
     app.kubernetes.io/name: dscinitialization
     app.kubernetes.io/part-of: rhods-operator
 spec:
-  applicationsNamespace: redhat-ods-applications
+  applicationsNamespace:  %application_namespace%
   monitoring:
-    namespace: redhat-ods-monitoring
-    managementState: Managed
+    namespace:  %monitoring_namespace%
+    managementState: %enable_monitoring%
   serviceMesh:
     controlPlane:
       metricsCollection: Istio
       name: data-science-smcp
-      namespace: istio-system
-    managementState: Managed
+      namespace: %istio_namespace%
+    managementState: %enable_servicemesh%
   trustedCABundle:
-    managementState: Managed
+    managementState: %enable_trustedCABundle%
     customCABundle: ""

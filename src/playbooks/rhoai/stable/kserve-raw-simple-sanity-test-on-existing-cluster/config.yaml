@@ -15,6 +15,8 @@ playbook:
     - unit:
        name: install-authorino-stable-operator       
        description: Install Authorino operator stable version
+       input_env:
+         CHANNEL: "tech-preview-v1"
     - unit:
        name: install-rhoai-stable-operator-without-dsci
        description: Install RHOAI operator stable version

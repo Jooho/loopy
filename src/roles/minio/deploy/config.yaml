@@ -1,5 +1,5 @@
 role:
-  created_date: "20240215"
+  created_date: '20240215'
   name: minio-deploy
   description: |
     MinIO is an open-source, high-performance object storage server built for cloud-native and containerized environments. It is compatible with Amazon S3 APIs, making it easy to integrate with existing S3-compatible applications and tools. MinIO is designed to be lightweight, scalable, and highly available, making it suitable for storing unstructured data such as images, videos, log files, backups, and more. It is often used as a standalone object storage solution or as part of a larger data infrastructure stack.
@@ -8,10 +8,10 @@ role:
 
     Pre-requirements:
       N/A
-    
+
     The output variables(ex) include:
       MINIO_S3_SVC_URL=http://minio.minio.svc.cluster.local:9000
-      MINIO_DEFAULT_BUCKET_NAME=modelmesh-example-models
+      MINIO_DEFAULT_BUCKET_NAME=example-models
       MINIO_ACCESS_KEY_ID=admin
       MINIO_SECRET_ACCESS_KEY=password
       MINIO_REGION=us-east-1
@@ -31,7 +31,7 @@ role:
       description: Set your own bucket name, if you want to user your own bucket
     - name: MINIO_REGION
       description: Minio does not use region so you don't need to set this. This is to align with the standard protocol of S3
-    
+
     - name: ENABLE_SSL
       description: Set True if you want to deploy ssl minio(You must provide ROOT_CA_CERT_FILE_PATH,CERT_FILE_PATH, KEY_FILE_PATH)
     - name: ROOT_CA_CERT_FILE_PATH
@@ -40,7 +40,7 @@ role:
       description: server certificate file to apply ssl for minio
     - name: KEY_FILE_PATH
       description: server certificate key file to apply ssl for minio
-        
+
     # - name: ENABLE_CONSOLE
 
     - name: CLUSTER_API_URL
@@ -52,9 +52,9 @@ role:
     - name: CLUSTER_ADMIN_PW
       description: openshift cluster user password
       required: true
-    - name: CLUSTER_TOKEN  
+    - name: CLUSTER_TOKEN
       description: openshift cluster login token
-      
+
   output_env:
     - name: MINIO_S3_SVC_URL
       required: true
@@ -67,9 +67,3 @@ role:
     - name: MINIO_REGION
       required: true
     # - name: MINIO_CONSOLE_URL
-  
-
-  
-
-
-      

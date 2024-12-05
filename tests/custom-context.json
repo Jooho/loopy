@@ -115,7 +115,7 @@
                 "enable_ssl": "false",
                 "enable_console": "false",
                 "minio_region": "us-east-1",
-                "default_bucket_name": "modelmesh-example-models"
+                "default_bucket_name": "example-models"
             },
             "kserve": {
                 "caikit_arch_type": "caikit-tgis",
@@ -124,7 +124,7 @@
                 "isvc_deployment_mode": "Serverless",
                 "test_namespace": "kserve-demo",
                 "storage_config_type": "json",
-                "default_bucket_name": "modelmesh-example-models",
+                "default_bucket_name": "example-models",
                 "minio_region": "us-east-1",
                 "use_data_connection": "true",
                 "git_url": "https://github.com/JooHo/loopy.git",

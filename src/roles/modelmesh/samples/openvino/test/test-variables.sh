@@ -13,7 +13,7 @@ export TEST_NAMESPACE=kserve-demo
 export MINIO_ACCESS_KEY_ID=admin
 export MINIO_SECRET_ACCESS_KEY=password
 export MINIO_S3_SVC_URL=http://minio.minio.svc.cluster.local:9000
-export MINIO_DEFAULT_BUCKET_NAME=modelmesh-example-models
+export MINIO_DEFAULT_BUCKET_NAME=example-models
 export MINIO_REGION=us-east-2
 
 ###############################

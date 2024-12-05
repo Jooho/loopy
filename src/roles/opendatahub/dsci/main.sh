@@ -38,26 +38,26 @@ fi
 check_oc_status
 
 if [[ ${ENABLE_SERVICEMESH} == "Managed" ]]; then
-  oc get ns istio-system >/dev/null 2>&1 || oc new-project istio-system >/dev/null 2>&1
+  oc get ns ${ISTIO_NAMESPACE} >/dev/null 2>&1 || oc new-project ${ISTIO_NAMESPACE} >/dev/null 2>&1
 fi
 
-if [[ ${OPENDATAHUB_TYPE} == "rhoai" ]]; then
-  opendatahub_namespace="redhat-ods-applications"
+if [[ ${OPENDATAHUB_TYPE} == "opendatahub" ]]; then
+  APPLICATION_NAMESPACE="opendatahub"
 else
-  opendatahub_namespace="opendatahub"
+  APPLICATION_NAMESPACE="redhat-ods-applications"
 fi
-yq -i ".spec.applicationsNamespace = \"${opendatahub_namespace}\"" ${ROLE_DIR}/$(basename $dsci_manifests_path)
-oc get ns $opendatahub_namespace >/dev/null 2>&1 || oc new-project $opendatahub_namespace >/dev/null 2>&1
+
+oc get ns ${APPLICATION_NAMESPACE} >/dev/null 2>&1 || oc new-project ${APPLICATION_NAMESPACE} >/dev/null 2>&1
 
 ############# Logic ############
 info "Create DataScienceClusterInitialize(DSCI)"
-
-if [[ ${ENABLE_MONITORING} == "Removed" ]]; then
-  yq -i ".spec.monitoring.managementState = \"${ENABLE_MONITORING}\"" ${ROLE_DIR}/$(basename $dsci_manifests_path)
-fi
-if [[ ${ENABLE_SERVICEMESH} == "Removed" ]]; then
-  yq -i ".spec.serviceMesh.managementState = \"${ENABLE_SERVICEMESH}\"" ${ROLE_DIR}/$(basename $dsci_manifests_path)
-fi
+sed -e "s+%dsci_name%+$DSCI_NAME+g; \
+        s+%monitoring_namespace%+$MONITORING_NAMESPACE+g; \
+        s+%application_namespace%+$APPLICATION_NAMESPACE+g; \
+        s+%enable_monitoring%+$ENABLE_MONITORING+g; \
+        s+%istio_namespace%+$ISTIO_NAMESPACE+g; \
+        s+%enable_servicemesh%+$ENABLE_SERVICEMESH+g; \
+        s+%enable_trustedCABundle%+$ENABLE_TRUSTEDCABUNDLE+g" $dsci_manifests_path >${ROLE_DIR}/$(basename $dsci_manifests_path)
 
 debug "oc apply -f ${ROLE_DIR}/$(basename $dsci_manifests_path)"
 oc apply -f ${ROLE_DIR}/$(basename $dsci_manifests_path)

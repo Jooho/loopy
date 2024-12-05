@@ -15,7 +15,9 @@ playbook:
   steps:
    - unit:
        name: install-authorino-stable-operator      
-       description: Install Authorino operator stable version    
+       description: Install Authorino operator stable version
+       input_env:
+         CHANNEL: "tech-preview-v1"  
    - unit:
        name: install-rhoai-stable-operator      
        description: Install RHOAI operator from stable channel
@@ -27,7 +29,10 @@ playbook:
        description: Install ServiceMesh operator stable version            
    - unit:
        name: install-pipelines-stable-operator        
-       description: Install Pipeline operator stable version            
+       description: Install Pipeline operator stable version         
+   - role:
+       name: opendatahub-create-dsci       
+       description: Create a default DSCI.          
    - role:
        name: opendatahub-create-dsc
        input_env:

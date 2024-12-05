@@ -11,3 +11,22 @@ unit:
         OPERATOR_NAME: opendatahub-operator
         OPERATOR_LABEL: "name=error"
         OPERATOR_POD_PREFIX: "opendatahub"
+
+  - role:
+      name: shell-execute
+      description: wait for pod is ready    
+      input_env:
+        COMMANDS: |          
+          TARGET_MESSAGE="Starting workers"
+          export POD_NAME=$(oc get pods -n openshift-operators -l name=opendatahub-operator -o jsonpath="{.items[*].metadata.name}")          
+          while true
+          do
+            export ok=$(kubectl logs -n openshift-operators "$POD_NAME" | grep "$TARGET_MESSAGE"|wc -l)
+            if [[ $ok == 4 ]];
+            then
+              break
+            else
+              sleep 2
+            fi
+          done
+          echo "OpenDataHub operator become Ready"

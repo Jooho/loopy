@@ -42,14 +42,15 @@ fi
 check_oc_status
 
 if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]]; then
-  oc get ns $OPERATOR_NAMESPACE || oc new-project $OPERATOR_NAMESPACE
+  oc get ns $OPERATOR_NAMESPACE || oc create ns $OPERATOR_NAMESPACE
   result=$?
   if [[ $result != 0 ]]; then
     error "Failed to create the project($OPERATOR_NAMESPACE)"
     result=1
     stop_when_error_happended $result $index_role_name $REPORT_FILE
   fi
-
+  oc project $OPERATOR_NAMESPACE
+  
   sed -e \
     "s+%operatorgroup-name%+$SUBSCRIPTION_NAME+g; \
    s+%operatorgroup-namespace%+$OPERATOR_NAMESPACE+g" $og_manifests_path >${ROLE_DIR}/$(basename $og_manifests_path)
@@ -167,10 +168,9 @@ if [[ z$OPERATOR_POD_PREFIX != z && $OPERATOR_POD_PREFIX != "NONE" ]]; then
   done
   wait_for_pod_name_ready ${pod_name} ${OPERATOR_NAMESPACE}
 else
-  wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}" | tail -n 1
+  wait_for_pods_ready "${OPERATOR_LABEL}" "${OPERATOR_NAMESPACE}"
   result=$?
 fi
-
 ############# OUTPUT #############
 
 ############# REPORT #############

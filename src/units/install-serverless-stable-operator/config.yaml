@@ -7,7 +7,7 @@ unit:
       name: operator-install
       input_env:
         SUBSCRIPTION_NAME: serverless-operator
-        OPERATOR_NAMESPACE: rhoai-serverless
+        OPERATOR_NAMESPACE: openshift-serverless
         OPERATOR_NAME: serverless-operator
         CATALOGSOURCE_NAME: redhat-operators
         OPERATOR_LABEL: "name=knative-openshift"

@@ -60,7 +60,7 @@ if [[ ${enable_ssl} == "0" ]]; then
 
   oc create secret generic minio-tls --from-file="${ROLE_DIR}/minio.key" --from-file="${ROLE_DIR}/minio.crt" --from-file="${ROLE_DIR}/root.crt" -n ${MINIO_NAMESPACE}
 
-  yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelmesh/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
+  yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelserving/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 else
   error "We set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
   result=1
@@ -96,7 +96,7 @@ echo "MINIO_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}" >>${OUTPUT_ENV_FILE}
 echo "MINIO_REGION=${MINIO_REGION}" >>${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
-echo "${index_role_name}::$?" >>${REPORT_FILE}
+echo "${index_role_name}::${result}" >>${REPORT_FILE}
 
 ############# STOP WHEN RESULT IS FAIL #############
 if [[ $result != "0" ]]; then

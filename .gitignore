@@ -11,3 +11,4 @@ summary.txt
 loopy.log
 ./loopy_auto*
 /build
+.idea/

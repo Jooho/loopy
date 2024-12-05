@@ -12,7 +12,9 @@ playbook:
   steps:
    - unit:
        name: install-authorino-stable-operator      
-       description: Install Authorino operator stable version    
+       description: Install Authorino operator stable version
+       input_env:
+         CHANNEL: "tech-preview-v1"
    - unit:
        name: install-odh-stable-operator    
        description: Install ODH operator fast version  

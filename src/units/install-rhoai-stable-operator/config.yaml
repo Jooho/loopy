@@ -11,3 +11,4 @@ unit:
         OPERATOR_NAME: rhods-operator
         CATALOGSOURCE_NAME: redhat-operators
         OPERATOR_LABEL: "name=rhods-operator"
+        OPENDATAHUB_TYPE: rhoai

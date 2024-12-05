@@ -18,6 +18,15 @@ role:
     - name: ENABLE_MONITORING
       description: Install monitoring (Managed,Removed)
       
+    - name: MONITORING_NAMESPACE
+      description: Set monitoring namespace (redhat-ods-monitoring)
+
+    - name: ENABLE_TRUSTEDCABUNDLE
+      description: Install trustedCABundle (Managed,Removed)
+    
+    - name: ISTIO_NAMESPACE
+      description: Set istio system namespace (istio-system)
+
     - name: CLUSTER_TYPE
       description: openshift platform
       required: true

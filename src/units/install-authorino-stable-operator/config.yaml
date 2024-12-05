@@ -9,6 +9,7 @@ unit:
           SUBSCRIPTION_NAME: authorino-operator
           OPERATOR_NAMESPACE: openshift-operators
           OPERATOR_NAME: authorino-operator
-          CATALOGSOURCE_NAME: community-operators
+          CATALOGSOURCE_NAME: redhat-operators
           OPERATOR_LABEL: "control-plane=authorino-operator"
+          CHANNEL: "tech-preview-v1"
           # OPERATOR_VERSION: "v0.10.0"

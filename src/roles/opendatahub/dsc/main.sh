@@ -35,8 +35,10 @@ check_oc_status
 
 if [[ ${OPENDATAHUB_TYPE} == "rhoai" ]]; then
   opendatahub_namespace="redhat-ods-applications"
+  DATASCIENCECLUSTER_NAME="default-dsc"
 else
   opendatahub_namespace="opendatahub"
+  DATASCIENCECLUSTER_NAME="default-dsc"
 fi
 
 oc get ns $opendatahub_namespace >/dev/null 2>&1 || oc new-project $opendatahub_namespace >/dev/null 2>&1
@@ -211,7 +213,12 @@ fi
 if [[ ${ENABLE_DASHBOARD} == "Managed" ]]; then
   dashboard_result=1
   info "Checking if Dashboard pods are running"
-  wait_for_pods_ready "deployment=odh-dashboard" "${opendatahub_namespace}"
+  if [[ ${OPENDATAHUB_TYPE} == "rhoai" ]]; then
+    wait_for_pods_ready "deployment=rhods-dashboard" "${opendatahub_namespace}"  
+  else
+    wait_for_pods_ready "deployment=odh-dashboard" "${opendatahub_namespace}"
+  fi
+
   if [[ $? == 0 ]]; then
     success "Successfully deployed Dashboard!"
     dashboard_result=0

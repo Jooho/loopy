@@ -51,7 +51,7 @@ done
 if [[ ${ROOT_CA_CERT} == "" ]]; then
   info "Create ROOT CA Certificate"
   debug "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096  -subj \"/O=Loopy Example Inc./CN=root\"  -keyout ${ROLE_DIR}/${ROOT_CA_KEY_NAME}  -out ${ROLE_DIR}/${ROOT_CA_CERT_NAME}"
-  openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096 -subj "/O=Loopy Example Inc./CN=root" -keyout ${ROLE_DIR}/${ROOT_CA_KEY_NAME} -out ${ROLE_DIR}/${ROOT_CA_CERT_NAME}
+  openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096 -subj "/O=Loopy Example Inc./CN=root" -keyout ${ROLE_DIR}/${ROOT_CA_KEY_NAME} -out ${ROLE_DIR}/${ROOT_CA_CERT_NAME}  
 else
   if [[ ${ROOT_CA_KEY} == "" ]]; then
     result=1

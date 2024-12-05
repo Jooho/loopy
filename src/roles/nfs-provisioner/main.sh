@@ -124,7 +124,7 @@ echo "${index_role_name}::$result" >>${REPORT_FILE}
 
 ############# STOP WHEN RESULT IS FAIL #############
 if [[ $result != "0" ]]; then
-  info "The role($(index_role_name)) failed"
+  info "The role(${index_role_name}) failed"
   should_stop=$(is_positive ${STOP_WHEN_FAILED})
   if [[ ${should_stop} == "0" ]]; then
     die "[CRITICAL] STOP_WHEN_FAILED(${should_stop}) is set so it will be stoppped."

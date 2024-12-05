@@ -378,7 +378,7 @@ function check_oc_status() {
     groupNames=$(oc get group | grep ${userName} | awk '{print $1}')
 
     for groupName in $groupNames; do
-      clusterAdmin=$(oc get clusterrolebindings -o json | jq '.items[] | select(.metadata.name| startswith("cluster-admin")) | .subjects[].name' | egrep "$userName|$groupName" | wc -l)
+      clusterAdmin=$(oc get clusterrolebindings -o json | jq '.items[] | select(.metadata.name| startswith("cluster-admin")) | .subjects[].name' | grep -E "$userName|$groupName" | wc -l)
       if ((${clusterAdmin} >= 1)); then
         pass "You logged to the cluster as a cluster-admin"
         break

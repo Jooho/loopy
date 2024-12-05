@@ -51,7 +51,7 @@ unit:
 
     - role:
        name: shell-execute
-       description: "[TEST] Multiple Commands with for statement"  
+       description: "[TEST] Multiple Commands for statement"  
        input_env:
          COMMANDS: |      
             for i in {1..5}; do
@@ -60,6 +60,19 @@ unit:
             done
          STOP_WHEN_FAILED: "true"  
 
+
+    - role:
+       name: shell-execute
+       description: "[TEST] Multiple Commands for statement with %%"  
+       input_env:
+         COMMANDS: |      
+            echo "TEST"  %%
+            ## TEST 
+            for i in {1..5}; do
+                echo "$((i * 1000))"
+                sleep 1 
+            done
+         STOP_WHEN_FAILED: "true"  
 
 #  - role:
 #        name: shell-execute

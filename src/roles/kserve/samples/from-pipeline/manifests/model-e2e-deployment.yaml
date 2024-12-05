@@ -28,7 +28,7 @@ spec:
       default: test
       description: the endpoint to access minio storage.
     - name: DEFAULT_BUCKET_NAME
-      default: modelmesh-example-models
+      default: example-models
       description: the default bucket name in minio storage.
     - name: MINIO_REGION
       default: us-east-1
@@ -47,9 +47,9 @@ spec:
     - name: ISVC_DEPLOYMENT_VERBOSE
       description: Enables the verbose output for the isvc deployment.
     - name: ISVC_DEPLOYMENT_MODE
-      description: This can be set to "RawDeployment" 
+      description: This can be set to "RawDeployment"
       type: string
-      default: "Serverless"
+      default: 'Serverless'
   tasks:
     - name: clean-namespace-begin
       description: Make sure there is no previous deployment related to this pipeline
@@ -72,7 +72,7 @@ spec:
         - name: url
           value: $(params.GIT_URL)
         - name: deleteExisting
-          value: "true"
+          value: 'true'
         - name: revision
           value: $(params.GIT_REVISION)
       runAfter:
@@ -92,14 +92,14 @@ spec:
         - name: DEFAULT_BUCKET_NAME
           value: $(params.DEFAULT_BUCKET_NAME)
         - name: MINIO_REGION
-          value: $(params.MINIO_REGION)              
+          value: $(params.MINIO_REGION)
       taskRef:
         kind: Task
         name: deploy-storage-config-task
       runAfter:
         - clean-namespace-begin
     - name: deploy-caikit-runtime-http
-      timeout: "20m" 
+      timeout: '20m'
       params:
         - name: PROTOCOL
           value: http
@@ -121,7 +121,7 @@ spec:
         - name: source
           workspace: shared-workspace
     - name: deploy-caikit-runtime-grpc
-      timeout: "20m" 
+      timeout: '20m'
       params:
         - name: PROTOCOL
           value: grpc
@@ -171,7 +171,7 @@ spec:
         - name: ISVC_DEPLOYMENT_VERBOSE
           value: $(params.ISVC_DEPLOYMENT_VERBOSE)
         - name: ISVC_DEPLOYMENT_MODE
-          value: $(params.ISVC_DEPLOYMENT_MODE)          
+          value: $(params.ISVC_DEPLOYMENT_MODE)
         - name: WORKING_NAMESPACE
           value: $(params.WORKING_NAMESPACE)
       taskRef:
@@ -195,7 +195,7 @@ spec:
         - name: ISVC_DEPLOYMENT_VERBOSE
           value: $(params.ISVC_DEPLOYMENT_VERBOSE)
         - name: ISVC_DEPLOYMENT_MODE
-          value: $(params.ISVC_DEPLOYMENT_MODE)                    
+          value: $(params.ISVC_DEPLOYMENT_MODE)
         - name: WORKING_NAMESPACE
           value: $(params.WORKING_NAMESPACE)
       taskRef:

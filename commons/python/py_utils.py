@@ -101,3 +101,8 @@ def stop_when_error_happended(result, index_role_name, report_file, input_should
             die(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is set and there are some errors detected, stopping all processes.")
         else:
             warn(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is NOT set, so skipping this error.")
+
+def remove_comment_lines(command: str) -> str:
+    lines = command.splitlines()
+    filtered_lines = [line for line in lines if not line.strip().startswith("#")]
+    return "\n".join(filtered_lines)

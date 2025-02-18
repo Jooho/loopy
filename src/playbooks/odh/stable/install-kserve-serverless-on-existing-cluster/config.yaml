@@ -29,6 +29,10 @@ playbook:
    - role:
        name: opendatahub-create-dsci       
        description: Create a default DSCI.
+       input_env:
+         OPENDATAHUB_TYPE: "opendatahub"
    - role:
        name: opendatahub-create-dsc
        description: Deploy KServe component.
+       input_env:
+         OPENDATAHUB_TYPE: "opendatahub"

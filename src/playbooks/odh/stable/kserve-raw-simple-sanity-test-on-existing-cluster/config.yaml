@@ -21,6 +21,7 @@ playbook:
         description: Create a DSCI set servicemesh to "Removed"
         input_env:
             ENABLE_SERVICEMESH: Removed
+            OPENDATAHUB_TYPE: "opendatahub"
     - role:
         name: opendatahub-create-dsc
         description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
@@ -28,6 +29,7 @@ playbook:
             ENABLE_KSERVE: Managed
             ENABLE_KSERVE_KNATIVE: Removed         
             DEFAULT_DEPLOYMENTMODE: RawDeployment 
+            OPENDATAHUB_TYPE: "opendatahub"
     - unit:
         name: test-kserve-caikit-tgis-rest
         description: Deploy KServe Caikit Tgis Runtime with RawDeployment Mode. Then check result.

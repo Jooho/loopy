@@ -32,10 +32,14 @@ playbook:
        description: Install ServiceMesh operator stable version   
    - role:
        name: opendatahub-create-dsci       
-       description: Create a default DSCI.       
+       description: Create a default DSCI.
+       input_env:       
+            OPENDATAHUB_TYPE: "opendatahub"              
    - role:
        name: opendatahub-create-dsc
        description: Install KServe component.
+       input_env:       
+            OPENDATAHUB_TYPE: "opendatahub"
    - unit:
        name: test-kserve-caikit-tgis-rest       
        description: Trigger sanity test with caikit-tgis-rest    

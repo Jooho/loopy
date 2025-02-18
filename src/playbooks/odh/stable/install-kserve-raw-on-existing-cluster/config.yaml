@@ -15,7 +15,8 @@ playbook:
         name: opendatahub-create-dsci 
         description: Create a DSCI set servicemesh to "Removed"
         input_env:
-            ENABLE_SERVICEMESH: Removed
+            ENABLE_SERVICEMESH: Removed                  
+            OPENDATAHUB_TYPE: "opendatahub"
     - role:
         name: opendatahub-create-dsc
         description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
@@ -23,4 +24,5 @@ playbook:
             ENABLE_KSERVE: Managed
             ENABLE_KSERVE_KNATIVE: Removed         
             DEFAULT_DEPLOYMENTMODE: RawDeployment
+            OPENDATAHUB_TYPE: "opendatahub"
   

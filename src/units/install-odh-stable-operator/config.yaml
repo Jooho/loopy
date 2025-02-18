@@ -22,7 +22,7 @@ unit:
           while true
           do
             export ok=$(kubectl logs -n openshift-operators "$POD_NAME" | grep "$TARGET_MESSAGE"|wc -l)
-            if [[ $ok == 4 ]];
+            if [[ $ok -ge 4 ]];
             then
               break
             else

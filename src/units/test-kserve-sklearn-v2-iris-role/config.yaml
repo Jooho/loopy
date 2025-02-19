@@ -2,7 +2,7 @@ unit:
   created_date: "20240527"
   support: "false"
   name: test-kserve-sklearn-v2-iris-role
-  description: This deploy kserve sklean v2 iris runtime. 
+  description: This deploy kserve sklearn v2 iris runtime. 
   steps:
     - role:
         name: minio-deploy

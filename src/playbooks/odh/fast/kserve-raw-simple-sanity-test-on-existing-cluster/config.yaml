@@ -1,0 +1,37 @@
+playbook:
+  created_date: "20250218"
+  # name: kserve-raw-simple-sanity-test-on-existing-cluster
+  description: |
+    This playbook will deploy kserve rawDeployment mode
+
+    This is a playbook for kserve rawDeployment end to end test. It installs ODH operator through fast channel. After kserve is ready, it will deploy minio pod and deploy sklearn runtime and verify it is working or not.
+
+    Tested operator version:
+    - ODH 2.9.0
+    - ODH 2.24.0
+  steps:
+    - unit:
+       name: install-odh-stable-operator-without-dsci
+       description: Install ODH operator fast channel
+       input_env:
+            CHANNEL: "fast"
+    - role:
+        name: opendatahub-create-dsci 
+        description: Create a DSCI set servicemesh to "Removed"
+        input_env:
+            ENABLE_SERVICEMESH: Removed
+            OPENDATAHUB_TYPE: "opendatahub"
+    - role:
+        name: opendatahub-create-dsc
+        description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
+        input_env:
+            ENABLE_KSERVE: Managed
+            ENABLE_KSERVE_KNATIVE: Removed         
+            DEFAULT_DEPLOYMENTMODE: RawDeployment 
+            OPENDATAHUB_TYPE: "opendatahub"
+    - unit:
+        name: test-kserve-sklearn-v2-iris-role
+        description: Deploy KServe Sklearn v2 iris Runtime with RawDeployment Mode. Then check result.
+        input_env:
+            ISVC_DEPLOYMENT_MODE: RawDeployment
+  

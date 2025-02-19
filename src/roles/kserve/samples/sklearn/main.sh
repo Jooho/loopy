@@ -95,6 +95,8 @@ if [[ ${ISVC_DEPLOYMENT_MODE} == "RawDeployment" ]]; then
   yq e 'del(.metadata.annotations."sidecar.istio.io/inject")' -i ${ROLE_DIR}/$(basename $inferenceservice_manifests)
   yq e 'del(.metadata.annotations."sidecar.istio.io/rewriteAppHTTPProbers")' -i ${ROLE_DIR}/$(basename $inferenceservice_manifests)
   yq eval '.metadata.annotations += {"serving.kserve.io/deploymentMode": "RawDeployment"}' -i ${ROLE_DIR}/$(basename $inferenceservice_manifests)
+  yq eval '.metadata.annotations += {"serving.kserve.io/autoscalerClass": "external"}' -i ${ROLE_DIR}/$(basename $inferenceservice_manifests)
+  yq eval '.metadata.labels += {"networking.kserve.io/visibility": "exposed"}' -i ${ROLE_DIR}/$(basename $inferenceservice_manifests)
 fi
 
 if [[ ${STORAGE_CONFIG_TYPE} != "json" ]]; then

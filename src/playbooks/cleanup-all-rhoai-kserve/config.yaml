@@ -103,8 +103,12 @@ playbook:
 
             oc delete csv OperatorGroup serverless-operators -n openshift-serverless                                               %%
 
+            # delete crds %%
+            oc delete crd services.serving.knative.dev                                                                             %%
+            
             # InstallPlan %%
             for installplan in $(oc get installPlan -n openshift-operators|grep -E 'authorino|serverless|servicemeshoperator|opendatahub|pipeline'|awk '{print $1}')
             do  
                oc delete installPlan -n openshift-operators $installplan
-            done 
+            done
+

@@ -7,7 +7,7 @@ unit:
         name: operator-install
         input_env:
           SUBSCRIPTION_NAME: authorino-operator
-          OPERATOR_NAMESPACE: openshift-operators
+          OPERATOR_NAMESPACE: authorino-operator
           OPERATOR_NAME: authorino-operator
           CATALOGSOURCE_NAME: redhat-operators
           OPERATOR_LABEL: "control-plane=authorino-operator"

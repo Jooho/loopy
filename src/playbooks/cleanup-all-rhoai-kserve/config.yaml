@@ -84,6 +84,9 @@ playbook:
             oc delete validatingwebhookconfiguration $(oc get validatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
             oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
 
+            # crd
+            oc delete crd $(oc get crd --no-headers|grep -E "kserve|knative|istio|opendatahub|serverless|authorino"|awk '{print $1}') %%
+
             # openshift-operators
             oc delete subs opendatahub-operator --force --grace-period=0 -n openshift-operators                           %%
             oc delete csv -n openshift-operators $(oc get csv -n openshift-operators |grep opendatahub|awk '{print $1}') %%

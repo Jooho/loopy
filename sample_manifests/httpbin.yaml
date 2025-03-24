@@ -21,7 +21,7 @@ spec:
   ports:
   - name: http
     port: 8000
-    targetPort: 80
+    targetPort: 8080
   selector:
     app: httpbin
 ---
@@ -44,11 +44,11 @@ spec:
     spec:
       serviceAccountName: httpbin
       containers:
-      - image: docker.io/kennethreitz/httpbin
-        imagePullPolicy: IfNotPresent
+      - image: quay.io/jooholee/httpbin:ocp
+        imagePullPolicy: Always
         name: httpbin
         ports:
-        - containerPort: 80
+        - containerPort: 8080
 ---				
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -59,7 +59,6 @@ metadata:
   name: httpbin
   namespace: httpbin
 spec:
-  host: httpbin-httpbin.apps-crc.testing
   port:
     targetPort: http
   tls:

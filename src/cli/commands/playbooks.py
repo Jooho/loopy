@@ -2,6 +2,7 @@
 import os
 import click
 import utils
+
 import yaml
 import logging
 import constants
@@ -56,11 +57,11 @@ def init(ctx, verbose=None):
             
     # Default Roles/Units/Playbooks
     loopy_root_path = os.environ.get("LOOPY_PATH", "")
-    default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+    default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
     logger.debug(f"{constants.LOG_STRING_CONFIG}:default_roles_dir: {default_roles_dir}")
-    default_units_dir = f"{loopy_root_path}/src/units" if loopy_root_path else "./src/units"
+    default_units_dir = f"{loopy_root_path}/default_provided_services/units" if loopy_root_path else "./default_provided_services/units"
     logger.debug(f"{constants.LOG_STRING_CONFIG}:default_units_dir: {default_units_dir}")
-    default_playbooks_dir = f"{loopy_root_path}/src/playbooks" if loopy_root_path else "./src/playbooks"
+    default_playbooks_dir = f"{loopy_root_path}/default_provided_services/playbooks" if loopy_root_path else "./default_provided_services/playbooks"
     logger.debug(f"{constants.LOG_STRING_CONFIG}:default_playbooks_dir: {default_playbooks_dir}")
     
     # Additional Roles/Units/Playbooks

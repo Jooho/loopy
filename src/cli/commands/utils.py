@@ -9,8 +9,9 @@ from colorama import Fore, Style
 from prettytable import PrettyTable
 from config import config_dict
 
-py_utils_dir_path = config_dict["py_utils_dir"]
-sys.path.append(py_utils_dir_path)
+# py_utils_dir_path = config_dict["py_utils_dir"]
+# sys.path.append(py_utils_dir_path)
+
 from py_utils import is_positive
 
 logger = logging.getLogger(__name__)

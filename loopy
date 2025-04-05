@@ -1,139 +1,33 @@
 #!/usr/bin/env python3
-import click
-import os
-import sys
-import yaml
-import logging
+from core.env import EnvManager
+from core.config_loader import ConfigLoader
+from core.initializer import Initializer
+from core.context import LoopyContextBuilder
 
-from datetime import datetime
-from config import update_config, reset_config, reset_summary
-from colorlog import ColoredFormatter
+from config import update_config
 
-# main.py path
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
-loopy_config_path = os.environ.get("LOOPY_CONFIG_PATH", "config.yaml")
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if loopy_root_path: 
-    current_dir = loopy_root_path
+# 1. Setup environment variabls
+env = EnvManager()
+config_path = env.get_config_path()
+root_path = env.get_root_path()
 
-# add ./src/cli/commands
-commands_dir = os.path.join(current_dir, "src", "cli", "commands")
-logics_dir = os.path.join(current_dir, "src", "cli", "logics")
-py_utils_dir = os.path.join(current_dir, "commons", "python")
-sys.path.append(commands_dir)
-sys.path.append(logics_dir)
-sys.path.append(py_utils_dir)
-update_config("py_utils_dir", py_utils_dir)
+# 2. Load config 
+config_loader = ConfigLoader(config_path, root_path)
+config_loader.load()
 
-from roles import list_roles, show_role, test_role, run_role
-from units import list_units, show_unit, run_unit
-from playbooks import list_playbooks, show_playbook, run_playbook
+config_data = config_loader.get_config()
+default_vars = config_loader.get_default_vars()
 
+# 3. initializer
+initializer = Initializer(default_vars)
+initializer.initialize()
 
-def init(default_vars):
-    # Reset config_dict,summary_dict
-    reset_config()
-    reset_summary()
-    
-    # Create default dirs
-    root_dir = default_vars["cli"]["output_root_dir"]
-    now = datetime.now()
+# import cli after initializer
+from cli.cli import cli  
 
-    # "2024-02-05_1430"
-    date_dir = os.path.join(root_dir, now.strftime("%Y%m%d_%H%M"))
-    output_dir = os.path.join(date_dir, default_vars["cli"]["output_env_dir"])
-    artifacts_dir = os.path.join(date_dir, default_vars["cli"]["output_artifacts_dir"])
-    report_file = os.path.join(date_dir, default_vars["cli"]["output_report_file"])
-    show_debug_log = default_vars["cli"]["show_debug_log"]
-    stop_when_failed = default_vars["cli"]["stop_when_failed"]
-    stop_when_error_happened = default_vars["cli"]["stop_when_error_happened"]
-
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(artifacts_dir, exist_ok=True)
-
-    with open(report_file, "w") as file:
-        file.write("# This is a report.\n")
-
-    update_config("output_dir", output_dir)
-    os.environ["OUTPUT_DIR"] = output_dir
-    update_config("artifacts_dir", artifacts_dir)
-    os.environ["ARTIFACTS_DIR"] = artifacts_dir
-    update_config("report_file", report_file)
-    os.environ["REPORT_FILE"] = report_file
-    update_config("show_debug_log", show_debug_log)
-    os.environ["SHOW_DEBUG_LOG"] = show_debug_log
-    update_config("stop_when_failed", stop_when_failed)
-    update_config("stop_when_error_happened", stop_when_error_happened)
-    
-    # Update PATH to add ./bin dir
-    path = os.environ["PATH"]
-    bin_path = os.path.join(os.getcwd(), "bin")
-    new_path = f"{bin_path}:{path}"
-    os.environ["PATH"] = new_path
-
-    # TO-DO
-    # Set default value for STOP_WHEN_FAILED
-    os.environ["STOP_WHEN_FAILED"] = "1"  # 0 stop when component failed, 1 do not stop even component failed.
-
-
-@click.group()
-def roles():
-    pass
-
-
-@click.group()
-def units():
-    pass
-
-
-@click.group()
-def playbooks():
-    pass
-
-
-@click.group()
-def cli():
-    pass
-
-
-roles.add_command(list_roles)
-roles.add_command(show_role)
-roles.add_command(test_role)
-roles.add_command(run_role)
-
-units.add_command(list_units)
-units.add_command(show_unit)
-units.add_command(run_unit)
-
-playbooks.add_command(list_playbooks)
-playbooks.add_command(show_playbook)
-playbooks.add_command(run_playbook)
-
-cli.add_command(roles)
-cli.add_command(units)
-cli.add_command(playbooks)
-
-
-# Load configuation file(./config.yaml)
-if loopy_root_path and loopy_config_path == "config.yaml":
-    loopy_config_path = f"{loopy_root_path}/{loopy_config_path}"
-        
-with open(loopy_config_path, "r") as file:
-    config_data = yaml.safe_load(file)
-
-# logging_config=config_data['logging']
-# logging.config.dictConfig(logging_config)
-
-loopy_default_vars_path = config_data['default_vars_file']
-if loopy_root_path:
-    loopy_default_vars_path = f"{loopy_root_path}/{config_data['default_vars_file']}"
-
-with open(loopy_default_vars_path, "r") as file:
-    default_vars = yaml.safe_load(file)
-
-main_context_settings = dict(config={"default_vars": default_vars, "config_data": config_data})
-
-init(default_vars)
+# 4. CLI execution
+context_builder = LoopyContextBuilder(default_vars, config_data)
+main_context_settings = context_builder.build()
 
 if __name__ == "__main__":
     cli(obj=main_context_settings)

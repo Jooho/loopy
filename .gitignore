@@ -12,3 +12,4 @@ loopy.log
 ./loopy_auto*
 /build
 .idea/
+.vscode/

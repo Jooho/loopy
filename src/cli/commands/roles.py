@@ -1,7 +1,9 @@
 # fmt: off
 import os
 import click
+# import utils
 import utils
+
 import yaml
 import constants
 import loopy_report 
@@ -54,7 +56,7 @@ def init(ctx,verbose=None):
         
         # Default Roles
         loopy_root_path = os.environ.get("LOOPY_PATH", "")
-        default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
+        default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
         
         # Additional Roles
         additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])

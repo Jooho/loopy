@@ -2,32 +2,31 @@
 from core.env import EnvManager
 from core.config_loader import ConfigLoader
 from core.initializer import Initializer
-from core.context import LoopyContextBuilder
+from core.context import get_context
 
 from config import update_config
 
 # 1. Setup environment variabls
-env = EnvManager()
-config_path = env.get_config_path()
-root_path = env.get_root_path()
+envManager = EnvManager()
+config_path = envManager.get_config_path()
+root_path = envManager.get_root_path()
+env_list = envManager.get_env()
 
 # 2. Load config 
 config_loader = ConfigLoader(config_path, root_path)
 config_loader.load()
-
 config_data = config_loader.get_config()
 default_vars = config_loader.get_default_vars()
 
 # 3. initializer
-initializer = Initializer(default_vars)
+initializer = Initializer(env_list,config_data,default_vars)
 initializer.initialize()
 
 # import cli after initializer
 from cli.cli import cli  
 
 # 4. CLI execution
-context_builder = LoopyContextBuilder(default_vars, config_data)
-main_context_settings = context_builder.build()
+global_context = get_context()
 
 if __name__ == "__main__":
-    cli(obj=main_context_settings)
+    cli(obj=global_context)

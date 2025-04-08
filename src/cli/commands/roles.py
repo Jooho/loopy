@@ -11,7 +11,9 @@ import logging
 import logging.config
 from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
+from core.context import get_context
 
+context= get_context()
 logger = logging.getLogger(__name__)
 
 role_list = []
@@ -27,7 +29,7 @@ def init(ctx,verbose=None):
     global enable_loopy_report
     if len(role_list) == 0:
         # Set log level
-        logging_config = ctx.obj.get("config", {}).get("config_data", {}).get("logging", [])
+        logging_config = context["config"]["logging"]
         default_log_level=logging_config['handlers']['console']['level']
         
         log_levels = {
@@ -43,15 +45,18 @@ def init(ctx,verbose=None):
              os.environ['SHOW_DEBUG_LOG']="true"
 
         # Enable Loopy Report
-        enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+        # enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+        enable_loopy_report = context["config"]["enable_loopy_report"]
         logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
         
         # Enable Loopy Logo
-        enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
+        # enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
+        enable_loopy_logo = context["config"]["enable_loopy_logo"]
         logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
         
         # Enable Loopy Log
-        enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
+        # enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
+        enable_loopy_log = context["config"]["enable_loopy_log"]
         logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")
         
         # Default Roles
@@ -59,7 +64,8 @@ def init(ctx,verbose=None):
         default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
         
         # Additional Roles
-        additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+        # additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+        additional_role_dirs = context["config"]["additional_role_dirs"]
         logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
         
         # Combine default and additional roles directories
@@ -179,7 +185,8 @@ def verify_if_param_exist_in_role(ctx, params, role_name):
                         else:
                             input_exist = False
                             
-    ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
+    # ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
+    ignore_validate_env_input = context["config"]["ignore_validate_env_input"]
     if input_exist:
         return
     elif ignore_validate_env_input:

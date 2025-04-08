@@ -11,7 +11,9 @@ import roles
 import loopy_report 
 from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
+from core.context import get_context
 
+context = get_context()
 logger = logging.getLogger(__name__)
 
 role_list = []
@@ -31,7 +33,7 @@ def init(ctx, verbose=None):
     global enable_loopy_report
     
     # Set log level
-    logging_config = ctx.obj.get("config", {}).get("config_data", {}).get("logging", [])
+    logging_config = context["config"]["logging"]
     default_log_level=logging_config['handlers']['console']['level']
     
     log_levels = {
@@ -44,15 +46,18 @@ def init(ctx, verbose=None):
     logging.config.dictConfig(logging_config)        
 
     # Enable Loopy Report
-    enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+    # enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
+    enable_loopy_report = context["config"]["enable_loopy_report"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
     
     # Enable Loopy Logo
-    enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
+    # enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
+    enable_loopy_logo = context["config"]["enable_loopy_logo"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
 
     # Enable Loopy Log
-    enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
+    # enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
+    enable_loopy_log = context["config"]["enable_loopy_log"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")   
             
     # Default Roles/Units/Playbooks
@@ -65,11 +70,15 @@ def init(ctx, verbose=None):
     logger.debug(f"{constants.LOG_STRING_CONFIG}:default_playbooks_dir: {default_playbooks_dir}")
     
     # Additional Roles/Units/Playbooks
-    additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    # additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
+    additional_role_dirs = context["config"]["additional_role_dirs"]
+    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
-    additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    # additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    additional_unit_dirs = context["config"]["additional_unit_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_unit_dirs: {additional_unit_dirs}")
-    additional_playbook_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_playbook_dirs", [])
+    # additional_playbook_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_playbook_dirs", [])
+    additional_playbook_dirs = context["config"]["additional_playbook_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_playbook_dirs: {additional_playbook_dirs}")
     
     # Combine default and additional roles/units/playbooks directories

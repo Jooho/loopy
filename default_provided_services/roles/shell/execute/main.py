@@ -71,8 +71,11 @@ for index, command in enumerate(commands_list):
         try:
             command=py_utils.remove_comment_lines(command)
             if not command.startswith("#"):
-                start_time.append(time.time())
+                s_t=time.time()
                 
+                start_time.append(s_t)
+                print("JHOUSE(s_t):", s_t)
+                print("JHOUSE(start_time):", start_time)
                 showCommand=py_utils.is_positive(os.environ["SHOW_COMMAND"])
                 if showCommand == 0:
                     print(command, end="\n")  
@@ -96,10 +99,13 @@ for index, command in enumerate(commands_list):
                             rcresult["stderr"] += line  # store stderr to result
                     except Exception as e:
                         print(f"Error occurred: {e}")
-                process.wait()
-                rcresult["returncode"] = process.returncode
-                
-                end_time.append(time.time())
+                    process.wait()
+                    rcresult["returncode"] = process.returncode
+                e_t=time.time()
+                print("Duration:", e_t - s_t, "seconds")
+                end_time.append(e_t)
+                print("JHOUSE(e_t):", e_t)
+                print("JHOUSE(end_time):", end_time)
                 update_summary("start_time", start_time)
                 update_summary("end_time", end_time)
                 

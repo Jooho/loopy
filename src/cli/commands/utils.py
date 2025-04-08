@@ -9,23 +9,17 @@ from colorama import Fore, Style
 from prettytable import PrettyTable
 from config import config_dict
 
-# py_utils_dir_path = config_dict["py_utils_dir"]
-# sys.path.append(py_utils_dir_path)
-
 from py_utils import is_positive
+from core.context import get_context
 
+context = get_context()
 logger = logging.getLogger(__name__)
 
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
+loopy_root_path = context["config"]["loopy_root_path"]
 
-ROLE_SCHEMA_FILE_PATH = "./src/schema/role.yaml"
-UNIT_SCHEMA_FILE_PATH = "./src/schema/unit.yaml"
-PLAYBOOK_SCHEMA_FILE_PATH = "./src/schema/playbook.yaml"
-
-if loopy_root_path:
-    ROLE_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/role.yaml"
-    UNIT_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/unit.yaml"
-    PLAYBOOK_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/playbook.yaml"
+ROLE_SCHEMA_FILE_PATH = context["config"]["schema"]["role"]
+UNIT_SCHEMA_FILE_PATH = context["config"]["schema"]["unit"]
+PLAYBOOK_SCHEMA_FILE_PATH = context["config"]["schema"]["playbook"]
 
 
 def initialize(directory, type):
@@ -40,7 +34,8 @@ def initialize(directory, type):
                 for error in file_errors:
                     print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
                     print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
-                    print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
+                    print(
+                        f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
                     exit(1)
 
             with open(config_path, "r") as config_file:
@@ -57,7 +52,8 @@ def initialize(directory, type):
                             role_name = config_data[type]["steps"][0]["role"]["name"]
                         else:
                             role_name = config_data[type]["role"]["name"]
-                        item_list.append({"name": name, "path": path, "role_name": role_name})
+                        item_list.append(
+                            {"name": name, "path": path, "role_name": role_name})
                     else:
                         path = os.path.abspath(root)
                         if "name" in config_data[type]:
@@ -80,7 +76,8 @@ def convert_path_to_component_name(path, component):
 
 
 def get_default_vars(ctx):
-    return ctx.obj.get("config", "default_vars")["default_vars"]
+    # return ctx.obj.get("config", "default_vars")["default_vars"]
+    return context["default_vars"]
 
 
 def parse_key_value_pairs(ctx, param, value):
@@ -93,7 +90,7 @@ def parse_key_value_pairs(ctx, param, value):
             value_str = str(item)
             first_eq_index = value_str.find("=")
             key = value_str[:first_eq_index]
-            val = value_str[first_eq_index + 1 :]
+            val = value_str[first_eq_index + 1:]
             result[key] = val
         else:
             key, value = item.split("=")
@@ -146,7 +143,8 @@ def get_config_data_by_config_file_dir(ctx, config_file_dir):
             config_data = yaml.safe_load(config_file)
             return config_data
     except FileNotFoundError:
-        ctx.invoke(click.echo(f"Config file '{config_file_dir}/config.yaml' not found."))
+        ctx.invoke(click.echo(
+            f"Config file '{config_file_dir}/config.yaml' not found."))
 
 
 def get_config_data_by_name(ctx, name, type, list):
@@ -160,7 +158,8 @@ def get_config_data_by_name(ctx, name, type, list):
             if name == role["name"]:
                 path = role["path"]
     if path == "":
-        ctx.invoke(click.echo, f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}")
+        ctx.invoke(
+            click.echo, f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}")
         sys.exit(1)
     return get_config_data_by_config_file_dir(ctx, path)
 
@@ -250,4 +249,3 @@ def print_logo():
             else:
                 result += char
         print(f"{result}{Fore.RESET}")
-

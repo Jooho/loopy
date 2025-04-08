@@ -4,9 +4,9 @@ playbook:
   description: |
     This will test roles tests
   steps:
-    - unit:
-        name: loopy-roles-test-non-cluster-cert-generate
-        description: "Test cert-generate role"
+    # - unit:
+    #     name: loopy-roles-test-non-cluster-cert-generate
+    #     description: "Test cert-generate role"
 
     - unit:
         name: loopy-roles-test-non-cluster-shell-execute

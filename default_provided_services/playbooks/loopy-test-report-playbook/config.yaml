@@ -6,7 +6,7 @@ playbook:
     This is tested with ODH 2.9+
   steps:
     - unit:
-        name: loopy-test-cert-generate
+        name: loopy-roles-test-non-cluster-cert-generate
         description: "playbook-generate certificate"
         input_env:
           SAN_DNS_LIST: minio.minio.svc.cluster,minio.minio.svc
@@ -24,9 +24,9 @@ playbook:
           COMMANDS: |
             echo "playbook-role-c1" %% echo "playbook-role-c2"          
 
-    - unit:
-        name: loopy-test-kubectl         
-        description: TEST_TEST
+    # - unit:
+    #     name: loopy-test-kubectl         
+    #     description: TEST_TEST
       #(example)
       #       oc new-project kserve-demo %% oc label ns/kserve-demo opendatahub.io/dashboard="true"
       #       kubectl patch DSCInitialization default-dsci --type=json -p='[{"op": "add", "path": "/spec/trustedCABundle", "value": {"managementState": "Managed", "customCABundle": ""}}]'  %%  hostname

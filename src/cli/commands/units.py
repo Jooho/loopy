@@ -3,10 +3,8 @@ import os
 import click
 import utils
 
-import yaml
 import constants
 import logging
-import roles
 import loopy_report 
 from component import Role, Unit, Get_required_input_keys
 from colorama import Fore, Style, Back
@@ -15,79 +13,26 @@ from core.context import get_context
 context = get_context()
 logger = logging.getLogger(__name__)
 
-role_list = []
-unit_list = []
-enable_loopy_log=True
-enable_loopy_logo=True
-enable_loopy_report=True
+role_list = context["config"]["role_list"]
+unit_list = context["config"]["unit_list"]
+enable_loopy_log=context["config"]["enable_loopy_log"]
+enable_loopy_logo=context["config"]["enable_loopy_logo"]
+enable_loopy_report=context["config"]["enable_loopy_report"]
 
 @click.pass_context
 def init(ctx, verbose=None):
-    global role_list
-    global unit_list
-    global enable_loopy_log
-    global enable_loopy_logo
-    global enable_loopy_report
+    input_log_level=utils.configure_logging(context, verbose)
+    if input_log_level == logging.DEBUG:
+        os.environ['SHOW_DEBUG_LOG']="true"
     
-    # Set log level
-    logging_config = context["config"]["logging"]
-    default_log_level=logging_config['handlers']['console']['level']
-    
-    log_levels = {
-        1: logging.WARN,
-        2: logging.INFO,
-        3: logging.DEBUG
-    }
-
-    logging_config['handlers']['console']['level']=log_levels.get(verbose, default_log_level)
-    logging.config.dictConfig(logging_config)        
-        
-    # Enable Loopy Report
-    # enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
-    enable_loopy_report =context["config"]["enable_loopy_report"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
-    
-    # Enable Loopy Logo
-    # enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
-    enable_loopy_logo=context["config"]["enable_loopy_logo"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
-
-    # Enable Loopy Log
-    # enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
-    enable_loopy_log=context["config"]["enable_loopy_log"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")                
-    
-    # Default Roles/Units
-    loopy_root_path = os.environ.get("LOOPY_PATH", "")
-    default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_roles_dir: {default_roles_dir}")
-    default_units_dir = f"{loopy_root_path}/default_provided_services/units" if loopy_root_path else "./default_provided_services/units"
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_units_dir: {default_units_dir}")
-    
-    # Additional Roles/Units
-    # additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
     additional_role_dirs = context["config"]["additional_role_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
-    # additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
+    
     additional_unit_dirs = context["config"]["additional_unit_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_unit_dirs: {additional_unit_dirs}")
-    
-    # Combine default and additional roles/units directories
-    roles_dir_list = [default_roles_dir] + additional_role_dirs
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:roles_dir_list: {roles_dir_list}")
-    units_dir_list = [default_units_dir] + additional_unit_dirs
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:units_dir_list: {units_dir_list}")
-    
-    # Initialize roles
-    for directory in roles_dir_list:
-        roles = utils.initialize(directory, "role")
-        role_list.extend(roles)
-    
-    # Initialize units
-    for directory in units_dir_list:
-        units = utils.initialize(directory, "unit")
-        unit_list.extend(units)
-    
+
+
+
 @click.command(name="list")
 def list_units():
     init()
@@ -101,13 +46,13 @@ def list_units():
 @click.pass_context
 def show_unit(ctx, unit_name,detail_information):   
     init() 
-    verify_unit_exist(unit_name)
-    
+    utils.verify_component_exist(unit_name, unit_list, "unit")
+
     for item in unit_list:
         if unit_name == item["name"]:
             unit_path = item["path"]
             role_name = item["role_name"]
-    
+
     display_unit_info(ctx, unit_name, unit_path, role_name, detail_information)
 
 @click.command(name="run")
@@ -127,9 +72,9 @@ def run_unit(
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:verbose: {verbose}")    
-    
+
     init(verbose)
-    
+
     # Enable loopy role log
     if no_log:
         os.environ['ENABLE_LOOPY_LOG']="false"
@@ -137,18 +82,19 @@ def run_unit(
         os.environ['ENABLE_LOOPY_LOG']="true"
     else:
         os.environ['ENABLE_LOOPY_LOG']="false"
-        
+
     # Print logo    
     if no_logo:
-       pass
+        pass
     elif enable_loopy_logo:
         utils.print_logo()
     else:
         pass
-    
+
     logger.info(f"Unit: {unit_name}")
-    verify_unit_exist(unit_name)
-    verify_if_param_exist_in_unit(ctx, params, unit_name, unit_list)
+    
+    utils.verify_component_exist(unit_name, unit_list, "unit")        
+    utils.verify_param_in_component(params, unit_name, unit_list, "unit")
 
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
@@ -159,7 +105,7 @@ def run_unit(
     unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)
     # print(f"step: {unit_config_data['unit']['steps']}")
     logger.debug(f"step: {unit_config_data['unit']['steps']}")
-    
+
     # When Unit have multiple roles
     if "steps" in unit_config_data['unit']:
         for index, step in enumerate(unit_config_data['unit']["steps"]):
@@ -178,7 +124,7 @@ def run_unit(
         role = Role( ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name(unit_name, unit_list), params, output_env_file_name, additional_input_env )
         unit.add_component(role)
     unit.start()
-    
+
     # Print report
     if no_report:
         pass
@@ -186,25 +132,6 @@ def run_unit(
         loopy_report.summary(ctx, "unit", unit_config_data,unit_list)
     else:
         pass
-
-
-def verify_unit_exist(unit_name):
-    for unit in unit_list:
-        if unit_name == unit["name"]:
-            return
-    logger.error(f"Unit name({unit_name}) does not exist")    
-    exit(1)
-
-def verify_if_param_exist_in_unit(ctx, params, unit_name, unit_list):
-    if not params:
-        return
-    for unit in unit_list:
-        if unit_name == unit["name"]:
-            unit_config_path = unit["path"] + "/config.yaml"
-            with open(unit_config_path, "r") as file:
-                unit_config_vars = yaml.safe_load(file)
-                roles.verify_if_param_exist_in_role(ctx, params, unit_config_vars["unit"]["steps"][0]["role"]["name"])
-
 
 def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):
     unit_config_data = utils.get_config_data_by_config_file_dir(ctx, unit_path)["unit"]
@@ -224,7 +151,7 @@ def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):
     click.echo(f"{Fore.BLUE}Unit Steps:{Style.RESET_ALL}")
     for step in unit_config_data["steps"]:       
         click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['role']['name']}{Style.RESET_ALL}")
-    
+
     if detail_info:
         click.echo(f"{Fore.BLUE}First Role:{Style.RESET_ALL}")
         click.echo(f"{Fore.BLUE}  Name:{Style.RESET_ALL} {role_name}")

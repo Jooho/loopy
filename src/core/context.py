@@ -10,11 +10,7 @@ class LoopyContextBuilder:
     def build(self):
         global _global_context
 
-        _global_context = {
-            "default_vars": self.default_vars,
-            "config": self.config_data,
-            "env": self.env_list
-        }
+        _global_context = {"default_vars": self.default_vars, "config": self.config_data, "env": self.env_list}
 
         return _global_context
 
@@ -26,10 +22,6 @@ def set_context(ctx: dict):
 
 def get_context() -> dict:
     return _global_context
-
-
-def get_schema_path(schema_type: str) -> str:
-    return _global_context.get("schema_paths", {}).get(schema_type, "")
 
 
 def update_config_data(key: str, value):

@@ -1,38 +1,54 @@
 # core/initializer.py
 
 import os
+import re
+import yaml
 from datetime import datetime
+from jsonschema import Draft7Validator
 
-from core.env import EnvManager
-from config import update_config, reset_config, reset_summary
-from core.context import set_context, get_context
+import logging
+from config import reset_config, reset_summary
 from core.context import LoopyContextBuilder
-# from cli import utils
+from colorama import Fore, Style
 
 
 class Initializer:
 
     def __init__(self, env_list, config_data, default_vars: dict):
+        self.logger = logging.getLogger(__name__)
         self.env_list = env_list
         self.config_data = config_data
         self.default_vars = default_vars
-        sync_env_to_config(self.env_list, self.config_data)
+
+        # Overwrite the config with environment variables if they exist, as they take higher priority
+        self.sync_env_to_config(self.env_list, self.config_data)
         self.now = datetime.now()
-        self.output_root_dir = self.default_vars["cli"]["output_root_dir"]
-        self.date_dir = os.path.join(
-            self.output_root_dir, self.now.strftime("%Y%m%d_%H%M"))
+        self.loopy_root_path = self.config_data["loopy_root_path"]
+        self.output_root_dir = self.config_data["output_root_dir"]
+        # result folder format
+        self.loopy_result_dir = os.path.join(self.output_root_dir, self.now.strftime("%Y%m%d_%H%M"))
+        if self.config_data.get("loopy_result_dir"):
+            self.loopy_result_dir = self.config_data["loopy_result_dir"]
 
     def initialize(self):
+        # Reset temporary data for each run
         reset_config()
         reset_summary()
 
-        ctx = get_context()
-        output_dir = os.path.join(
-            self.date_dir, self.default_vars["cli"]["output_env_dir"])
-        artifacts_dir = os.path.join(
-            self.date_dir, self.default_vars["cli"]["output_artifacts_dir"])
-        report_file = os.path.join(
-            self.date_dir, self.default_vars["cli"]["output_report_file"])
+        # Initialize result directory
+        output_dir = os.path.join(self.loopy_result_dir, self.config_data["output_env_dir"])
+        artifacts_dir = os.path.join(self.loopy_result_dir, self.config_data["output_artifacts_dir"])
+        report_file = os.path.join(self.loopy_result_dir, self.config_data["output_report_file"])
+
+        # Update config data with paths
+        self.config_data["output_dir"] = output_dir
+        self.config_data["artifacts_dir"] = artifacts_dir
+        self.config_data["report_file"] = report_file
+
+        # Set environment variables
+        os.environ["OUTPUT_DIR"] = output_dir
+        os.environ["ARTIFACTS_DIR"] = artifacts_dir
+        os.environ["REPORT_FILE"] = report_file
 
         # Create output/artifacts directories
         os.makedirs(output_dir, exist_ok=True)
@@ -42,62 +58,154 @@ class Initializer:
         with open(report_file, "w") as file:
             file.write("# This is a report.\n")
 
-        self.update_config_data("output_dir", output_dir)
-        os.environ["OUTPUT_DIR"] = output_dir
+        # Set logging and error handling configurations
+        show_debug_log = self.config_data["show_debug_log"]
+        stop_when_failed = self.config_data["stop_when_failed"]
+        stop_when_error_happened = self.config_data["stop_when_error_happened"]
 
-        # update_config("output_dir", output_dir)
+        # Update config data with paths
+        self.config_data["show_debug_log"] = show_debug_log
+        self.config_data["stop_when_failed"] = stop_when_failed
+        self.config_data["stop_when_error_happened"] = stop_when_error_happened
 
-        self.update_config_data("artifacts_dir", artifacts_dir)
-        # update_config("artifacts_dir", artifacts_dir)
-        os.environ["ARTIFACTS_DIR"] = artifacts_dir
-
-        self.update_config_data("report_file", report_file)
-        # update_config("report_file", report_file)
-        os.environ["REPORT_FILE"] = report_file
-
-        show_debug_log = self.default_vars["cli"]["show_debug_log"]
-        stop_when_failed = self.default_vars["cli"]["stop_when_failed"]
-        stop_when_error_happened = self.default_vars["cli"]["stop_when_error_happened"]
-
-        self.update_config_data("show_debug_log", show_debug_log)
-        # update_config("show_debug_log", show_debug_log)
+        # Set environment variables
         os.environ["SHOW_DEBUG_LOG"] = show_debug_log
-
-        self.update_config_data("stop_when_failed", stop_when_failed)
         os.environ["STOP_WHEN_FAILED"] = stop_when_error_happened
-        self.update_config_data("stop_when_error_happened",
-                                stop_when_error_happened)
         os.environ["STOP_WHEN_ERROR_HAPPENED"] = stop_when_error_happened
 
+        # Set binary path
         bin_path = os.path.join(os.getcwd(), "bin")
         os.environ["PATH"] = f"{bin_path}:{os.environ['PATH']}"
 
-        # Default 값 설정
+        # Add Schema paths
         self.config_data["schema"] = {
-            "role": f"{self.env_list['loopy_root_path']}/src/schema/role.yaml",
-            "unit": f"{self.env_list['loopy_root_path']}/src/schema/unit.yaml",
-            "playbook": f"{self.env_list['loopy_root_path']}/src/schema/playbook.yaml",
+            "role": f"{self.loopy_root_path}/src/schema/role.yaml",
+            "unit": f"{self.loopy_root_path}/src/schema/unit.yaml",
+            "playbook": f"{self.loopy_root_path}/src/schema/playbook.yaml",
         }
-        LoopyContextBuilder(self.env_list, self.default_vars,
-                            self.config_data).build()
 
-    def update_config_data(self, key: str, value):
-        self.config_data[key] = value
+        # Add default components paths
+        self.config_data["default_roles_dir"] = f"{self.loopy_root_path}/default_provided_services/roles"
+        self.config_data["default_units_dir"] = f"{self.loopy_root_path}/default_provided_services/units"
+        self.config_data["default_playbooks_dir"] = f"{self.loopy_root_path}/default_provided_services/playbooks"
 
+        # Initialize the list of components
+        self.initialize_list("role")
+        self.initialize_list("unit")
+        self.initialize_list("playbook")
 
-def sync_env_to_config(env: dict, config: dict):
-    for key, value in env.items():
-        config[key] = value
+        # Initialize the context
+        LoopyContextBuilder(self.env_list, self.default_vars, self.config_data).build()
 
+    def sync_env_to_config(self, env: dict, config: dict):
+        for key, value in env.items():
+            config[key] = value
 
-def initialize_roles(self):
-    # Get config_loader for roles dir list
-    roles_dir_list = self.config_loader.get_roles_dirs()
+    def initialize_list(self, list_type):
+        if list_type == "role":
+            default_dir = self.config_data["default_roles_dir"]
+            additional_dirs = self.config_data["additional_role_dirs"]
+            key = "role_list"
+        elif list_type == "unit":
+            default_dir = self.config_data["default_units_dir"]
+            additional_dirs = self.config_data["additional_unit_dirs"]
+            key = "unit_list"
+        elif list_type == "playbook":
+            default_dir = self.config_data["default_playbooks_dir"]
+            additional_dirs = self.config_data["additional_playbook_dirs"]
+            key = "playbook_list"
+        else:
+            raise ValueError("Invalid list type")
 
-    # 역할 초기화
-    role_list = []
-    for directory in roles_dir_list:
-        roles = utils.initialize(directory, "role")
-        role_list.extend(roles)
+        # Combine default and additional directories
+        dirs_list = [default_dir] + additional_dirs
 
-    return role_list
+        # initialize the list
+        item_list = []
+        for directory in dirs_list:
+            items = self.get_component_list_from_directory(directory, list_type)
+            item_list.extend(items)
+
+        # add the list to config_data
+        self.config_data[key] = item_list
+
+    def get_component_list_from_directory(self, directory, type):
+        item_list = []
+
+        for root, dirs, files in os.walk(directory):
+            if "config.yaml" in files:
+                config_path = os.path.join(root, "config.yaml")
+
+                file_errors = self.validate_config_yaml_schema(config_path, type)
+                if file_errors:
+                    for error in file_errors:
+                        print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
+                        print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
+                        print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
+                        exit(1)
+
+                with open(config_path, "r") as config_file:
+                    config_data = yaml.safe_load(config_file)
+
+                    if config_data:
+                        if type == "unit":
+                            path = os.path.abspath(root)
+                            if "name" in config_data[type]:
+                                name = config_data[type]["name"]
+                            else:
+                                name = self.convert_path_to_component_name(path, type)
+                            if "steps" in config_data[type]:
+                                role_name = config_data[type]["steps"][0]["role"]["name"]
+                            else:
+                                role_name = config_data[type]["role"]["name"]
+                            item_list.append({"name": name, "path": path, "role_name": role_name})
+                        else:
+                            path = os.path.abspath(root)
+                            if "name" in config_data[type]:
+                                name = config_data[type]["name"]
+                            else:
+                                name = self.convert_path_to_component_name(path, type)
+                            item_list.append({"name": name, "path": path})
+        return item_list
+
+    def convert_path_to_component_name(self, path, component):
+        pattern = r"/" + component + "s/(.*)/(.*)$"
+        match = re.search(pattern, path + "/")
+        if match:
+            dir_names = match.group(1).split("/")
+            component_name = "-".join(dir_names)
+            return f"{component_name}"
+        else:
+            return None
+
+    def validate_config_yaml_schema(self, yaml_file, type):
+        schema = None
+        schema_file_path = None
+        # Load schema file
+        if type == "role":
+            schema_file_path = self.config_data["schema"].get("role")
+        elif type == "unit":
+            schema_file_path = self.config_data["schema"].get("unit")
+        elif type == "playbook":
+            schema_file_path = self.config_data["schema"].get("playbook")
+
+        with open(schema_file_path, "r") as schema_file:
+            schema = yaml.safe_load(schema_file)
+
+        # Load Target yaml file
+        try:
+            with open(yaml_file, "r") as f:
+                yaml_data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            # print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
+            self.logger.error(f"YAML File Syntax Error: {e}")
+            exit(1)
+
+        # Create validator
+        validator = Draft7Validator(schema)
+
+        # Validate YAML Data
+        errors = []
+        for error in validator.iter_errors(yaml_data):
+            errors.append({"message": error.message, "path": list(error.path)})
+        return errors

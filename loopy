@@ -4,8 +4,6 @@ from core.config_loader import ConfigLoader
 from core.initializer import Initializer
 from core.context import get_context
 
-from config import update_config
-
 # 1. Setup environment variabls
 envManager = EnvManager()
 config_path = envManager.get_config_path()

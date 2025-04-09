@@ -75,10 +75,7 @@ kserve:
   python_image: registry.redhat.io/ubi9/python-39:latest
   oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
   isvc_deployment_verbose: "true"
-  isvc_deployment_mode: "Serverless"
   keep_namespace: "true"
-  minio_region: "us-east-1"
-  default_bucket_name: example-models
   minio_access_key_id: admin
   minio_secret_access_key: password
   # notebook
@@ -97,13 +94,13 @@ cert:
 modelmesh:
   test_namespace: "mm-test"
 
-cli:
-  output_root_dir: /tmp/ms_cli
-  output_env_dir: output
-  output_artifacts_dir: artifacts
-  output_report_file: report
-  show_debug_log: "false"
-  stop_when_failed: "false"
-  stop_when_error_happened: "false"
+# cli:
+#   output_root_dir: /tmp/ms_cli
+#   output_env_dir: output
+#   output_artifacts_dir: artifacts
+#   output_report_file: report
+#   show_debug_log: "false"
+#   stop_when_failed: "false"
+#   stop_when_error_happened: "false"
 # stop_when_failed: "true"
 # stop_when_error_happened: "true"

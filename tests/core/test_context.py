@@ -1,25 +1,32 @@
-# tests/test_context.py
 import pytest
-from core.context import LoopyContextBuilder  # 실제 import 경로에 맞게 수정
+from core.context import LoopyContextBuilder  
 
 @pytest.fixture
-def sample_data():
-    default_vars = {"var1": "value1", "var2": "value2"}
-    config_data = {"key1": "data1", "key2": "data2"}
-    return default_vars, config_data
+def default_vars():
+    return {"key1": "value1", "key2": "value2"}
 
-def test_loopy_context_builder(sample_data):
-    default_vars, config_data = sample_data
-    
-    context_builder = LoopyContextBuilder(default_vars, config_data)
-    
+
+@pytest.fixture
+def config_data():
+    return {"config_key1": "config_value1", "config_key2": "config_value2"}
+
+
+@pytest.fixture
+def env_list():
+    # Create env_list and add LOOPY_ROOT_PATH
+    return {
+        "LOOPY_ROOT_PATH": "tmpdir",  # Assuming tmpdir is the root path for Loopy
+    }
+
+@pytest.mark.core
+def test_loopy_context_builder():
+    context_builder = LoopyContextBuilder(env_list, default_vars, config_data)
     result = context_builder.build()
 
     expected_result = {
-        "config": {
-            "default_vars": default_vars,
-            "config_data": config_data,
-        }
+        "default_vars": default_vars,
+        "config": config_data,
+        "env": env_list,
     }
 
     assert result == expected_result, f"Expected {expected_result}, but got {result}"

@@ -1,14 +1,11 @@
 # fmt: off
 import os
 import click
-# import utils
 import utils
-
-import yaml
 import constants
 import loopy_report 
 import logging
-import logging.config
+
 from component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 from core.context import get_context
@@ -16,66 +13,21 @@ from core.context import get_context
 context= get_context()
 logger = logging.getLogger(__name__)
 
-role_list = []
-enable_loopy_log=True
-enable_loopy_logo=True
-enable_loopy_report=True
+role_list = context["config"]["role_list"]
+enable_loopy_log=context["config"]["enable_loopy_log"]
+enable_loopy_logo=context["config"]["enable_loopy_logo"]
+enable_loopy_report=context["config"]["enable_loopy_report"]
 
 @click.pass_context
 def init(ctx,verbose=None):
-    global role_list
-    global enable_loopy_log
-    global enable_loopy_logo
-    global enable_loopy_report
-    if len(role_list) == 0:
-        # Set log level
-        logging_config = context["config"]["logging"]
-        default_log_level=logging_config['handlers']['console']['level']
-        
-        log_levels = {
-            1: logging.WARN,
-            2: logging.INFO,
-            3: logging.DEBUG
-        }
-        input_log_level=log_levels.get(verbose, default_log_level)
-        logging_config['handlers']['console']['level']=input_log_level
-        logging.config.dictConfig(logging_config)
-        
-        if input_log_level == logging.DEBUG:
-             os.environ['SHOW_DEBUG_LOG']="true"
 
-        # Enable Loopy Report
-        # enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
-        enable_loopy_report = context["config"]["enable_loopy_report"]
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
+    input_log_level=utils.configure_logging(context, verbose)
+    if input_log_level == logging.DEBUG:
+         os.environ['SHOW_DEBUG_LOG']="true"
         
-        # Enable Loopy Logo
-        # enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
-        enable_loopy_logo = context["config"]["enable_loopy_logo"]
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
-        
-        # Enable Loopy Log
-        # enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
-        enable_loopy_log = context["config"]["enable_loopy_log"]
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")
-        
-        # Default Roles
-        loopy_root_path = os.environ.get("LOOPY_PATH", "")
-        default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
-        
-        # Additional Roles
-        # additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
-        additional_role_dirs = context["config"]["additional_role_dirs"]
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
-        
-        # Combine default and additional roles directories
-        roles_dir_list = [default_roles_dir] + additional_role_dirs
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:roles_dir_list: {roles_dir_list}")
-        
-        # Initialize roles
-        for directory in roles_dir_list:
-            roles = utils.initialize(directory, "role")
-            role_list.extend(roles)
+    # Additional Roles
+    additional_role_dirs = context["config"]["additional_role_dirs"]
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")        
 
 @click.command(name="list")
 def list_roles():
@@ -89,7 +41,7 @@ def list_roles():
 @click.pass_context
 def show_role(ctx, role_name):
     init()
-    verify_role_exist(role_name)
+    utils.verify_component_exist(role_name, role_list, "role")
   
     for item in role_list:
         if role_name == item["name"]:
@@ -139,9 +91,9 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     else:
         pass
         
-    # role command specific validation
-    verify_role_exist(role_name)
-    verify_if_param_exist_in_role(ctx, params, role_name)
+    # role command specific validation    
+    utils.verify_component_exist(role_name, role_list, "role")
+    utils.verify_param_in_component(params, role_name, role_list, "role")
         
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)           
@@ -157,44 +109,6 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
         loopy_report.summary(ctx, "role", None,None)
     else:
         pass
-    
-def verify_role_exist(role_name):
-    for item in role_list:
-        if role_name == item["name"]:
-            return    
-    logger.error(f"Role name({role_name}) does not exist")
-    exit(1)
-
-
-def verify_if_param_exist_in_role(ctx, params, role_name):
-    if not params:
-        return
-    input_exist = False
-    target_param = None
-    for role in role_list:
-        if role_name == role["name"]:
-            role_config_path = role["path"] + "/config.yaml"
-            with open(role_config_path, "r") as file:
-                role_vars = yaml.safe_load(file)
-                for param in params:
-                    target_param = param
-                    for role_config_env in role_vars["role"]["input_env"]:
-                        if str.lower(role_config_env["name"]) == str.lower(param):
-                            input_exist = True
-                            break
-                        else:
-                            input_exist = False
-                            
-    # ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
-    ignore_validate_env_input = context["config"]["ignore_validate_env_input"]
-    if input_exist:
-        return
-    elif ignore_validate_env_input:
-        return
-    else:
-        logger.error(f"no input enviroment name exist:{Back.BLUE} {target_param}")
-        exit(1)
-
 
 def display_role_info(ctx, role_name,role_path):
     role_config_data=utils.get_config_data_by_config_file_dir(ctx, role_path)['role']

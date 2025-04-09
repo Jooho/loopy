@@ -1,0 +1,67 @@
+role2:
+  created_date: "20240215"
+  name: cert-generate
+  files:
+    openssl-san: ./files/openssl-san.config
+  description: |
+    This role help to generate self singed certificate. 
+    The default execution create a SAN certificate for minio
+
+    pre-requirements:
+      N/A
+
+    Input Environment:
+      The parameters include:
+      - SAN_DNS_LIST: Set SAN DNS hostname (ex "minio.minio.svc.cluster.local,minio-minio.test"). You can generate wildcard cert as well (ex, *.example.com")
+      - SAN_IP_LIST: Set SAN IP address (ex "192.0.0.1,192.0.0.2")
+      
+      You can set both paramters. For more parameters, you can check config.yaml file.
+
+    To run it:
+    ./loopy roles run cert-generate  \
+    -p SAN_DNS_LIST=minio.minio.svc.cluster \
+    -p SAN_IP_LIST=192.0.0.1    
+  input_env:
+    - name: SAN_DNS_LIST
+      description: |
+        Set SAN DNS hostname (ex "minio.minio.svc.cluster.local,minio-minio.test")
+        You can generate wildcard cert as well (ex, *.example.com")
+    - name: SAN_IP_LIST
+      description: Set SAN IP address (ex "192.0.0.1,192.0.0.2")
+    - name: ROOT_CA_CERT
+      description: This is root certification cert file path
+    - name: ROOT_CA_KEY
+      description: This is root certification key file path     
+    - name: ROOT_CA_CERT_NAME
+      description: This is root certification cert file name
+    - name: ROOT_CA_KEY_NAME
+      description: This is root certification key file name
+    - name: CERT_NAME
+      description: This is server certification cert file name
+    - name: KEY_NAME
+      description: This is server certification key file name
+    - name: CSR_NAME
+      description: This is server certification csr file name
+    - name: CN
+      description: This is CN name for server certification
+
+  output_env:
+    - name: ROOT_CA_CERT_FILE_PATH
+      description: This show the full file path for root ca cert
+      required: true
+    - name: ROOT_CA_KEY_FILE_PATH
+      description: This show the full file path for root ca cert
+      required: true
+    - name: CERT_FILE_PATH
+      description: This show the full file path for server cert 
+      required: true
+    - name: KEY_FILE_PATH
+      description: This show the full file path for server key
+      required: true
+    
+  
+
+  
+
+
+      

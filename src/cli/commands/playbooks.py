@@ -6,105 +6,35 @@ import utils
 import yaml
 import logging
 import constants
-import units
-import roles
 import loopy_report 
 from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
-from colorama import Fore, Style, Back
+from colorama import Fore, Style
 from core.context import get_context
 
 context = get_context()
 logger = logging.getLogger(__name__)
 
-role_list = []
-unit_list = []
-playbook_list = []
-enable_loopy_log=True
-enable_loopy_logo=True
-enable_loopy_report=True
+role_list = context["config"]["role_list"]
+unit_list = context["config"]["unit_list"]
+playbook_list = context["config"]["playbook_list"]
+enable_loopy_log=context["config"]["enable_loopy_log"]
+enable_loopy_logo=context["config"]["enable_loopy_logo"]
+enable_loopy_report=context["config"]["enable_loopy_report"]
 
 @click.pass_context
 def init(ctx, verbose=None):
-    global role_list
-    global unit_list
-    global playbook_list
-    global enable_loopy_log
-    global enable_loopy_logo
-    global enable_loopy_report
+    input_log_level=utils.configure_logging(context, verbose)
+    if input_log_level == logging.DEBUG:
+        os.environ['SHOW_DEBUG_LOG']="true"
     
-    # Set log level
-    logging_config = context["config"]["logging"]
-    default_log_level=logging_config['handlers']['console']['level']
-    
-    log_levels = {
-        1: logging.WARN,
-        2: logging.INFO,
-        3: logging.DEBUG
-    }
-
-    logging_config['handlers']['console']['level']=log_levels.get(verbose, default_log_level)
-    logging.config.dictConfig(logging_config)        
-
-    # Enable Loopy Report
-    # enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
-    enable_loopy_report = context["config"]["enable_loopy_report"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
-    
-    # Enable Loopy Logo
-    # enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
-    enable_loopy_logo = context["config"]["enable_loopy_logo"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
-
-    # Enable Loopy Log
-    # enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
-    enable_loopy_log = context["config"]["enable_loopy_log"]
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")   
-            
-    # Default Roles/Units/Playbooks
-    loopy_root_path = os.environ.get("LOOPY_PATH", "")
-    default_roles_dir = f"{loopy_root_path}/default_provided_services/roles" if loopy_root_path else "./default_provided_services/roles"
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_roles_dir: {default_roles_dir}")
-    default_units_dir = f"{loopy_root_path}/default_provided_services/units" if loopy_root_path else "./default_provided_services/units"
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_units_dir: {default_units_dir}")
-    default_playbooks_dir = f"{loopy_root_path}/default_provided_services/playbooks" if loopy_root_path else "./default_provided_services/playbooks"
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:default_playbooks_dir: {default_playbooks_dir}")
-    
-    # Additional Roles/Units/Playbooks
-    # additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
     additional_role_dirs = context["config"]["additional_role_dirs"]
-    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
-    # additional_unit_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_unit_dirs", [])
     additional_unit_dirs = context["config"]["additional_unit_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_unit_dirs: {additional_unit_dirs}")
-    # additional_playbook_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_playbook_dirs", [])
     additional_playbook_dirs = context["config"]["additional_playbook_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_playbook_dirs: {additional_playbook_dirs}")
-    
-    # Combine default and additional roles/units/playbooks directories
-    roles_dir_list = [default_roles_dir] + additional_role_dirs
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:roles_dir_list: {roles_dir_list}")
-    units_dir_list = [default_units_dir] + additional_unit_dirs
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:units_dir_list: {units_dir_list}")
-    playbooks_dir_list = [default_playbooks_dir] + additional_playbook_dirs
-    logger.debug(f"{constants.LOG_STRING_CONFIG}:playbooks_dir_list: {playbooks_dir_list}")
-    
-    # Initialize roles
-    for directory in roles_dir_list:
-        roles = utils.initialize(directory, "role")
-        role_list.extend(roles)
-    
-    # Initialize units
-    for directory in units_dir_list:
-        units = utils.initialize(directory, "unit")
-        unit_list.extend(units)
-    
-    # Initialize playbooks
-    for directory in playbooks_dir_list:
-        playbooks = utils.initialize(directory, "playbook")
-        playbook_list.extend(playbooks)
 
-
+    
 @click.command(name="list")
 def list_playbooks():
     init()
@@ -118,7 +48,7 @@ def list_playbooks():
 @click.pass_context
 def show_playbook(ctx, playbook_name, detail_information):
     init()
-    verify_playbook_exist(playbook_name)
+    utils.verify_component_exist(playbook_name, playbook_list, "playbook")
     for item in playbook_list:
         if playbook_name == item["name"]:
             playbook_path = item["path"]
@@ -139,9 +69,9 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:verbose: {verbose}")    
-    
+
     init(verbose)
-    
+
     # Enable loopy role log
     if no_log:
         os.environ['ENABLE_LOOPY_LOG']="false"
@@ -149,23 +79,22 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
         os.environ['ENABLE_LOOPY_LOG']="true"
     else:
         os.environ['ENABLE_LOOPY_LOG']="false"
-        
+
     # Print logo    
     if no_logo:
-       pass
+        pass
     elif enable_loopy_logo:
         utils.print_logo()
     else:
         pass
-        
-    logger.debug(f"Playbook: {playbook_name}")
-    
-    verify_playbook_exist(playbook_name)
-    verify_if_param_exist_in_playbook(ctx,params, playbook_name, playbook_list)
 
-    additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
+    logger.debug(f"Playbook: {playbook_name}")
+
+    utils.verify_component_exist(playbook_name, playbook_list, "playbook")    
+    utils.verify_param_in_component(params, playbook_name, playbook_list, "playbook")
 
     # Params is priority. additional vars will be overwritten by params
+    additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
     params = utils.update_params_with_input_file(additional_vars_from_file, params)
 
     steps = []
@@ -243,28 +172,6 @@ def merge_unit_input_env_in_py_with_first_role_in_unit(unit_name, playbook_unit_
                     return unit_input_env
                 return unit_input_env
 
-def verify_playbook_exist(playbook_name):
-    for playbook in playbook_list:
-        if playbook_name == playbook["name"]:
-            return
-    logger.error(f"Playbook name({playbook_name}) does not exist")
-    exit(1)
-
-def verify_if_param_exist_in_playbook(ctx, params, playbook_name, playbook_list):
-    if not params:
-        return
-    for playbook in playbook_list:
-        if playbook_name == playbook["name"]:
-            playbook_config_path = playbook["path"] + "/config.yaml"
-            with open(playbook_config_path, "r") as file:
-                playbook_config_vars = yaml.safe_load(file)
-                first_comp_info = playbook_config_vars["playbook"]["steps"][0]
-                first_comp_type = list(first_comp_info.keys())[0]
-                if first_comp_type == "role":
-                    roles.verify_if_param_exist_in_role(ctx, params, first_comp_info["role"]["name"])
-                elif first_comp_type == "unit":
-                    units.verify_if_param_exist_in_unit( params, first_comp_info["unit"]["name"], unit_list, role_list)
-
 def display_playbook_info(ctx, playbook_name, playbook_path, detail_information):
     playbook_config_data = utils.get_config_data_by_config_file_dir(ctx,playbook_path)["playbook"]
     steps = playbook_config_data["steps"]
@@ -306,7 +213,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
     click.echo(f"{Fore.BLUE}Description:{Style.RESET_ALL} {playbook_config_data.get('description','')}")
     click.echo(f"{Fore.BLUE}Playbook Config File:{Style.RESET_ALL} {playbook_path}/config.yaml")
     click.echo(f"{Fore.BLUE}Example Command:{Style.RESET_ALL}{Fore.RED} loopy playbooks run {playbook_name}{Style.RESET_ALL}")
-    
+
     click.echo(f"{Fore.BLUE}Playbook Steps:{Style.RESET_ALL}")
     for step in steps:       
         if "role" in step:
@@ -319,7 +226,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
                 click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['description']}{Style.RESET_ALL}")
             else:                
                 click.echo(f"{Fore.LIGHTYELLOW_EX}  -> {step['unit']['name']}{Style.RESET_ALL}")
-            
+
     if detail_information:
         if "unit" in steps[0]:
             click.echo(f"{Fore.BLUE}First Unit:{Style.RESET_ALL}")
@@ -382,7 +289,7 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
                     continue
                 if role_input_env:
                     click.echo(f"  - {Fore.GREEN}{required_role_input_key:<20}:{Style.RESET_ALL} {role_input_env}")
-            
+
             # Process default input variables and their values
             final_no_value_keys = []
             if len(no_value_keys_in_py) > 0:
@@ -395,6 +302,6 @@ def display_playbook_info(ctx, playbook_name, playbook_path, detail_information)
                     else:
                         final_no_value_keys.append(required_role_input_key_without_value)
                         continue
-                            
+
             for no_value_key in final_no_value_keys:
                 click.echo(f"    - {Fore.GREEN}{no_value_key:<20}:{Style.RESET_ALL} 'no specified'")

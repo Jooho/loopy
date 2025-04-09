@@ -4,10 +4,7 @@ import yaml
 import logging
 import re
 import click
-from jsonschema import Draft7Validator
-from colorama import Fore, Style
-from prettytable import PrettyTable
-from config import config_dict
+from colorama import Fore
 
 from py_utils import is_positive
 from core.context import get_context
@@ -22,58 +19,97 @@ UNIT_SCHEMA_FILE_PATH = context["config"]["schema"]["unit"]
 PLAYBOOK_SCHEMA_FILE_PATH = context["config"]["schema"]["playbook"]
 
 
-def initialize(directory, type):
-    item_list = []
-
-    for root, dirs, files in os.walk(directory):
-        if "config.yaml" in files:
-            config_path = os.path.join(root, "config.yaml")
-
-            file_errors = validate_role_yaml(config_path, type)
-            if file_errors:
-                for error in file_errors:
-                    print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
-                    print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
-                    print(
-                        f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
-                    exit(1)
-
-            with open(config_path, "r") as config_file:
-                config_data = yaml.safe_load(config_file)
-
-                if config_data:
-                    if type == "unit":
-                        path = os.path.abspath(root)
-                        if "name" in config_data[type]:
-                            name = config_data[type]["name"]
-                        else:
-                            name = convert_path_to_component_name(path, type)
-                        if "steps" in config_data[type]:
-                            role_name = config_data[type]["steps"][0]["role"]["name"]
-                        else:
-                            role_name = config_data[type]["role"]["name"]
-                        item_list.append(
-                            {"name": name, "path": path, "role_name": role_name})
-                    else:
-                        path = os.path.abspath(root)
-                        if "name" in config_data[type]:
-                            name = config_data[type]["name"]
-                        else:
-                            name = convert_path_to_component_name(path, type)
-                        item_list.append({"name": name, "path": path})
-    return item_list
+import logging.config
 
 
-def convert_path_to_component_name(path, component):
-    pattern = r"/" + component + "s/(.*)/(.*)$"
-    match = re.search(pattern, path + "/")
-    if match:
-        dir_names = match.group(1).split("/")
-        component_name = "-".join(dir_names)
-        return f"{component_name}"
-    else:
-        return None
+def verify_param_in_component(params, component_name, component_list, component_type="component"):
+    """
+    Check if the given parameters exist in the specified component (role/unit/playbook).
+    
+    :param params: List of parameters to check
+    :param component_name: The name of the component (role, unit, or playbook)
+    :param component_list: The list of components to search through
+    :param component_type: Type of the component (role, unit, playbook)
+    """
+    if not params:
+        return
 
+    input_exist = False
+    target_param = None
+
+    # Find the component (role, unit, or playbook) from the list
+    for component in component_list:
+        if component_name == component["name"]:
+            component_config_path = component["path"] + "/config.yaml"
+            with open(component_config_path, "r") as file:
+                component_vars = yaml.safe_load(file)
+                
+                # Depending on the component type, check for parameters
+                if component_type == "role":
+                    input_exist = check_input_env_in_role(params, component_vars["role"]["input_env"])
+                elif component_type == "unit":
+                    role_name = component_vars["unit"]["steps"][0]["role"]["name"]
+                    input_exist = check_input_env_in_role(params, component_vars["role"]["input_env"])
+                elif component_type == "playbook":
+                    first_comp_info = component_vars["playbook"]["steps"][0]
+                    first_comp_type = list(first_comp_info.keys())[0]
+                    if first_comp_type == "role":
+                        input_exist = check_input_env_in_role(params, first_comp_info["role"]["name"])
+                    elif first_comp_type == "unit":
+                        unit_name = first_comp_info["unit"]["name"]
+                        input_exist = verify_param_in_component(params, unit_name, component_list, "unit")
+
+                if input_exist:
+                    return
+
+    # If input does not exist, log the error and exit
+    target_param = list(params.keys())[0] if params else None
+    logger.error(f"no input environment name exist: {target_param}")
+    exit(1)
+                        
+def check_input_env_in_role(params, role_input_env):
+    """
+    Helper function to check if the parameters exist in the given role's input environment.
+    
+    :param params: List of parameters to check
+    :param role_input_env: The role's input environment to search in
+    :return: Boolean indicating whether the input exists
+    """
+    input_exist = False
+    for param in params:
+        for role_config_env in role_input_env:
+            if str.lower(role_config_env["name"]) == str.lower(param):
+                input_exist = True
+                break
+    return input_exist
+                        
+def configure_logging(context, verbose=2):
+    logging_config = context["config"]["logging"]
+    default_log_level = logging_config['handlers']['console']['level']
+    
+    log_levels = {
+        1: logging.WARN,
+        2: logging.INFO,
+        3: logging.DEBUG
+    }
+    
+    logging_config['handlers']['console']['level'] = log_levels.get(verbose, default_log_level)
+    logging.config.dictConfig(logging_config)
+    return logging_config['handlers']['console']['level'] 
+
+def verify_component_exist(component_name, component_list, component_type="component"):
+    """
+    Check if a component exists in the provided list.
+    
+    :param component_name: Name of the component to search for.
+    :param component_list: List of components to search through.
+    :param component_type: Type of the component (for error message formatting).
+    """
+    for component in component_list:
+        if component_name == component["name"]:
+            return
+    logger.error(f"{component_type.title()} name({component_name}) does not exist")    
+    exit(1)
 
 def get_default_vars(ctx):
     # return ctx.obj.get("config", "default_vars")["default_vars"]
@@ -114,7 +150,6 @@ def load_env_file_if_exist(file):
                         additional_vars[key] = value
         else:
             logger.error(f"File({file}) does not exist")
-            # print(f"File({file}) does not exist")
             exit(1)
     return additional_vars
 
@@ -182,40 +217,6 @@ def get_first_role_name_in_unit_by_unit_name(unit_name, list):
     for unit in list:
         if unit_name == unit["name"]:
             return unit["role_name"]
-
-
-def validate_role_yaml(yaml_file, type):
-    schema = None
-    schema_file_path = None
-    # Load schema file
-    if type == "role":
-        schema_file_path = ROLE_SCHEMA_FILE_PATH
-    elif type == "unit":
-        schema_file_path = UNIT_SCHEMA_FILE_PATH
-    elif type == "playbook":
-        schema_file_path = PLAYBOOK_SCHEMA_FILE_PATH
-
-    with open(schema_file_path, "r") as schema_file:
-        schema = yaml.safe_load(schema_file)
-
-    # Load Target yaml file
-    try:
-        with open(yaml_file, "r") as f:
-            yaml_data = yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        # print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
-        logger.error(f"YAML File Syntax Error: {e}")
-        exit(1)
-
-    # Create validator
-    validator = Draft7Validator(schema)
-
-    # Validate YAML Data
-    errors = []
-    for error in validator.iter_errors(yaml_data):
-        errors.append({"message": error.message, "path": list(error.path)})
-    return errors
-
 
 def print_logo():
     print("")

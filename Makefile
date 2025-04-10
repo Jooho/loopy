@@ -1,7 +1,7 @@
 IMG=quay.io/jooholee/loopy
 IMG_TAG=latest
 
-PYTEST_CONFIG ?= "tests/cli/pytest.ini"
+PYTEST_CONFIG ?= "pytest.ini"
 
 .PHONY: build push
 build:
@@ -24,9 +24,7 @@ init: download-cli install-lib
 
 .PHONY: unit
 unit:  
-	# pytest tests/cli/commands/test_roles.py
-	# pytest tests/cli/commands/test_units.py
-	pytest -m "cli" -c "${PYTEST_CONFIG}" -n 1 --dist worksteal 
+	pytest -c "${PYTEST_CONFIG}" -n 1 --dist worksteal 
 
 
 .PHONY: update-test-data

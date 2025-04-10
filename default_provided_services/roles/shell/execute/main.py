@@ -27,11 +27,12 @@ with open(f"config.txt", "r") as file:
     config_dict = eval(config_dict_str)
 # Load python utils
 script_dir = os.path.join(root_directory, "commons", "python")
-sys.path.append(root_directory)
+src_dir = os.path.join(root_directory, "src")
+sys.path.append(src_dir)
 sys.path.append(script_dir)
 import py_utils
 
-from config import load_summary, summary_dict, update_summary
+from core.config import load_summary, summary_dict, update_summary
 
 OUTPUT_DIR = config_dict["output_dir"]
 ARTIFACTS_DIR = config_dict["artifacts_dir"]
@@ -39,7 +40,7 @@ if os.environ["ROLE_DIR"] == "":
     ROLE_DIR = config_dict["role_dir"]
 else:
     ROLE_DIR = os.environ["ROLE_DIR"]
-if os.environ["REPORT_FILE"] == "":
+if not os.environ.get("REPORT_FILE"):
     REPORT_FILE = config_dict["report_file"]
 else:
     REPORT_FILE = os.environ["REPORT_FILE"]

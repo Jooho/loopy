@@ -92,7 +92,7 @@ def test_initialize_list_role(mock_env_and_config):
         "yaml.safe_load", return_value=mock_yaml_data
     ), patch.object(initializer, "validate_config_yaml_schema", return_value=[]):
 
-        initializer.initialize_list("role")
+        initializer.initialize_component_list("role")
 
         # It is double because it checks additional role dir as well.
         expected_list = [
@@ -135,7 +135,7 @@ def test_validate_config_yaml_schema(mock_env_and_config, loopy_root_path):
     errors = initializer.validate_config_yaml_schema(f"{loopy_root_path}/tests/test-data/schema/fail-unit-config.yaml", "unit")
     assert len(errors) == 1
     assert errors[0]["message"] == "Additional properties are not allowed ('description2' was unexpected)"
-    
+
     # Playbook
     errors = initializer.validate_config_yaml_schema(f"{loopy_root_path}/tests/test-data/schema/success-playbook-config.yaml", "playbook")
     assert len(errors) == 0  # No errors should be present

@@ -4,21 +4,28 @@ import tempfile
 import shutil
 import os
 
+
 @pytest.fixture
 def copied_config_files():
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
     config_path = os.path.join(base_dir, "config.yaml")
-    default_vars_path = os.path.join(base_dir, "commons","default-variables.yaml")
-    
+    internal_config_path = os.path.join(base_dir, "src","core","internal_config.yaml")
+    default_vars_path = os.path.join(base_dir, "commons", "default-variables.yaml")
+
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_config_path = os.path.join(tmpdir, "config.yaml")
+        tmp_internal_config_path = os.path.join(tmpdir, "src","core","internal_config.yaml")        
         shutil.copy(config_path, tmp_config_path)
-        
+        os.makedirs(os.path.dirname(tmp_internal_config_path), exist_ok=True)
+        shutil.copy(internal_config_path, tmp_internal_config_path)
+
+
         with open(config_path, "r") as f:
             import yaml
+
             config_data = yaml.safe_load(f)
             default_vars_file = config_data.get("default_vars_file")
-         # If default_vars_file is specified, update the path and copy the file to the temp directory
+        # If default_vars_file is specified, update the path and copy the file to the temp directory
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
             updated_default_vars_path = os.path.join(tmpdir, "commons", "default-variables.yaml")
@@ -33,7 +40,8 @@ def copied_config_files():
             # Update the config data to reflect the new location of the default_vars_file
             config_data["default_vars_file"] = updated_default_vars_path
 
-        yield tmp_config_path, tmpdir        
+        yield tmp_config_path, tmpdir
+
 
 # Test function to validate ConfigLoader with the real files copied to the temp directory
 @pytest.mark.core
@@ -42,7 +50,7 @@ def test_config_loader_with_real_files(copied_config_files):
     config_path, root_path = copied_config_files
 
     # Initialize the ConfigLoader with the copied config file paths
-    loader = ConfigLoader(config_path=config_path, root_path=root_path)
+    loader = ConfigLoader(config_path=config_path, loopy_root_path=root_path)
     loader.load()
 
     # Get the loaded config and default_vars data

@@ -31,7 +31,7 @@ script_dir = os.path.join(root_directory, "commons", "python")
 sys.path.append(root_directory)
 sys.path.append(script_dir)
 import py_utils
-from config import summary_dict,update_summary,load_summary
+from core.config import summary_dict,update_summary,load_summary
 
 OUTPUT_DIR = config_dict["output_dir"]
 ARTIFACTS_DIR = config_dict["artifacts_dir"]

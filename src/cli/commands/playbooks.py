@@ -1,13 +1,13 @@
 # fmt: off
 import os
 import click
-import utils
 
 import yaml
 import logging
-import constants
-import loopy_report 
-from component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
+from cli.commands import utils
+from cli.commands import constants
+from cli.commands import loopy_report
+from cli.logics.component import Role, Unit, Playbook, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style
 from core.context import get_context
 

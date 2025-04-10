@@ -1,7 +1,8 @@
 FROM fedora:latest
-ENV LOOPY_PATH="/home/loopy"
-ENV LOOPY_CONFIG_PATH="/home/loopy/config.yaml"
-ENV PATH="$PATH:${LOOPY_PATH}:${LOOPY_PATH}/bin"
+ENV LOOPY_ROOT_PATH="/home/loopy"
+ENV PYTHONPATH="${LOOPY_ROOT_PATH}/src"
+ENV LOOPY_CONFIG_FILE="config.yaml"
+ENV PATH="$PATH:${LOOPY_ROOT_PATH}:${LOOPY_ROOT_PATH}/bin"
 
 RUN dnf -y install sudo git wget make python-devel openssl-devel net-tools bind-utils bash-completion python3.11 which procps gettext
 RUN ls -l /usr/bin/python || ln -s /usr/bin/python3 /usr/bin/python

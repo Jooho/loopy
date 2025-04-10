@@ -38,8 +38,8 @@ def copied_config_files():
         
 
 
-@pytest.fixture
+@pytest.fixture(scope="session", autouse=True)
 def loopy_root_path():
     """Returns the default root path of the Loopy project (2 levels up from current file)."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(current_dir, "..", ".."))        
+    return os.path.abspath(os.path.join(current_dir, ".."))        

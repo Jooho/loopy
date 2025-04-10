@@ -2,43 +2,43 @@
 import yaml
 import json
 import os
-
-def find_root_directory(cur_dir):
-    while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
-        cur_dir = os.path.dirname(cur_dir)
-    if os.path.isdir(os.path.join(cur_dir, ".git")):
-        return cur_dir
-    else:
-        return None
+import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-root_directory = find_root_directory(current_dir)
+root_dir = os.path.abspath(os.path.join(current_dir, ".."))  
+src_path = os.path.join(root_dir, "src")
 
-def load_configs(config_file, default_vars_file):
-    with open(config_file, "r") as f:
-        config_data = yaml.safe_load(f)
-    
-    with open(default_vars_file, "r") as f:
-        default_vars = yaml.safe_load(f)
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 
-    return config_data, default_vars
-
-def merge_configs(config_data, default_vars_data):
-    merged_json={}
-    config={}
-    config["config_data"] = config_data
-    config["default_vars"] = default_vars_data
-    merged_json["config"]=config
-    return merged_json
+from core.initializer import Initializer
+from core.context import get_context
+from core.env import EnvManager
+from core.config_loader import ConfigLoader
 
 def main():
-    config_file = f"{root_directory}/config.yaml"
-    default_vars_file = f"{root_directory}/commons/default-variables.yaml"
+    envManager = EnvManager()
+    config_path = envManager.get_config_path()
+    root_path = envManager.get_root_path()
+    env_list = envManager.get_env()
 
-    config_data, default_vars_data = load_configs(config_file, default_vars_file)
-    json_data = merge_configs(config_data, default_vars_data)
-    with open(f"{root_directory}/tests/custom-context.json", "w") as f:
-        json.dump(json_data, f, indent=4)
+    config_loader = ConfigLoader(config_path, root_path)
+    config_loader.load()
+    config_data = config_loader.get_config()
+    default_vars = config_loader.get_default_vars()
+    
+    # Set test role/unit/playbook path
+    config_data["additional_role_dirs"] = [f"{root_dir}/tests/test-data/roles"]
+    config_data["additional_unit_dirs"] = [f"{root_dir}/tests/test-data/units"]
+    config_data["additional_playbook_dirs"] = [f"{root_dir}/tests/test-data/playbooks"]
+    
+    initializer = Initializer(env_list, config_data, default_vars)
+    initializer.initialize()
+
+    global_context = get_context()
+
+    with open(f"{root_dir}/tests/custom-context.json", "w") as f:
+        json.dump(global_context, f, indent=4)
 
 if __name__ == "__main__":
     main()

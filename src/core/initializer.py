@@ -7,7 +7,7 @@ from datetime import datetime
 from jsonschema import Draft7Validator
 
 import logging
-from config import reset_config, reset_summary
+from core.config import reset_config, reset_summary
 from core.context import LoopyContextBuilder
 from colorama import Fore, Style
 
@@ -90,9 +90,9 @@ class Initializer:
         self.config_data["default_playbooks_dir"] = f"{self.loopy_root_path}/default_provided_services/playbooks"
 
         # Initialize the list of components
-        self.initialize_list("role")
-        self.initialize_list("unit")
-        self.initialize_list("playbook")
+        self.initialize_component_list("role")
+        self.initialize_component_list("unit")
+        self.initialize_component_list("playbook")
 
         # Initialize the context
         LoopyContextBuilder(self.env_list, self.default_vars, self.config_data).build()
@@ -101,7 +101,7 @@ class Initializer:
         for key, value in env.items():
             config[key] = value
 
-    def initialize_list(self, list_type):
+    def initialize_component_list(self, list_type):
         if list_type == "role":
             default_dir = self.config_data["default_roles_dir"]
             additional_dirs = self.config_data["additional_role_dirs"]

@@ -10,18 +10,18 @@ config_path = envManager.get_config_path()
 root_path = envManager.get_root_path()
 env_list = envManager.get_env()
 
-# 2. Load config 
+# 2. Load config
 config_loader = ConfigLoader(config_path, root_path)
 config_loader.load()
 config_data = config_loader.get_config()
 default_vars = config_loader.get_default_vars()
 
 # 3. initializer
-initializer = Initializer(env_list,config_data,default_vars)
+initializer = Initializer(env_list, config_data, default_vars)
 initializer.initialize()
 
 # import cli after initializer
-from cli.cli import cli  
+from cli.cli import cli
 
 # 4. CLI execution
 global_context = get_context()

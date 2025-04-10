@@ -1,5 +1,6 @@
 import pytest
-from core.context import LoopyContextBuilder  
+from core.context import LoopyContextBuilder
+
 
 @pytest.fixture
 def default_vars():
@@ -17,6 +18,7 @@ def env_list():
     return {
         "LOOPY_ROOT_PATH": "tmpdir",  # Assuming tmpdir is the root path for Loopy
     }
+
 
 @pytest.mark.core
 def test_loopy_context_builder():

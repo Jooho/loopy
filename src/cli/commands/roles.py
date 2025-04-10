@@ -1,12 +1,13 @@
 # fmt: off
 import os
 import click
-import utils
-import constants
-import loopy_report 
+from cli.commands import utils
+from cli.commands import constants
+from cli.commands import loopy_report
+
 import logging
 
-from component import Role, Get_default_input_value, Get_required_input_keys
+from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style, Back
 from core.context import get_context
 
@@ -46,6 +47,7 @@ def show_role(ctx, role_name):
     for item in role_list:
         if role_name == item["name"]:
             role_path=item["path"]
+            break
    
     display_role_info(ctx, role_name, role_path)
     

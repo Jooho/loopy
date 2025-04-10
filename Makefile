@@ -27,3 +27,8 @@ unit:
 	# pytest tests/cli/commands/test_roles.py
 	# pytest tests/cli/commands/test_units.py
 	pytest -m "cli" -c "${PYTEST_CONFIG}" -n 1 --dist worksteal 
+
+
+.PHONY: update-test-data
+update-test-data:
+	python hacks/update_test_custom_context_json.py

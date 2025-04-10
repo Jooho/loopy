@@ -1,13 +1,11 @@
 from collections import defaultdict
 import os
-# import utils
-import utils
+from cli.commands import utils
 
 from colorama import Fore, Style
-from config import summary_dict, load_summary
+from core.config import summary_dict, load_summary
 from prettytable import PrettyTable
-import constants
-
+from cli.commands import constants
 
 def summary(ctx, type, config_data, unit_list):
     load_summary()

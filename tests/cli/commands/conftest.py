@@ -18,7 +18,7 @@ def cli_runner():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup(custom_context, loopy_root_path):
+def setup(custom_context, loopy_root_path,cleanup_report_dir):
     # initialize_global_context
     custom_context["config"]["loopy_root_path"] = loopy_root_path
     custom_context["config"]["loopy_config_path"] = os.path.join(loopy_root_path, "config.yaml")
@@ -26,7 +26,7 @@ def setup(custom_context, loopy_root_path):
     context = LoopyContextBuilder(env_list=custom_context["env"], default_vars=custom_context["default_vars"], config_data=custom_context["config"]).build()
     set_context(context)
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="session",autouse=True)
 def cleanup_report_dir():
     yield
     context = get_context()

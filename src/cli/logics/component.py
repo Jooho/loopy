@@ -1,104 +1,108 @@
 import subprocess
 import os
 import yaml
+import uuid
+import datetime
 from cli.commands import utils
 from cli.commands import constants
 
 import time
 import logging
-from core.config import config_dict, summary_dict, update_config, update_summary, load_summary, init_config
+from core.report_manager import LoopyReportManager
 from colorama import Fore, Style, Back
-from core.context import get_context
+from core.context import get_context, update_config_data
 
 context = get_context()
-init_config(context["config"])
+config_dict = context["config"]
+role_list = context["config"]["role_list"]
+unit_list = context["config"]["unit_list"]
+playbook_list = context["config"]["playbook_list"]
+# Update config.json
+reportManager = LoopyReportManager(config_dict["loopy_root_path"])
 first_component_type = None
 first_component_name = None
-loopy_result_dir = None
 
 logger = logging.getLogger(__name__)
 
 
 class Role:
-    def __init__(self, ctx, index, role_list, role_name, params, param_output_env_file, additional_input_vars=None):
+    def __init__(self, clickCtx, index, role_list, role_name, role_description, params, param_output_env_file, additional_input_vars=None):
         self.index = index
         self.name = role_name
+        self.role_description = role_description
         self.role_config_dir_path = get_role_config_dir_path(role_list, role_name)
         self.params = params
-        self.ctx = ctx
+        self.clickCtx = clickCtx
         self.param_output_env_file = param_output_env_file
         self.additional_input_vars = additional_input_vars
 
-    def start(self):
-        # Enable Loopy Logo
-        enable_loopy_log = utils.is_positive(os.getenv("ENABLE_LOOPY_LOG"))
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")
+        self.uuid = str(uuid.uuid4())  # unique id
+        self.start_time = None
+        self.end_time = None
+        self.execution_time = 0  # sec
 
-        # for summary
-        load_summary()
-        global first_component_type, first_component_name, loopy_result_dir
-        if "start_time" in summary_dict:
-            start_time = summary_dict["start_time"]
-        else:
-            start_time = []
-        if "end_time" in summary_dict:
-            end_time = summary_dict["end_time"]
-        else:
-            end_time = []
-        if self.name != "shell-execute":
-            start_time.append(time.time())
-        update_summary("start_time", start_time)
+    def start(self):
+        logger.info(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
+        global first_component_type, first_component_name
+        enable_loopy_log = utils.is_positive(config_dict["enable_loopy_log"])
+        output_env_dir_path = config_dict["output_dir"]
+        artifacts_dir_path = config_dict["artifacts_dir"]
+        report_file = config_dict["report_file"]
+        loopy_result_dir = config_dict["loopy_result_dir"]
+
+        # Setup for role
         if first_component_type is None:
             first_component_type = "Role"
             first_component_name = self.name
-            update_summary("first_component_type", "Role")
-            update_summary("first_component_name", self.name)
-        # print(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
-        logger.info(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
-        output_env_dir_path = config_dict["output_dir"]
-        create_dir_if_does_not_exist(output_env_dir_path)
-        artifacts_dir_path = config_dict["artifacts_dir"]
-        report_file = config_dict["report_file"]
-        os.environ["REPORT_FILE"] = report_file
-        
-        # for summary
-        if loopy_result_dir is None:
-            loopy_result_dir = os.path.dirname(output_env_dir_path)
-            update_summary("loopy_result_dir", loopy_result_dir)
-
-        if self.index is not None:
+            self.index = 0
+            reportManager.update_summary("first_component_type", "Role")
+            reportManager.update_summary("first_component_name", self.name)
+            role_dir_path = os.path.join(artifacts_dir_path, self.name)
+        else:
             role_dir_name = f"{self.index}-{self.name}"
             role_dir_path = os.path.join(artifacts_dir_path, role_dir_name)
-        else:
-            role_dir_path = os.path.join(artifacts_dir_path, self.name)
-        create_dir_if_does_not_exist(role_dir_path)        
-        os.environ["ROLE_DIR"] = role_dir_path
-        update_config("role_dir", role_dir_path)
 
-        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Gathering environment and setting environment variables{Fore.RESET}")
         logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Gathering environment and setting environment variables{Fore.RESET}")
-        aggregated_input_vars, required_envs = get_aggregated_input_vars(self.ctx, self.role_config_dir_path, self.name, self.params, self.additional_input_vars)
-        export_env_variables(self.ctx, aggregated_input_vars)
-        verify_required_env_exist(required_envs)
-        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing bash script{Fore.RESET}\n")
-        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing bash script{Fore.RESET}")
-        # print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}")
+
+        ## Create output dir
+        create_dir_or_file_if_does_not_exist(output_env_dir_path)
+        create_dir_or_file_if_does_not_exist(report_file, fileType=True)
+        reportManager.update_summary("loopy_result_dir", loopy_result_dir)
+
+        ## Create artifacts dir
+        create_dir_or_file_if_does_not_exist(role_dir_path)
+        ## This is for ROLE_DIR in role main.sh/main.py
+        os.environ["REPORT_FILE"] = report_file
+        os.environ["ROLE_DIR"] = role_dir_path
+        update_config_data("role_dir", role_dir_path)
         log_output_file = os.path.join(role_dir_path, "log")
-
         output_env_file_full_path = get_output_env_file_path(self.index, output_env_dir_path, self.role_config_dir_path, self.param_output_env_file)
-        if os.path.exists(output_env_file_full_path):
-            # Safety check: Raise an error if the file path is "/" or an empty path
-            if output_env_file_full_path in ["/", ""]:
-                raise ValueError("Root directory or an empty path cannot be used as a file path.")
-
-            # Safety check: Raise an error if the file path is a directory
-            if os.path.isdir(output_env_file_full_path):
-                raise IsADirectoryError(f"{output_env_file_full_path} is a directory, not a file.")
-
-            os.remove(output_env_file_full_path)
-            logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Removing existing output file({output_env_file_full_path}){Fore.RESET}")
-
         os.environ["OUTPUT_ENV_FILE"] = output_env_file_full_path
+
+        # Validate input/output variables
+        ## Gather all input variables
+        aggregated_input_vars, required_envs = get_aggregated_input_vars(self.clickCtx, self.role_config_dir_path, self.name, self.params, self.additional_input_vars)
+
+        ## Export the input variabels (This is main.sh/main.py)
+        export_env_variables(self.clickCtx, aggregated_input_vars)
+
+        ## Check if all required environment variables are set
+        ## If not, raise an error
+        verify_required_env_exist(required_envs)
+
+        ## validate env_file path
+        validate_and_cleanup_folder(output_env_file_full_path, context_name=f"Role '{self.name}'")
+
+        # Initialize role_time
+        reportManager.reset_role_time()
+        start_time = reportManager.role_time_dict["start_time"]
+        if self.name != "shell-execute":
+            start_time.append(time.time())
+            reportManager.update_role_time("start_time", start_time)
+
+        # Execute the main script
+        logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Executing script{Fore.RESET}")
+
         try:
             target_main_file_type = "bash"
             target_main_file = os.path.join(self.role_config_dir_path, "main.sh")
@@ -138,11 +142,12 @@ class Role:
 
                         # error check
                         if proc.returncode != 0:
-                            print(f"Error occurred while executing. Return code: {proc.returncode}")
+                            # print(f"Error occurred while executing. Return code: {proc.returncode}")
+                            logger.error(f"{Fore.RED}Error occurred while executing. Return code: {proc.returncode} {Fore.RESET}")
                 except Exception as e:
-                    print(f"subprocess failed to execute role: {e}")
+                    # print(f"subprocess failed to execute role: {e}")
+                    logger.error(f"{Fore.RED}subprocess failed to execute role: {e} {Fore.RESET}")
 
-                logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}")
             else:
                 # # TO-DO This does not show logs but save it to file
                 with open(log_output_file, "w") as log_file:
@@ -162,32 +167,41 @@ class Role:
             logger.error(f"{Fore.RED}Command failed with return code {e.returncode}:{Fore.RESET}")
             # print(e.output)
             logger.error(e.output)
-        # print(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}\n")
-        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Validating output file with specific environment variables{Fore.RESET}")
+        logger.info(f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log End-------------------{Fore.RESET}")
+
         logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Validating output file with specific environment variables{Fore.RESET}")
         validate_output_env_file(output_env_file_full_path, self.role_config_dir_path)
-        # print(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Releasing exported environment variables for this role{Fore.RESET}")
+
         logger.info(f"{Fore.LIGHTBLUE_EX}Role '{self.name}': Releasing exported environment variables for this role{Fore.RESET}")
-        release_exported_env_variables(self.ctx, aggregated_input_vars)
-        # print(f"{Back.BLUE}Finished Role '{self.name}' {Fore.RESET}")
+        release_exported_env_variables(self.clickCtx, aggregated_input_vars)
+
         logger.info(f"{Back.BLUE}Finished Role '{self.name}' {Fore.RESET}")
         print()
-        # for summary
-        load_summary()
-        if "end_time" in summary_dict:
-            end_time = summary_dict["end_time"]
-        else:
-            end_time = []
+        print(f"{Fore.RESET}")
+
+        # end time update
+        reportManager.load_role_time()
+        end_time = reportManager.role_time_dict["end_time"]
+
         if self.name != "shell-execute":
             end_time.append(time.time())
-        update_summary("end_time", end_time)
-        print(f"{Fore.RESET}")
+            reportManager.update_role_time("end_time", end_time)
+
+        if first_component_type == "Role":
+            reportManager.update_summary("components", get_role_result(self.clickCtx, self.name, self.uuid, self.index, self.role_description))
+            return
+        else:
+            return get_role_result(self.clickCtx, self.name, self.uuid, self.index, self.role_description)
 
 
 class Unit:
-    def __init__(self, unit_name):
+
+    def __init__(self, clickCtx, unit_name):
+        self.clickCtx = clickCtx
         self.name = unit_name
         self.components = []
+        self.role_result_components = []
+        self.uuid = str(uuid.uuid4())  # unique id
 
     def add_component(self, role):
         self.components.append(role)
@@ -197,19 +211,27 @@ class Unit:
         if first_component_type is None:
             first_component_type = "Unit"
             first_component_name = self.name
-            update_summary("first_component_type", "Unit")
-            update_summary("first_component_name", self.name)
+            reportManager.update_summary("first_component_type", "Unit")
+            reportManager.update_summary("first_component_name", self.name)
 
         # print(f"{Fore.LIGHTCYAN_EX}Running unit '{self.name}': Starting role{Fore.RESET}")
         logger.info(f"{Fore.LIGHTCYAN_EX}Running unit '{self.name}': Starting role{Fore.RESET}")
         for component in self.components:
-            component.start()
+            role_result = component.start()
+            self.role_result_components.append(role_result)
+        if first_component_type == "Unit":
+            reportManager.update_summary("components", add_unit_result(self.clickCtx, self.name, self.uuid, self.role_result_components))
+        else:
+            return add_unit_result(self.clickCtx, self.name, self.uuid, self.role_result_components)
 
 
 class Playbook:
-    def __init__(self, name):
+    def __init__(self, clickCtx, name):
+        self.clickCtx = clickCtx
         self.name = name
         self.components = []
+        self.result_components = []
+        self.uuid = str(uuid.uuid4())  # unique id
 
     def add_component(self, component):
         self.components.append(component)
@@ -220,29 +242,133 @@ class Playbook:
         if first_component_type is None:
             first_component_type = "Playbook"
             first_component_name = self.name
-            update_summary("first_component_type", "Playbook")
-            update_summary("first_component_name", self.name)
+            reportManager.update_summary("first_component_type", "Playbook")
+            reportManager.update_summary("first_component_name", self.name)
 
         # print(f"{Back.CYAN}Running Playbook '{self.name}': Starting components{Fore.RESET}")
         logger.info(f"{Back.CYAN}Running Playbook '{self.name}': Starting components{Fore.RESET}")
         for component in self.components:
-            component.start()
+            component_result = component.start()
+            self.result_components.append(component_result)
+        reportManager.update_summary("components", add_playbook_result(self.clickCtx, self.name, self.uuid, self.result_components))
 
 
-def create_dir_if_does_not_exist(directory_path):
-    if not os.path.exists(directory_path):
+def add_playbook_result(clickCtx, playbook_name, uuid, components_result):
+    playbook_component = {
+        "type": "playbook",
+        "name": playbook_name,
+        "description": utils.getDescription(clickCtx, playbook_name, "playbook"),
+        "uuid": uuid,
+        "components": components_result,
+        "start_time": "",
+        "end_time": "",
+        "execution_time": 0,
+        "result": 0,
+    }
+
+    playbook_start_time = components_result[0]["start_time"]
+    playbook_end_time = components_result[-1]["end_time"]
+    exec_time = playbook_end_time - playbook_start_time
+
+    playbook_component["start_time"] = playbook_start_time
+    playbook_component["end_time"] = playbook_end_time
+    playbook_component["execution_time"] = round(exec_time, 3)
+
+    return playbook_component
+
+
+def add_unit_result(clickCtx, unit_name, uuid, role_result_components):
+    unit_component = {
+        "type": "unit",
+        "name": unit_name,
+        "description": utils.getDescription(clickCtx, unit_name, "unit"),
+        "uuid": uuid,
+        "components": role_result_components,
+        "start_time": "",
+        "end_time": "",
+        "execution_time": 0,
+        "result": 0,
+    }
+
+    unit_start_time = role_result_components[0]["start_time"]
+    unit_end_time = role_result_components[-1]["end_time"]
+    exec_time = unit_end_time - unit_start_time
+
+    unit_component["start_time"] = unit_start_time
+    unit_component["end_time"] = unit_end_time
+    unit_component["execution_time"] = round(exec_time, 3)
+
+    return unit_component
+
+
+def get_role_result(clickCtx, role_name, uuid, role_index, role_description=""):
+    role_component = {
+        "type": "role",
+        "name": role_name,
+        "description": utils.getDescription(clickCtx, role_name, "role", role_description),
+        "artifacts_dir": os.path.join(config_dict["artifacts_dir"], f"{role_index}-{role_name}"),
+        "uuid": uuid,
+        "role_index": role_index,
+        "commands": [],
+        "start_time": "",
+        "end_time": "",
+        "execution_time": 0,
+        "result": 0,
+    }
+
+    start_time = reportManager.role_time_dict["start_time"]
+    end_time = reportManager.role_time_dict["end_time"]
+    for i in range(len(start_time)):
+        start = start_time[i]
+        end = end_time[i]
+        exec_time = end - start
+        role_component["commands"].append({"name": f"command-{i+1}", "start_time": start, "end_time": end, "execution_time": round(exec_time, 3), "result": 0})
+
+    # Calculate role total execution time
+    role_component["start_time"] = role_component["commands"][0]["start_time"]
+    role_component["end_time"] = role_component["commands"][-1]["end_time"]
+    role_component["execution_time"] = sum(cmd["execution_time"] for cmd in role_component["commands"])
+
+    return role_component
+
+
+def validate_and_cleanup_folder(path: str, context_name: str = ""):
+    """
+    Sanity check the folder path, and remove it if it exists and is not a root directory or empty.
+    :param path: Full path to the folder
+    :param context_name: Optional name for logging context
+    """
+    # Safety check: Raise an error if the file path is "/" or an empty path
+    if path in ["/", ""]:
+        raise ValueError("Root directory or an empty path cannot be used as a file path.")
+
+    # Safety check: Raise an error if the path is a directory
+    if os.path.isdir(path):
+        raise IsADirectoryError(f"{path} is a directory, not a file.")
+
+    # If the file exists, remove it
+    if os.path.exists(path):
+        os.remove(path)  # Use os.rmdir for empty directory removal
+        logger.info(f"Removed existing file: {path} (Context: {context_name})")
+
+
+def create_dir_or_file_if_does_not_exist(path, fileType=False):
+    item_type = "file" if fileType else "directory"
+    if not os.path.exists(path):
         try:
-            os.makedirs(directory_path)
-            # print(f"{Fore.GREEN}Succeed to create a new direcotry: {directory_path}{Fore.RESET}")
-            logger.info(f"{Fore.GREEN}Succeed to create a new direcotry: {directory_path}{Fore.RESET}")
+            if fileType:
+                with open(path, "w") as file:
+                    file.write("# This is created by loopy.\n")
+            else:
+                os.makedirs(path)
+            logger.info(f"{Fore.GREEN}Succeed to create a new {item_type}: {path}{Fore.RESET}")
         except OSError as e:
-            # print(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Fore.RESET}")
-            logger.error(f"{Fore.RED}Failed to create a new direcotry: {directory_path} ({e}){Fore.RESET}")
+            logger.error(f"{Fore.RED}Failed to create a new ${item_type}: {path} ({e}){Fore.RESET}")
 
 
-def release_exported_env_variables(ctx, input_variabels):
+def release_exported_env_variables(clickCtx, input_variabels):
     keep_env_variables = context["config"]["keep_env_variables"]
-    # keep_env_variables = ctx.obj.get("config", "config_data")["config_data"]["keep_env_variables"]
+    # keep_env_variables = clickCtx.obj.get("config", "config_data")["config_data"]["keep_env_variables"]
     for input_var in input_variabels:
         if input_var not in keep_env_variables:
             os.environ.pop(input_var)
@@ -251,10 +377,8 @@ def release_exported_env_variables(ctx, input_variabels):
     logger.info(f"{Fore.GREEN} \u21b3 Successfully release exported input variables {Fore.RESET}")
 
 
-def export_env_variables(ctx, input_variabels):
-    # print(f"{Back.RED} [DEBUG] Input Environmental Variables {Fore.RESET}")
+def export_env_variables(clickCtx, input_variabels):
     logger.debug(f"{Fore.YELLOW} Input Environmental Variables {Fore.RESET}")
-    # print(f"{Fore.GREEN} \u21B3 {input_variabels} {Fore.RESET}")
     logger.debug(f"{Fore.LIGHTYELLOW_EX} \u21b3 {input_variabels} {Fore.RESET}")
 
     if "STOP_WHEN_FAILED" not in input_variabels:
@@ -264,12 +388,11 @@ def export_env_variables(ctx, input_variabels):
     for input_var in input_variabels:
         os.environ[input_var] = input_variabels[input_var]
 
-    # print(f"{Fore.GREEN} \u21B3 Successfully export input variables {Fore.RESET}")
     logger.info(f"{Fore.GREEN} \u21b3 Successfully export input variables {Fore.RESET}")
 
 
-def Get_default_input_value(ctx, role_config_dir_path, role_name, additional_input_vars, input_key):
-    aggregated_input_vars, _ = get_aggregated_input_vars(ctx, role_config_dir_path, role_name, None, additional_input_vars)
+def Get_default_input_value(clickCtx, role_config_dir_path, role_name, additional_input_vars, input_key):
+    aggregated_input_vars, _ = get_aggregated_input_vars(clickCtx, role_config_dir_path, role_name, None, additional_input_vars)
 
     if input_key in aggregated_input_vars:
         return aggregated_input_vars[input_key]
@@ -277,14 +400,14 @@ def Get_default_input_value(ctx, role_config_dir_path, role_name, additional_inp
     return ""
 
 
-def Get_required_input_keys(ctx, role_config_dir_path, role_name):
-    _, required_envs = get_aggregated_input_vars(ctx, role_config_dir_path, role_name, None, None)
+def Get_required_input_keys(clickCtx, role_config_dir_path, role_name):
+    _, required_envs = get_aggregated_input_vars(clickCtx, role_config_dir_path, role_name, None, None)
 
     return required_envs
 
 
-def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, additional_input_vars):
-    default_vars = utils.get_default_vars(ctx)
+def get_aggregated_input_vars(clickCtx, role_config_dir_path, role_name, params, additional_input_vars):
+    default_vars = utils.get_default_vars(clickCtx)
     required_envs = []
     aggregated_input_vars = {}
 
@@ -308,11 +431,11 @@ def get_aggregated_input_vars(ctx, role_config_dir_path, role_name, params, addi
             aggregated_input_vars[input_var] = value
 
     # If user put params, it will overwrite environment variable
-    ignore_validate_env_input = context["config"]["ignore_validate_env_input"]
-    # ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
+    ignore_validate_input_env = context["config"]["ignore_validate_input_env"]
+    # ignore_validate_input_env = clickCtx.obj.get("config", "config_data")["config_data"]["ignore_validate_input_env"]
     if params is not None:
         for param in params:
-            if ignore_validate_env_input:
+            if ignore_validate_input_env:
                 aggregated_input_vars[param] = params[param]
             else:
                 for input_env in role_config_vars["role"]["input_env"]:
@@ -384,3 +507,5 @@ def get_output_env_file_path(index, output_dir, role_config_dir_path, param_outp
             else:
                 target_output_file_path = os.path.join(output_dir, target_component_vars["role"]["name"] + "-output.sh")
     return target_output_file_path
+
+

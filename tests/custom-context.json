@@ -112,7 +112,7 @@
         "enable_loopy_report": true,
         "enable_loopy_logo": true,
         "enable_loopy_log": true,
-        "ignore_validate_env_input": true,
+        "ignore_validate_input_env": true,
         "keep_env_variables": [
             "CLUSTER_API_URL",
             "CLUSTER_TYPE",
@@ -191,9 +191,10 @@
         "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
         "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
         "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python",
-        "output_dir": "/tmp/ms_cli/20250410_1339/output",
-        "artifacts_dir": "/tmp/ms_cli/20250410_1339/artifacts",
-        "report_file": "/tmp/ms_cli/20250410_1339/report",
+        "loopy_result_dir": "/tmp/ms_cli/20250411_2220",
+        "output_dir": "/tmp/ms_cli/20250411_2220/output",
+        "artifacts_dir": "/tmp/ms_cli/20250411_2220/artifacts",
+        "report_file": "/tmp/ms_cli/20250411_2220/report",
         "role_list": [
             {
                 "name": "cert-generate",
@@ -357,6 +358,11 @@
                 "role_name": "shell-execute"
             },
             {
+                "name": "loopy-roles-test-non-cluster-fail-test-shell-execute",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/fail-test-shell-execute",
+                "role_name": "shell-execute"
+            },
+            {
                 "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-rawDeployment",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/rawDeployment",
                 "role_name": "operator-install"
@@ -473,6 +479,10 @@
             {
                 "name": "loopy-unit-tests",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/unit-tests"
+            },
+            {
+                "name": "loopy-fail-unit-tests",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
             }
         ]
     },

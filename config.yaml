@@ -10,7 +10,7 @@ stop_when_error_happened: "false"
 enable_loopy_report: true
 enable_loopy_logo: true
 enable_loopy_log: true
-ignore_validate_env_input: true
+ignore_validate_input_env: true
 keep_env_variables:
   - CLUSTER_API_URL
   - CLUSTER_TYPE

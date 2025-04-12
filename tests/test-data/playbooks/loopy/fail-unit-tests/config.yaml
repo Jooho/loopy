@@ -9,5 +9,5 @@ playbook:
         description: "Test cert-generate role"
 
     - unit:
-        name: loopy-roles-test-non-cluster-shell-execute
-        description: "Test shell-execute role"
+        name: loopy-roles-test-non-cluster-fail-test-shell-execute
+        description: "Test failed shell-execute role"

@@ -3,11 +3,12 @@
 import os
 import re
 import yaml
+import shutil
 from datetime import datetime
 from jsonschema import Draft7Validator
 
 import logging
-from core.config import reset_config, reset_summary
+from core.report_manager import LoopyReportManager
 from core.context import LoopyContextBuilder
 from colorama import Fore, Style
 
@@ -29,11 +30,13 @@ class Initializer:
         self.loopy_result_dir = os.path.join(self.output_root_dir, self.now.strftime("%Y%m%d_%H%M"))
         if self.config_data.get("loopy_result_dir"):
             self.loopy_result_dir = self.config_data["loopy_result_dir"]
+        self.config_data["loopy_result_dir"] = self.loopy_result_dir
 
     def initialize(self):
         # Reset temporary data for each run
-        reset_config()
-        reset_summary()
+        reportManager = LoopyReportManager(self.config_data["loopy_root_path"])
+        reportManager.reset_role_time()
+        reportManager.reset_summary()
 
         # Initialize result directory
         output_dir = os.path.join(self.loopy_result_dir, self.config_data["output_env_dir"])
@@ -51,6 +54,11 @@ class Initializer:
         os.environ["REPORT_FILE"] = report_file
 
         # Create output/artifacts directories
+        
+        if output_dir and os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        if artifacts_dir and os.path.exists(artifacts_dir):
+            shutil.rmtree(artifacts_dir)                
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(artifacts_dir, exist_ok=True)
 

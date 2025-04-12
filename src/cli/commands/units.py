@@ -93,14 +93,14 @@ def run_unit(
     logger.info(f"Unit: {unit_name}")
     
     utils.verify_component_exist(unit_name, unit_list, "unit")        
-    utils.verify_param_in_component(params, unit_name, unit_list, "unit")
+    utils.verify_param_in_component(ctx, params, unit_name, unit_list, "unit")
 
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
     params = utils.update_params_with_input_file(additional_vars_from_file, params)
 
     # Create Unit component
-    unit = Unit(unit_name)
+    unit = Unit(ctx,unit_name)
     unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)
     # print(f"step: {unit_config_data['unit']['steps']}")
     logger.debug(f"step: {unit_config_data['unit']['steps']}")
@@ -114,13 +114,14 @@ def run_unit(
                 click.echo("Unit can not include another unit in the steps")
                 exit(1)
             role_name = step["role"]["name"]
+            role_description = step["role"].get("description", "")
             additional_input_env = utils.get_input_env_from_config_data(step["role"])
-            role = Role( ctx, index, role_list, role_name, params, None, additional_input_env )
+            role = Role( ctx, index, role_list, role_name,role_description, params, None, additional_input_env )
             unit.add_component(role)
     # When Unit have single role(Deprecated)
     else:
         additional_input_env = utils.get_input_env_from_config_data( unit_config_data["role"] )
-        role = Role( ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name(unit_name, unit_list), params, output_env_file_name, additional_input_env )
+        role = Role(ctx, None, role_list, utils.get_first_role_name_in_unit_by_unit_name(unit_name, unit_list), role_description, params, output_env_file_name, additional_input_env )
         unit.add_component(role)
     unit.start()
 

@@ -5,6 +5,7 @@ import sys
 
 import yaml
 
+
 def find_root_directory(cur_dir):
     while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
         cur_dir = os.path.dirname(cur_dir)
@@ -12,6 +13,8 @@ def find_root_directory(cur_dir):
         return cur_dir
     else:
         return None
+
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_directory = find_root_directory(current_dir)
 if root_directory:
@@ -32,7 +35,9 @@ sys.path.append(src_dir)
 sys.path.append(script_dir)
 import py_utils
 
-from core.config import load_summary, summary_dict, update_summary
+from core.report_manager import LoopyReportManager
+
+reportManager = LoopyReportManager(root_directory)
 
 OUTPUT_DIR = config_dict["output_dir"]
 ARTIFACTS_DIR = config_dict["artifacts_dir"]
@@ -56,31 +61,23 @@ role_name = config_data.get("role", {}).get("name", "")
 commands_list = os.environ.get("COMMANDS", "").split("%%")
 results = []
 
-load_summary()
-start_time = summary_dict["start_time"]
-if "end_time" in summary_dict:
-    end_time = summary_dict["end_time"]
-else:
-    end_time = []
 for index, command in enumerate(commands_list):
-    load_summary()
+    reportManager.load_role_time()
+    start_time = reportManager.role_time_dict["start_time"]
+    end_time = reportManager.role_time_dict["end_time"]
     command = command.strip()
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
     rcresult = {"stdout": "", "stderr": "", "returncode": None}
     if command.strip() != "":
         try:
-            command=py_utils.remove_comment_lines(command)
+            command = py_utils.remove_comment_lines(command)
             if not command.startswith("#"):
-                s_t=time.time()
-                
-                start_time.append(s_t)
-                print("JHOUSE(s_t):", s_t)
-                print("JHOUSE(start_time):", start_time)
-                showCommand=py_utils.is_positive(os.environ["SHOW_COMMAND"])
+                start_time.append(time.time())
+                showCommand = py_utils.is_positive(os.environ["SHOW_COMMAND"])
                 if showCommand == 0:
-                    print(command, end="\n")  
- 
+                    print(command, end="\n")
+
                 with subprocess.Popen(
                     command,
                     shell=True,
@@ -96,22 +93,19 @@ for index, command in enumerate(commands_list):
                             print(line, end="")  # Print in real time
                             rcresult["stdout"] += line  # store stdout to result
                         for line in process.stderr:
-                            print(line, end="", file=sys.stderr) # Print in real time
+                            print(line, end="", file=sys.stderr)  # Print in real time
                             rcresult["stderr"] += line  # store stderr to result
                     except Exception as e:
                         print(f"Error occurred: {e}")
                     process.wait()
                     rcresult["returncode"] = process.returncode
-                e_t=time.time()
-                print("Duration:", e_t - s_t, "seconds")
-                end_time.append(e_t)
-                print("JHOUSE(e_t):", e_t)
-                print("JHOUSE(end_time):", end_time)
-                update_summary("start_time", start_time)
-                update_summary("end_time", end_time)
-                
+
+                end_time.append(time.time())
+                reportManager.update_role_time("start_time", start_time)
+                reportManager.update_role_time("end_time", end_time)
+
                 with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
-                    temp_result=0
+                    temp_result = 0
                     each_command_output_file.write(f"######## {index} command #######\n")
                     each_command_output_file.write(f"COMMAND: {command}\n")
                     each_command_output_file.write("STDOUT: ")
@@ -124,14 +118,14 @@ for index, command in enumerate(commands_list):
                             each_command_output_file.write(rcresult["stderr"])
                         # each_command_output_file.write(result.stderr)
                         each_command_output_file.write("\n")
-                        temp_result=1
+                        temp_result = 1
                         py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
 
                 with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
-                    temp_result=0
+                    temp_result = 0
                     all_command_output_file.write(f"######## {index} command #######\n")
                     all_command_output_file.write(f"COMMAND: {command}\n")
-                    all_command_output_file.write("STDOUT: ")                   
+                    all_command_output_file.write("STDOUT: ")
                     if isinstance(rcresult["stdout"], str):
                         all_command_output_file.write(rcresult["stdout"])
                     all_command_output_file.write("\n\n")
@@ -140,7 +134,7 @@ for index, command in enumerate(commands_list):
                         if isinstance(rcresult["stderr"], str):
                             all_command_output_file.write(rcresult["stderr"])
                         all_command_output_file.write("\n")
-                        temp_result=1
+                        temp_result = 1
                         py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
                     results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
 

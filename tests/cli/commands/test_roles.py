@@ -33,3 +33,21 @@ def test_run_role(cli_runner, custom_context):
     result = cli_runner.invoke(run_role, ["shell-execute","-p","COMMANDS=echo test","-l","-g"])
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
+
+
+@pytest.mark.cli
+@pytest.mark.roles
+def test_run_role_multi_commands(cli_runner, custom_context):
+    from cli.commands.roles import run_role
+    result = cli_runner.invoke(run_role, ["shell-execute","-p","COMMANDS=echo first %% echo second","-l","-g"])
+    assert result.exit_code == 0
+    assert "Success" in result.stdout.strip()
+
+
+@pytest.mark.cli
+@pytest.mark.roles
+def test_run_role_failed(cli_runner, custom_context):
+    from cli.commands.roles import run_role
+    result = cli_runner.invoke(run_role, ["shell-execute","-p","COMMANDS=\"echo test","-l","-g"])
+    assert result.exit_code == 0
+    assert " There are some errors" in result.stdout.strip()

@@ -9,16 +9,15 @@ import os
 def copied_config_files():
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
     config_path = os.path.join(base_dir, "config.yaml")
-    internal_config_path = os.path.join(base_dir, "src","core","internal_config.yaml")
+    internal_config_path = os.path.join(base_dir, "src", "core", "internal_config.yaml")
     default_vars_path = os.path.join(base_dir, "commons", "default-variables.yaml")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_config_path = os.path.join(tmpdir, "config.yaml")
-        tmp_internal_config_path = os.path.join(tmpdir, "src","core","internal_config.yaml")        
+        tmp_internal_config_path = os.path.join(tmpdir, "src", "core", "internal_config.yaml")
         shutil.copy(config_path, tmp_config_path)
         os.makedirs(os.path.dirname(tmp_internal_config_path), exist_ok=True)
         shutil.copy(internal_config_path, tmp_internal_config_path)
-
 
         with open(config_path, "r") as f:
             import yaml
@@ -67,7 +66,7 @@ def test_config_loader_with_real_files(copied_config_files):
         "enable_loopy_report",  # Whether Loopy reports are enabled
         "enable_loopy_logo",  # Whether Loopy logo is enabled
         "enable_loopy_log",  # Whether Loopy logging is enabled
-        "ignore_validate_env_input",  # Whether environment validation is ignored
+        "ignore_validate_input_env",  # Whether environment validation is ignored
         "keep_env_variables",  # List of environment variables to keep
         "additional_role_dirs",  # Additional directories for roles
         "additional_unit_dirs",  # Additional directories for units

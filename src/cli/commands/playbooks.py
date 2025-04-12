@@ -87,11 +87,11 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
         utils.print_logo()
     else:
         pass
-
+    
     logger.debug(f"Playbook: {playbook_name}")
 
     utils.verify_component_exist(playbook_name, playbook_list, "playbook")    
-    utils.verify_param_in_component(params, playbook_name, playbook_list, "playbook")
+    utils.verify_param_in_component(ctx,params, playbook_name, playbook_list, "playbook")
 
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
@@ -105,7 +105,7 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
                 playbook_config_vars = yaml.safe_load(file)
                 steps = playbook_config_vars["playbook"]["steps"]
 
-    playbook = Playbook(playbook_name)
+    playbook = Playbook(ctx, playbook_name)
     role_count=0
     for py_index, step in enumerate(steps):
         if list(step)[0] == "role":
@@ -125,7 +125,7 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
             unit_name = step["unit"]["name"]
             unit_input_env_in_playbook = utils.get_input_env_from_config_data(step["unit"])
 
-            unit = Unit(unit_name)
+            unit = Unit(ctx,unit_name)
             unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list )["unit"]
             # When Unit have multiple roles
             if "steps" in unit_config_data:
@@ -134,19 +134,20 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
                         click.echo("Unit can not include another unit in the steps")
                         exit(1)
                     role_name = step["role"]["name"]
+                    role_description = step["role"].get("description", "")
                     additional_input_env = utils.get_input_env_from_config_data( step["role"] )
                     if index == 0:
                         merged_unit_input_env_in_py_with_role_input_env = {**unit_input_env_in_playbook, **additional_input_env} if unit_input_env_in_playbook and additional_input_env else (unit_input_env_in_playbook or additional_input_env or {})
-                        role = Role( ctx, role_count, role_list, role_name, params, None, merged_unit_input_env_in_py_with_role_input_env )
+                        role = Role( ctx, role_count, role_list, role_name, role_description, params, None, merged_unit_input_env_in_py_with_role_input_env )
                         role_count+=1
                     else:
-                        role = Role( ctx,  role_count, role_list, role_name, params, None, additional_input_env )
+                        role = Role( ctx,  role_count, role_list, role_name,role_description, params, None, additional_input_env )
                         role_count+=1
                     unit.add_component(role)
             # When Unit have single role
             else:
                 additional_input_env = utils.get_input_env_from_config_data( unit_config_data["role"] )
-                role = Role(   ctx, role_count, role_list, utils.get_first_role_name_in_unit_by_unit_name( unit_name, unit_list ), params, None, additional_input_env )
+                role = Role(ctx, role_count, role_list, utils.get_first_role_name_in_unit_by_unit_name( unit_name, unit_list ), role_description, params, None, additional_input_env )
                 unit.add_component(role)
 
             playbook.add_component(unit)

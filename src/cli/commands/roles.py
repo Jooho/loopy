@@ -95,13 +95,14 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
         
     # role command specific validation    
     utils.verify_component_exist(role_name, role_list, "role")
-    utils.verify_param_in_component(params, role_name, role_list, "role")
+    utils.verify_param_in_component(ctx,params, role_name, role_list, "role")
         
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)           
-    params=utils.update_params_with_input_file(additional_vars_from_file,params)    
-
-    role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
+    params=utils.update_params_with_input_file(additional_vars_from_file,params)  
+    role_config    = utils.get_config_data_by_name(ctx, role_name, "role", role_list)
+    role_description= role_config.get('description','')
+    role = Role(ctx, None, role_list, role_name, role_description, params, output_env_file_name,None)
     role.start()
     
     # Print report

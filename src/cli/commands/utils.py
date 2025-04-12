@@ -9,9 +9,12 @@ from commons.python.py_utils import is_positive
 from core.context import get_context
 
 context = get_context()
-logger = logging.getLogger(__name__)
-
 loopy_root_path = context["config"]["loopy_root_path"]
+role_list = context["config"]["role_list"]
+unit_list = context["config"]["unit_list"]
+playbook_list = context["config"]["playbook_list"]
+
+logger = logging.getLogger(__name__)
 
 ROLE_SCHEMA_FILE_PATH = context["config"]["schema"]["role"]
 UNIT_SCHEMA_FILE_PATH = context["config"]["schema"]["unit"]
@@ -21,7 +24,7 @@ PLAYBOOK_SCHEMA_FILE_PATH = context["config"]["schema"]["playbook"]
 import logging.config
 
 
-def verify_param_in_component(params, component_name, component_list, component_type="component"):
+def verify_param_in_component(clickctx, params, component_name, component_list, component_type="component"):
     """
     Check if the given parameters exist in the specified component (role/unit/playbook).
 
@@ -48,7 +51,8 @@ def verify_param_in_component(params, component_name, component_list, component_
                     input_exist = check_input_env_in_role(params, component_vars["role"]["input_env"])
                 elif component_type == "unit":
                     role_name = component_vars["unit"]["steps"][0]["role"]["name"]
-                    input_exist = check_input_env_in_role(params, component_vars["role"]["input_env"])
+                    role_config_data = get_config_data_by_name(clickctx, role_name, "role", context["config"]["role_list"])
+                    input_exist = check_input_env_in_role(params, role_config_data["role"]["input_env"])
                 elif component_type == "playbook":
                     first_comp_info = component_vars["playbook"]["steps"][0]
                     first_comp_type = list(first_comp_info.keys())[0]
@@ -56,7 +60,7 @@ def verify_param_in_component(params, component_name, component_list, component_
                         input_exist = check_input_env_in_role(params, first_comp_info["role"]["name"])
                     elif first_comp_type == "unit":
                         unit_name = first_comp_info["unit"]["name"]
-                        input_exist = verify_param_in_component(params, unit_name, component_list, "unit")
+                        input_exist = verify_param_in_component(clickctx, params, unit_name, component_list, "unit")
 
                 if input_exist:
                     return
@@ -75,6 +79,10 @@ def check_input_env_in_role(params, role_input_env):
     :param role_input_env: The role's input environment to search in
     :return: Boolean indicating whether the input exists
     """
+    ignore_validate_input_env = context["config"]["ignore_validate_input_env"]
+    if ignore_validate_input_env:
+        return True
+
     input_exist = False
     for param in params:
         for role_config_env in role_input_env:
@@ -186,10 +194,12 @@ def get_config_data_by_name(ctx, name, type, list):
         for unit in list:
             if name == unit["name"]:
                 path = unit["path"]
+                break
     else:
         for role in list:
             if name == role["name"]:
                 path = role["path"]
+                break
     if path == "":
         ctx.invoke(click.echo, f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}")
         sys.exit(1)
@@ -215,6 +225,27 @@ def get_first_role_name_in_unit_by_unit_name(unit_name, list):
         if unit_name == unit["name"]:
             return unit["role_name"]
 
+def getDescription(clickCtx, component_name, component_type, parent_description=""):
+    description = ""
+
+    if component_type == "role":
+        if parent_description !="":
+            description = parent_description
+        else: 
+            role_config_data = get_config_data_by_name(clickCtx, component_name, "role", role_list)
+            if "description" in role_config_data["role"]:
+                description = role_config_data["role"]["description"]                    
+        
+    elif component_type == "unit":
+        unit_config_data = get_config_data_by_name(clickCtx, component_name, "unit", unit_list)
+        if "description" in unit_config_data["unit"]:
+            description = unit_config_data["unit"]["description"]
+    elif component_type == "playbook":
+        playbook_config_data = get_config_data_by_name(clickCtx, component_name, "playbook", playbook_list)
+        if "description" in playbook_config_data["playbook"]:
+            description = playbook_config_data["playbook"]["description"]
+
+    return description
 
 def print_logo():
     print("")

@@ -18,7 +18,7 @@ default_vars = config_loader.get_default_vars()
 
 # 3. initializer
 initializer = Initializer(env_list, config_data, default_vars)
-initializer.initialize()
+loopy_context = initializer.initialize()
 
 # import cli after initializer
 from cli.cli import cli
@@ -27,4 +27,4 @@ from cli.cli import cli
 global_context = get_context()
 
 if __name__ == "__main__":
-    cli(obj=global_context)
+    cli(obj=loopy_context)

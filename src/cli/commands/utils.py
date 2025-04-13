@@ -4,27 +4,13 @@ import yaml
 import logging
 import click
 from colorama import Fore
-
+import logging.config
 from commons.python.py_utils import is_positive
-from core.context import get_context
-
-context = get_context()
-loopy_root_path = context["config"]["loopy_root_path"]
-role_list = context["config"]["role_list"]
-unit_list = context["config"]["unit_list"]
-playbook_list = context["config"]["playbook_list"]
 
 logger = logging.getLogger(__name__)
 
-ROLE_SCHEMA_FILE_PATH = context["config"]["schema"]["role"]
-UNIT_SCHEMA_FILE_PATH = context["config"]["schema"]["unit"]
-PLAYBOOK_SCHEMA_FILE_PATH = context["config"]["schema"]["playbook"]
 
-
-import logging.config
-
-
-def verify_param_in_component(clickctx, params, component_name, component_list, component_type="component"):
+def verify_param_in_component(ctx, params, component_name, component_list, component_type="component"):
     """
     Check if the given parameters exist in the specified component (role/unit/playbook).
 
@@ -48,19 +34,19 @@ def verify_param_in_component(clickctx, params, component_name, component_list, 
 
                 # Depending on the component type, check for parameters
                 if component_type == "role":
-                    input_exist = check_input_env_in_role(params, component_vars["role"]["input_env"])
+                    input_exist = check_input_env_in_role(ctx, params, component_vars["role"]["input_env"])
                 elif component_type == "unit":
                     role_name = component_vars["unit"]["steps"][0]["role"]["name"]
-                    role_config_data = get_config_data_by_name(clickctx, role_name, "role", context["config"]["role_list"])
-                    input_exist = check_input_env_in_role(params, role_config_data["role"]["input_env"])
+                    role_config_data = get_config_data_by_name(ctx, role_name, "role", ctx.obj.config["role_list"])
+                    input_exist = check_input_env_in_role(ctx, params, role_config_data["role"]["input_env"])
                 elif component_type == "playbook":
                     first_comp_info = component_vars["playbook"]["steps"][0]
                     first_comp_type = list(first_comp_info.keys())[0]
                     if first_comp_type == "role":
-                        input_exist = check_input_env_in_role(params, first_comp_info["role"]["name"])
+                        input_exist = check_input_env_in_role(ctx, params, first_comp_info["role"]["name"])
                     elif first_comp_type == "unit":
                         unit_name = first_comp_info["unit"]["name"]
-                        input_exist = verify_param_in_component(clickctx, params, unit_name, component_list, "unit")
+                        input_exist = verify_param_in_component(ctx, params, unit_name, component_list, "unit")
 
                 if input_exist:
                     return
@@ -71,7 +57,7 @@ def verify_param_in_component(clickctx, params, component_name, component_list, 
     exit(1)
 
 
-def check_input_env_in_role(params, role_input_env):
+def check_input_env_in_role(ctx, params, role_input_env):
     """
     Helper function to check if the parameters exist in the given role's input environment.
 
@@ -79,7 +65,7 @@ def check_input_env_in_role(params, role_input_env):
     :param role_input_env: The role's input environment to search in
     :return: Boolean indicating whether the input exists
     """
-    ignore_validate_input_env = context["config"]["ignore_validate_input_env"]
+    ignore_validate_input_env = ctx.obj.config["ignore_validate_input_env"]
     if ignore_validate_input_env:
         return True
 
@@ -92,8 +78,8 @@ def check_input_env_in_role(params, role_input_env):
     return input_exist
 
 
-def configure_logging(context, verbose=2):
-    logging_config = context["config"]["logging"]
+def configure_logging(ctx, verbose=2):
+    logging_config = ctx.obj.config["logging"]
     default_log_level = logging_config["handlers"]["console"]["level"]
 
     log_levels = {1: logging.WARN, 2: logging.INFO, 3: logging.DEBUG}
@@ -116,11 +102,6 @@ def verify_component_exist(component_name, component_list, component_type="compo
             return
     logger.error(f"{component_type.title()} name({component_name}) does not exist")
     exit(1)
-
-
-def get_default_vars(ctx):
-    # return ctx.obj.get("config", "default_vars")["default_vars"]
-    return context["default_vars"]
 
 
 def parse_key_value_pairs(ctx, param, value):
@@ -225,23 +206,23 @@ def get_first_role_name_in_unit_by_unit_name(unit_name, list):
         if unit_name == unit["name"]:
             return unit["role_name"]
 
-def getDescription(clickCtx, component_name, component_type, parent_description=""):
+def getDescription(ctx, component_name, component_type, parent_description=""):
     description = ""
 
     if component_type == "role":
         if parent_description !="":
             description = parent_description
         else: 
-            role_config_data = get_config_data_by_name(clickCtx, component_name, "role", role_list)
+            role_config_data = get_config_data_by_name(ctx, component_name, "role", ctx.obj.role_list)
             if "description" in role_config_data["role"]:
                 description = role_config_data["role"]["description"]                    
         
     elif component_type == "unit":
-        unit_config_data = get_config_data_by_name(clickCtx, component_name, "unit", unit_list)
+        unit_config_data = get_config_data_by_name(ctx, component_name, "unit", ctx.obj.unit_list)
         if "description" in unit_config_data["unit"]:
             description = unit_config_data["unit"]["description"]
     elif component_type == "playbook":
-        playbook_config_data = get_config_data_by_name(clickCtx, component_name, "playbook", playbook_list)
+        playbook_config_data = get_config_data_by_name(ctx, component_name, "playbook", ctx.obj.playbook_list)
         if "description" in playbook_config_data["playbook"]:
             description = playbook_config_data["playbook"]["description"]
 

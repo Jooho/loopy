@@ -38,9 +38,9 @@ def test_initializer_initialization(mock_env_and_config):
         initializer.initialize()
 
         # Check if the directories are being created
-        output_dir = config_data["output_dir"]
-        artifacts_dir = config_data["artifacts_dir"]
-        report_file = config_data["report_file"]
+        output_dir = os.path.join(config_data["loopy_result_dir"], config_data["output_env_dir"])
+        artifacts_dir = os.path.join(config_data["loopy_result_dir"], config_data["output_artifacts_dir"])
+        report_file = os.path.join(config_data["loopy_result_dir"], config_data["output_report_file"])
 
         mock_makedirs.assert_any_call(output_dir, exist_ok=True)
         mock_makedirs.assert_any_call(artifacts_dir, exist_ok=True)

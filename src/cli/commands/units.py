@@ -6,37 +6,30 @@ from cli.commands import utils
 from cli.commands import constants
 from cli.commands import loopy_report
 from cli.logics.component import Role, Unit, Get_required_input_keys
-from colorama import Fore, Style, Back
-from core.context import get_context
+from colorama import Fore, Style
+from core.report_manager import LoopyReportManager
 
-context = get_context()
 logger = logging.getLogger(__name__)
-
-role_list = context["config"]["role_list"]
-unit_list = context["config"]["unit_list"]
-enable_loopy_log=context["config"]["enable_loopy_log"]
-enable_loopy_logo=context["config"]["enable_loopy_logo"]
-enable_loopy_report=context["config"]["enable_loopy_report"]
 
 @click.pass_context
 def init(ctx, verbose=None):
-    input_log_level=utils.configure_logging(context, verbose)
+    input_log_level=utils.configure_logging(ctx, verbose)
     if input_log_level == logging.DEBUG:
         os.environ['SHOW_DEBUG_LOG']="true"
     
-    additional_role_dirs = context["config"]["additional_role_dirs"]
+    additional_role_dirs = ctx.obj.config["additional_role_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
     
-    additional_unit_dirs = context["config"]["additional_unit_dirs"]
+    additional_unit_dirs = ctx.obj.config["additional_unit_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_unit_dirs: {additional_unit_dirs}")
 
 
-
 @click.command(name="list")
-def list_units():
+@click.pass_context
+def list_units(ctx):
     init()
     click.echo("Available units:")
-    for unit in sorted(unit_list, key=lambda x: x["name"]):
+    for unit in sorted(ctx.obj.unit_list, key=lambda x: x["name"]):
         click.echo(f" - {unit['name']}")
 
 @click.command(name="show")
@@ -45,6 +38,7 @@ def list_units():
 @click.pass_context
 def show_unit(ctx, unit_name,detail_information):   
     init() 
+    unit_list=ctx.obj.unit_list
     utils.verify_component_exist(unit_name, unit_list, "unit")
 
     for item in unit_list:
@@ -67,19 +61,21 @@ def show_unit(ctx, unit_name,detail_information):
 def run_unit(
     ctx, unit_name, no_report, no_logo, no_log, verbose, params=None, output_env_file_name=None, input_env_file=None
 ):
+    init(verbose)
+    role_list=ctx.obj.role_list
+    unit_list=ctx.obj.unit_list
+    os.environ['ENABLE_LOOPY_LOG']=str(ctx.obj.config["enable_loopy_log"])
+    enable_loopy_logo=ctx.obj.config["enable_loopy_logo"]
+    enable_loopy_report=ctx.obj.config["enable_loopy_report"]    
+    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_log: {no_log}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:verbose: {verbose}")    
 
-    init(verbose)
 
     # Enable loopy role log
     if no_log:
-        os.environ['ENABLE_LOOPY_LOG']="false"
-    elif enable_loopy_log:
-        os.environ['ENABLE_LOOPY_LOG']="true"
-    else:
         os.environ['ENABLE_LOOPY_LOG']="false"
 
     # Print logo    
@@ -99,6 +95,10 @@ def run_unit(
     additional_vars_from_file = utils.load_env_file_if_exist(input_env_file)
     params = utils.update_params_with_input_file(additional_vars_from_file, params)
 
+    reportManager = LoopyReportManager(ctx.obj.loopy_result_dir)
+    reportManager.load_summary()
+    reportManager.update_summary("first_component_type", "Unit")
+    reportManager.update_summary("first_component_name", unit_name)
     # Create Unit component
     unit = Unit(ctx,unit_name)
     unit_config_data = utils.get_config_data_by_name(ctx, unit_name, "unit", unit_list)
@@ -129,13 +129,13 @@ def run_unit(
     if no_report:
         pass
     elif enable_loopy_report:
-        loopy_report.summary(ctx, "unit", unit_config_data,unit_list)
+        loopy_report.summary(ctx)
     else:
         pass
 
 def display_unit_info(ctx, unit_name, unit_path, role_name,detail_info):
     unit_config_data = utils.get_config_data_by_config_file_dir(ctx, unit_path)["unit"]
-    for role in role_list:
+    for role in ctx.obj.role_list:
         if role_name == role["name"]:
             role_path = role["path"]
     role_config_data = utils.get_config_data_by_config_file_dir(ctx, role_path)["role"]

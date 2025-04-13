@@ -27,17 +27,16 @@ class Initializer:
         self.loopy_root_path = self.config_data["loopy_root_path"]
         self.output_root_dir = self.config_data["output_root_dir"]
         # result folder format
-        self.loopy_result_dir = os.path.join(self.output_root_dir, self.now.strftime("%Y%m%d_%H%M"))
-        if self.config_data.get("loopy_result_dir"):
-            self.loopy_result_dir = self.config_data["loopy_result_dir"]
+        target_report_dir = self.now.strftime("%Y%m%d_%H%M")
+        if self.config_data.get("output_target_dir"):
+            target_report_dir = self.config_data["output_target_dir"]
+        self.loopy_result_dir = os.path.join(self.output_root_dir, target_report_dir)
+
+        # if self.config_data.get("loopy_result_dir"):
+        #     self.loopy_result_dir = self.config_data["loopy_result_dir"]
         self.config_data["loopy_result_dir"] = self.loopy_result_dir
 
     def initialize(self):
-        # Reset temporary data for each run
-        reportManager = LoopyReportManager(self.config_data["loopy_root_path"])
-        reportManager.reset_role_time()
-        reportManager.reset_summary()
-
         # Initialize result directory
         output_dir = os.path.join(self.loopy_result_dir, self.config_data["output_env_dir"])
         artifacts_dir = os.path.join(self.loopy_result_dir, self.config_data["output_artifacts_dir"])
@@ -54,13 +53,19 @@ class Initializer:
         os.environ["REPORT_FILE"] = report_file
 
         # Create output/artifacts directories
-        
+
         if output_dir and os.path.exists(output_dir):
             shutil.rmtree(output_dir)
         if artifacts_dir and os.path.exists(artifacts_dir):
-            shutil.rmtree(artifacts_dir)                
+            shutil.rmtree(artifacts_dir)
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(artifacts_dir, exist_ok=True)
+
+        # Reset temporary data for each run
+        reportManager = LoopyReportManager(self.loopy_result_dir)
+        reportManager.init_report_data()
+        reportManager.reset_role_time()
+        reportManager.reset_summary()
 
         # Create report file
         with open(report_file, "w") as file:
@@ -103,7 +108,8 @@ class Initializer:
         self.initialize_component_list("playbook")
 
         # Initialize the context
-        LoopyContextBuilder(self.env_list, self.default_vars, self.config_data).build()
+        return {"default_vars": self.default_vars, "config": self.config_data, "env": self.env_list}
+
 
     def sync_env_to_config(self, env: dict, config: dict):
         for key, value in env.items():

@@ -1,40 +1,34 @@
 # fmt: off
 import os
 import click
+import logging
 from cli.commands import utils
 from cli.commands import constants
 from cli.commands import loopy_report
-
-import logging
-
 from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys
-from colorama import Fore, Style, Back
-from core.context import get_context
+from colorama import Fore, Style
+from core.report_manager import LoopyReportManager
 
-context= get_context()
+
+
 logger = logging.getLogger(__name__)
-
-role_list = context["config"]["role_list"]
-enable_loopy_log=context["config"]["enable_loopy_log"]
-enable_loopy_logo=context["config"]["enable_loopy_logo"]
-enable_loopy_report=context["config"]["enable_loopy_report"]
 
 @click.pass_context
 def init(ctx,verbose=None):
-
-    input_log_level=utils.configure_logging(context, verbose)
+    input_log_level=utils.configure_logging(ctx, verbose)
     if input_log_level == logging.DEBUG:
          os.environ['SHOW_DEBUG_LOG']="true"
         
     # Additional Roles
-    additional_role_dirs = context["config"]["additional_role_dirs"]
+    additional_role_dirs = ctx.obj.config["additional_role_dirs"]
     logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")        
 
 @click.command(name="list")
-def list_roles():
+@click.pass_context
+def list_roles(ctx):
     init()
     click.echo("Available roles:")
-    for role in sorted(role_list, key=lambda x: x["name"]):
+    for role in sorted(ctx.obj.role_list, key=lambda x: x["name"]):
         click.echo(f" - {role['name']}")
 
 @click.command(name="show")
@@ -42,6 +36,7 @@ def list_roles():
 @click.pass_context
 def show_role(ctx, role_name):
     init()
+    role_list=ctx.obj.role_list
     utils.verify_component_exist(role_name, role_list, "role")
   
     for item in role_list:
@@ -72,6 +67,11 @@ def test_role(role_name):
 @click.pass_context
 def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, output_env_file_name=None, input_env_file=None):   
     init(verbose)
+    role_list=ctx.obj.role_list
+    os.environ['ENABLE_LOOPY_LOG']=str(ctx.obj.config["enable_loopy_log"])
+    enable_loopy_logo=ctx.obj.config["enable_loopy_logo"]
+    enable_loopy_report=ctx.obj.config["enable_loopy_report"]    
+    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_log: {no_log}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
@@ -80,10 +80,7 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     # Enable loopy role log
     if no_log:
         os.environ['ENABLE_LOOPY_LOG']="false"
-    elif enable_loopy_log:
-        os.environ['ENABLE_LOOPY_LOG']="true"
-    else:
-        os.environ['ENABLE_LOOPY_LOG']="false"
+
         
     # Print logo    
     if no_logo:
@@ -92,6 +89,11 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
         utils.print_logo()
     else:
         pass
+    
+    reportManager = LoopyReportManager(ctx.obj.loopy_result_dir)
+    reportManager.load_summary()
+    reportManager.update_summary("first_component_type", "Role")
+    reportManager.update_summary("first_component_name", role_name)
         
     # role command specific validation    
     utils.verify_component_exist(role_name, role_list, "role")
@@ -109,7 +111,7 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     if no_report:
         pass
     elif enable_loopy_report:
-        loopy_report.summary(ctx, "role", None,None)
+        loopy_report.summary(ctx)
     else:
         pass
 

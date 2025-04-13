@@ -7,10 +7,10 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.cli
 @pytest.mark.units
-def test_list_units(cli_runner, custom_context):
+def test_list_units(cli_runner, loopy_context):
     from src.cli.commands.units import list_units
 
-    result = cli_runner.invoke(list_units)
+    result = cli_runner.invoke(list_units, obj=loopy_context)
     assert result.exit_code == 0
     assert "Available units:" in result.output
     assert "deploy-ssl-minio" in result.output
@@ -19,20 +19,20 @@ def test_list_units(cli_runner, custom_context):
 
 @pytest.mark.cli
 @pytest.mark.units
-def test_show_unit(cli_runner, custom_context):
+def test_show_unit(cli_runner, loopy_context):
     from src.cli.commands.units import show_unit
 
-    result = cli_runner.invoke(show_unit, ["loopy-roles-test-non-cluster-shell-execute"])
+    result = cli_runner.invoke(show_unit, ["loopy-roles-test-non-cluster-shell-execute"], obj=loopy_context)
     assert result.exit_code == 0
     assert "Name: loopy-roles-test-non-cluster-shell-execute" in result.output
 
 
 @pytest.mark.cli
 @pytest.mark.units
-def test_run_unit(cli_runner, custom_context):
+def test_run_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
-    result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-shell-execute", "-l", "-g"])
+    result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-shell-execute", "-l", "-g"], obj=loopy_context)
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -43,11 +43,11 @@ def test_run_unit(cli_runner, custom_context):
 
 # @pytest.mark.cli
 # @pytest.mark.units
-# def test_run_unit_fail_with_stop_when_error_happened_1(cli_runner, custom_context):
+# def test_run_unit_fail_with_stop_when_error_happened_1(cli_runner, loopy_context):
 #     """Report an warn if the executed test role fails  with STOP_WHEN_FAILED = 1"""
 #     from src.cli.commands.units import run_unit
 
-#     result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-fail-test-shell-execute", "-l", "-g"], env={"STOP_WHEN_FAILED": "1"})
+#     result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-fail-test-shell-execute", "-l", "-g"],obj=loopy_context, env={"STOP_WHEN_FAILED": "1"})
 #     if result.exit_code != 0:
 #        logging.error(f"Stdout: {result.stdout}")
 #     assert result.exit_code == 0
@@ -56,11 +56,11 @@ def test_run_unit(cli_runner, custom_context):
 
 # @pytest.mark.cli
 # @pytest.mark.units
-# def test_run_unit_fail_with_stop_when_error_happened_0(cli_runner, custom_context):
+# def test_run_unit_fail_with_stop_when_error_happened_0(cli_runner, loopy_context):
 #     """Report an error if the executed test role fails with STOP_WHEN_FAILED = 0"""
 #     from src.cli.commands.units import run_unit
 
-#     result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-fail-test-shell-execute", "-l", "-g"], env={"STOP_WHEN_FAILED": "0"})
+#     result = cli_runner.invoke(run_unit, ["loopy-roles-test-non-cluster-fail-test-shell-execute", "-l", "-g"], obj=loopy_context, env={"STOP_WHEN_FAILED": "0"})
 #     if result.exit_code != 0:
 #         logging.error(f"Stdout: {result.stdout}")
 #     assert result.exit_code == 0
@@ -69,9 +69,9 @@ def test_run_unit(cli_runner, custom_context):
 
 @pytest.mark.cli
 @pytest.mark.units
-def test_run_unit_non_exist_unit(cli_runner, custom_context):
+def test_run_unit_non_exist_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
-    result = cli_runner.invoke(run_unit, ["NOT-EXIST-UNIT", "-l", "-g"])
+    result = cli_runner.invoke(run_unit, ["NOT-EXIST-UNIT", "-l", "-g"], obj=loopy_context)
     assert result.exit_code == 1
     assert "Unit name(NOT-EXIST-UNIT) does not exist" in result.stdout.strip()

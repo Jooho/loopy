@@ -1,91 +1,34 @@
-from collections import defaultdict
 import os
-from cli.commands import utils
-
 from colorama import Fore, Style
 from core.report_manager import LoopyReportManager
-from core.context import get_context
 from prettytable import PrettyTable
 from cli.commands import constants
 
-context = get_context()
-config_dict = context["config"]
-reportManager = LoopyReportManager(config_dict["loopy_root_path"])
 
+def summary(ctx):
 
-def parse_report_file(report_file):
-    """
-    Parse the report file to extract non-empty, non-comment lines.
-    This ensures we only process valid execution entries.
-    """
-    report_lines = []
-    with open(report_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            report_lines.append(line)
-    return report_lines
-
-
-def summary(ctx, result_dict, role_name, result):
+    loopy_result_dir = ctx.obj.loopy_result_dir
+    reportManager = LoopyReportManager(loopy_result_dir)
     reportManager.load_summary()
-    report = os.path.join(reportManager.summary_dict["loopy_result_dir"], "report")
+    report = os.path.join(loopy_result_dir, "report")
     report_lines = parse_report_file(report)
-    # report_lines = parse_report_file(os.path.join(reportManager.summary_dict["loopy_result_dir"], "report"))
+
     components = reportManager.summary_dict["components"]
     first_component_type = reportManager.summary_dict["first_component_type"]
-    plyabook_result = None
 
-    last_report_line_index = len(report_lines) - 1
-    result_idx = 0
-    update_results_from_report(report_lines, components)
+    update_results_from_report(reportManager,report_lines, components)
     flattened_components = flatten_components(components, [])
 
     print_report(
-        first_component_type, flattened_components, options={"show_index": True, "show_type": True, "show_name": True, "show_result": True, "show_time": True, "show_folder": True}
+        ctx,
+        reportManager,
+        first_component_type,
+        flattened_components,
+        options={"show_index": True, "show_type": True, "show_name": True, "show_result": True, "show_time": True, "show_folder": True},
     )
 
 
-def loopy_summary_print(execution_time):
-    print(f"{Fore.RESET}")  # Reset Color
-    summary_text = ["╦  ╔═╗╔═╗╔═╗╦ ╦", "║  ║ ║║ ║╠═╝╚╦╝", "╩═╝╚═╝╚═╝╩   ╩ ", "╔═╗┬ ┬┌┬┐┌┬┐┌─┐┬─┐┬ ┬", "╚═╗│ │││││││├─┤├┬┘└┬┘", "╚═╝└─┘┴ ┴┴ ┴┴ ┴┴└─ ┴ "]
-    first_component_type = reportManager.summary_dict["first_component_type"]
-    first_component_name = reportManager.summary_dict["first_component_name"]
-    loopy_result_dir = reportManager.summary_dict["loopy_result_dir"]
-    execution_time, _ = format_time_and_result(execution_time, "")
-
-    additional_info = [
-        f"Run: {first_component_type}({first_component_name})",
-        f"Loopy result dir: {loopy_result_dir}",
-        f"Report file: {loopy_result_dir}/report",
-        f"Execution time: {execution_time}",
-    ]
-
-    # Find the maximum length of text lines
-    max_line_length = max(len(line) for line in summary_text) + 100
-
-    # Print top border
-    print("*" * (max_line_length + 4))
-
-    # Print text with *
-    for line in summary_text:
-        padding_length = (max_line_length - len(line)) // 2
-        print("* " + " " * padding_length + line + " " * (max_line_length - len(line) - padding_length) + " *")
-    # Print additional info
-    for info in additional_info:
-        padding_length = (max_line_length - len(info)) // 2
-        key = info.split(":")[0].strip()
-        value = info.split(":")[1].strip()
-        new_string = f"{Fore.BLUE}{key}{Style.RESET_ALL}" + ":" + f"{Fore.YELLOW} {value}{Style.RESET_ALL}"
-
-        print("* " + " " * padding_length + new_string + " " * (max_line_length - len(info) - padding_length) + " *")
-
-    # Print bottom border
-    print("*" * (max_line_length + 4))
-
-
-def print_report(first_component_type, components, options=None):
+def print_report(ctx, reportManager, first_component_type, components, options=None):
     """
     Print the report in a formatted table.
 
@@ -119,12 +62,8 @@ def print_report(first_component_type, components, options=None):
 
     table = PrettyTable(field_names)
 
-    last_index = len(components) - 1
     for i in range(len(components)):
-        last_component = True if i == last_index else False
-        pre_component = components[i - 1]
         cur_component = components[i]
-        # next_component = components[i + 1] if not last_component else components[i]
 
         if components[i].get("type") == "playbook":
             row = get_playbook_table_row(i, components[i], options)
@@ -132,17 +71,55 @@ def print_report(first_component_type, components, options=None):
             table.add_row(row)
 
         elif components[i].get("type") == "unit":
-            row = get_unit_table_row(i, cur_component, pre_component, first_component_type, options)
+            row = get_unit_table_row(i, cur_component, options)
             row = [str(cell).replace("\n", " ").strip() for cell in row]
             table.add_row(row)
         else:
-            row_list = get_role_table_row(i, cur_component, pre_component, first_component_type, options)
+            row_list = get_role_table_row(i, cur_component, first_component_type, options)
             for row in row_list:
                 table.add_row(row)
 
     playbook_execution_time = components[0].get("execution_time")
-    loopy_summary_print(playbook_execution_time)
+    loopy_summary_print(ctx, reportManager, playbook_execution_time)
     print(table)
+
+
+def loopy_summary_print(ctx, reportManager, execution_time):
+    print(f"{Fore.RESET}")  # Reset Color
+    summary_text = ["╦  ╔═╗╔═╗╔═╗╦ ╦", "║  ║ ║║ ║╠═╝╚╦╝", "╩═╝╚═╝╚═╝╩   ╩ ", "╔═╗┬ ┬┌┬┐┌┬┐┌─┐┬─┐┬ ┬", "╚═╗│ │││││││├─┤├┬┘└┬┘", "╚═╝└─┘┴ ┴┴ ┴┴ ┴┴└─ ┴ "]
+    first_component_type = reportManager.summary_dict["first_component_type"]
+    first_component_name = reportManager.summary_dict["first_component_name"]
+    loopy_result_dir = ctx.obj.loopy_result_dir
+    execution_time, _ = format_time_and_result(execution_time, "")
+
+    additional_info = [
+        f"Run: {first_component_type}({first_component_name})",
+        f"Loopy result dir: {loopy_result_dir}",
+        f"Report file: {loopy_result_dir}/report",
+        f"Execution time: {execution_time}",
+    ]
+
+    # Find the maximum length of text lines
+    max_line_length = max(len(line) for line in summary_text) + 100
+
+    # Print top border
+    print("*" * (max_line_length + 4))
+
+    # Print text with *
+    for line in summary_text:
+        padding_length = (max_line_length - len(line)) // 2
+        print("* " + " " * padding_length + line + " " * (max_line_length - len(line) - padding_length) + " *")
+    # Print additional info
+    for info in additional_info:
+        padding_length = (max_line_length - len(info)) // 2
+        key = info.split(":")[0].strip()
+        value = info.split(":")[1].strip()
+        new_string = f"{Fore.BLUE}{key}{Style.RESET_ALL}" + ":" + f"{Fore.YELLOW} {value}{Style.RESET_ALL}"
+
+        print("* " + " " * padding_length + new_string + " " * (max_line_length - len(info) - padding_length) + " *")
+
+    # Print bottom border
+    print("*" * (max_line_length + 4))
 
 
 def get_playbook_table_row(index, component, options):
@@ -173,7 +150,7 @@ def get_playbook_table_row(index, component, options):
     return row
 
 
-def get_unit_table_row(index, component, pre_component, first_component_type, options):
+def get_unit_table_row(index, component, options):
     """
     Get the table row for a unit component.
     """
@@ -201,7 +178,7 @@ def get_unit_table_row(index, component, pre_component, first_component_type, op
     return row
 
 
-def get_role_table_row(index, component, prev_component, first_component_type, options):
+def get_role_table_row(index, component, first_component_type, options):
     """
     Get the table row for a playbook component.
     """
@@ -228,7 +205,7 @@ def get_role_table_row(index, component, prev_component, first_component_type, o
     if options["show_folder"]:
         row.append(f"{component.get('artifacts_dir')}")
 
-    # # Apply color formatting
+    # Apply color formatting
     row[0] = f"{color}" + row[0]
     row[-1] = row[-1] + f"{Style.RESET_ALL}"
 
@@ -272,6 +249,21 @@ def get_command_table_row(role_idx, index, component, options, artifacts_dir):
     return row
 
 
+def parse_report_file(report_file):
+    """
+    Parse the report file to extract non-empty, non-comment lines.
+    This ensures we only process valid execution entries.
+    """
+    report_lines = []
+    with open(report_file, "r") as file:
+        for line in file:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            report_lines.append(line)
+    return report_lines
+
+
 def flatten_components(component, flat_list, parent=None):
     info = {k: v for k, v in component.items() if k != "components"}
 
@@ -313,11 +305,10 @@ def format_time_and_result(execution_time, result):
     return formatted_time, result_str
 
 
-playbook_result = 0
 
 
-def update_results_from_report(report_lines, components):
-
+def update_results_from_report(reportManager,report_lines, components):
+    playbook_result = 0
     def update_role_result(components, role_index, role_name, role_results):
         if isinstance(components, list):
             for component in components:
@@ -338,7 +329,7 @@ def update_results_from_report(report_lines, components):
                     return True
 
     def update_unit_result(unit):
-        global playbook_result
+        nonlocal playbook_result
         for role in unit["components"]:
             if "result" in role and role["result"] == 1:
                 unit_result = 1
@@ -349,7 +340,7 @@ def update_results_from_report(report_lines, components):
         return True
 
     def update_playbook_result(components):
-        global playbook_result
+        nonlocal playbook_result
         if isinstance(components, list):
             for component in components:
                 if update_playbook_result(component):
@@ -382,7 +373,7 @@ def update_results_from_report(report_lines, components):
         role_result = result_data[-1]
         return role_index, role_name, role_result
 
-    def update_report_results():
+    def update_report_results(reportManager):
         role_results = []
         next_role_index = -1
         next_role_name = None
@@ -411,9 +402,10 @@ def update_results_from_report(report_lines, components):
         if components["type"] == "playbook":
             update_playbook_result(components)
 
+        reportManager.load_summary()
         reportManager.update_summary("components", components)
 
-    update_report_results()
+    update_report_results(reportManager)
 
 
 def shorten_string(string, max_length):
@@ -421,4 +413,3 @@ def shorten_string(string, max_length):
         return string
     else:
         return string[: max_length - 3] + "..."
-

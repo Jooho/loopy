@@ -7,10 +7,10 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.cli
 @pytest.mark.playbooks
-def test_list_playbooks(cli_runner, custom_context):
+def test_list_playbooks(cli_runner, loopy_context):
     from src.cli.commands.playbooks import list_playbooks
 
-    result = cli_runner.invoke(list_playbooks)
+    result = cli_runner.invoke(list_playbooks, obj=loopy_context)
     assert result.exit_code == 0
     assert "Available playbooks:" in result.output
     assert "loopy-test-report-playbook" in result.output
@@ -18,22 +18,31 @@ def test_list_playbooks(cli_runner, custom_context):
 
 @pytest.mark.cli
 @pytest.mark.playbooks
-def test_show_playbook(cli_runner, custom_context):
+def test_show_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import show_playbook
 
-    result = cli_runner.invoke(show_playbook, ["loopy-unit-tests"])
+    result = cli_runner.invoke(show_playbook, ["loopy-unit-tests"], obj=loopy_context)
     assert result.exit_code == 0
     assert "Name: loopy-unit-tests" in result.output
 
-
 @pytest.mark.cli
 @pytest.mark.playbooks
-def test_run_playbook(cli_runner, custom_context):
+def test_run_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests", "-l", "-g"])
+    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests", "-l", "-g"], obj=loopy_context)
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
+    
+
+# @pytest.mark.cli
+# @pytest.mark.playbooks
+# def test_run_playbook(cli_runner, custom_context):
+#     from src.cli.commands.playbooks import run_playbook
+
+#     result = cli_runner.invoke(run_playbook, ["loopy-unit-tests", "-l", "-g"])
+#     assert result.exit_code == 0
+#     assert "Success" in result.stdout.strip()
 
 # TO-DO: Environment variable and Parameter handling missing
 # Environment variable can overwrite the parameter in the component

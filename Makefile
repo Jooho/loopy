@@ -24,7 +24,7 @@ init: download-cli install-lib
 
 .PHONY: unit
 unit:  
-	pytest -c "${PYTEST_CONFIG}" -n 1 --dist worksteal 
+	pytest -c "${PYTEST_CONFIG}" -n 6 --dist worksteal 
 
 
 .PHONY: update-test-data

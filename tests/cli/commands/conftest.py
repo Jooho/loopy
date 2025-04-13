@@ -3,13 +3,14 @@ import pytest
 import os
 import yaml
 import shutil
+from core.context import LoopyContext
+import random
+import string
 from core.context import LoopyContextBuilder, set_context, get_context
 
-
-@pytest.fixture(scope="session", autouse=True)
-def custom_context():
-    with open("./tests/custom-context.json", "r") as f:
-        return yaml.safe_load(f)
+from core.initializer import Initializer
+from core.env import EnvManager
+from core.config_loader import ConfigLoader
 
 
 @pytest.fixture
@@ -17,19 +18,39 @@ def cli_runner():
     return CliRunner()
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup(custom_context, loopy_root_path,cleanup_report_dir):
-    # initialize_global_context
-    custom_context["config"]["loopy_root_path"] = loopy_root_path
-    custom_context["config"]["loopy_config_path"] = os.path.join(loopy_root_path, "config.yaml")
+@pytest.fixture(autouse=True)
+def loopy_context(loopy_root_path):
+    envManager = EnvManager()
+    config_path = envManager.get_config_path()
+    root_path = envManager.get_root_path()
+    env_list = envManager.get_env()
+    env_list["loopy_root_path"] = loopy_root_path
+    env_list["loopy_config_path"] = os.path.join(loopy_root_path, "config.yaml")
 
-    context = LoopyContextBuilder(env_list=custom_context["env"], default_vars=custom_context["default_vars"], config_data=custom_context["config"]).build()
-    set_context(context)
+    config_loader = ConfigLoader(config_path, root_path)
+    config_loader.load()
+    config_data = config_loader.get_config()
+    default_vars = config_loader.get_default_vars()
 
-@pytest.fixture(scope="session",autouse=True)
-def cleanup_report_dir():
+    # Set test role/unit/playbook path
+    config_data["additional_role_dirs"] = [f"{loopy_root_path}/tests/test-data/roles"]
+    config_data["additional_unit_dirs"] = [f"{loopy_root_path}/tests/test-data/units"]
+    config_data["additional_playbook_dirs"] = [f"{loopy_root_path}/tests/test-data/playbooks"]
+    config_data["output_target_dir"] = os.path.join(generate_random_name())
+
+    initializer = Initializer(env_list, config_data, default_vars)
+    ctx_object = initializer.initialize()
+    return LoopyContext(ctx_object)
+
+
+@pytest.fixture(scope="function")
+def cleanup_report_dir(loopy_context):
     yield
-    context = get_context()
-    output_root_dir = context["config"]["output_root_dir"]
+
+    output_root_dir = loopy_context["config"]["output_root_dir"]
     if output_root_dir and os.path.exists(output_root_dir):
         shutil.rmtree(output_root_dir)
+
+
+def generate_random_name(length=5):
+    return "".join(random.choices(string.ascii_lowercase, k=length))

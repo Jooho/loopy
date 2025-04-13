@@ -8,11 +8,11 @@
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/loopy",
+      "program": "${workspaceFolder}/loopy.py",
       "console": "integratedTerminal",
       "env": { "PYTHONPATH": "src" },
-      "args": ["roles", "run", "shell-execute", "-p", "COMMANDS=echo test"]
-      // "args": ["playbooks", "run", "loopy-unit-tests"]
+      // "args": ["roles", "run", "shell-execute", "-p", "COMMANDS=echo test"]
+      "args": ["playbooks", "run", "loopy-unit-tests","-g"]
       // "args": ["units", "run", "loopy-roles-test-non-cluster-shell-execute"]
     }    
   ]

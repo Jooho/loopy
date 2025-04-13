@@ -1,5 +1,5 @@
 import click
-
+from core.context import LoopyContext
 from .commands.roles import list_roles, show_role, test_role, run_role
 from .commands.units import list_units, show_unit, run_unit
 from .commands.playbooks import list_playbooks, show_playbook, run_playbook
@@ -33,7 +33,9 @@ playbooks.add_command(run_playbook)
 
 
 @click.group()
-def cli():
+@click.pass_context
+def cli(ctx):
+    ctx.obj = LoopyContext(ctx.obj)
     pass
 
 cli.add_command(roles)

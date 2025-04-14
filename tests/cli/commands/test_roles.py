@@ -38,7 +38,11 @@ def test_show_role(cli_runner, loopy_context):
 def test_run_role(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 
-    result = cli_runner.invoke(run_role, ["shell-execute", "-p", "COMMANDS=echo test", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_role,
+        ["shell-execute", "-p", "COMMANDS=echo test", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -48,7 +52,11 @@ def test_run_role(cli_runner, loopy_context):
 def test_run_role_multi_commands(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 
-    result = cli_runner.invoke(run_role, ["shell-execute", "-p", "COMMANDS=echo first %% echo second", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_role,
+        ["shell-execute", "-p", "COMMANDS=echo first %% echo second", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -58,6 +66,10 @@ def test_run_role_multi_commands(cli_runner, loopy_context):
 def test_run_role_failed(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 
-    result = cli_runner.invoke(run_role, ["shell-execute", "-p", 'COMMANDS="echo test', "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_role,
+        ["shell-execute", "-p", 'COMMANDS="echo test', "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
-    assert " There are some errors" in result.stdout.strip()
+    assert "Fail" in result.stdout.strip()

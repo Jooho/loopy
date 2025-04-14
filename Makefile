@@ -30,3 +30,10 @@ unit:
 .PHONY: update-test-data
 update-test-data:
 	python hacks/update_test_custom_context_json.py
+
+.PHONY: py-lint
+py-lint:
+	black ./src ./test	
+
+.PHONY: precommit
+precommit: py-lint unit 

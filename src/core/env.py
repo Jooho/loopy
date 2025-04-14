@@ -9,7 +9,9 @@ class EnvManager:
 
         if not self.env.get("loopy_root_path"):
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            self.loopy_root_path = os.path.abspath(os.path.join(current_dir, "..", ".."))
+            self.loopy_root_path = os.path.abspath(
+                os.path.join(current_dir, "..", "..")
+            )
             self.env["loopy_root_path"] = self.loopy_root_path
 
         if not self.env.get("loopy_config_name"):
@@ -18,7 +20,9 @@ class EnvManager:
 
         self.loopy_root_path = self.env["loopy_root_path"]
         self.loopy_config_name = self.env["loopy_config_name"]
-        self.loopy_config_path = os.path.join(self.loopy_root_path, self.loopy_config_name)
+        self.loopy_config_path = os.path.join(
+            self.loopy_root_path, self.loopy_config_name
+        )
         self.commands_dir = os.path.join(self.loopy_root_path, "src", "cli", "commands")
         self.cli_dir = os.path.join(self.loopy_root_path, "src", "cli")
         self.logics_dir = os.path.join(self.loopy_root_path, "src", "cli", "logics")

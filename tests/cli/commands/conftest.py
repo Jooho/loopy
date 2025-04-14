@@ -6,7 +6,8 @@ import shutil
 from core.context import LoopyContext
 import random
 import string
-from core.context import LoopyContextBuilder, set_context, get_context
+
+# from core.context import LoopyContextBuilder, set_context, get_context
 
 from core.initializer import Initializer
 from core.env import EnvManager
@@ -35,7 +36,9 @@ def loopy_context(loopy_root_path):
     # Set test role/unit/playbook path
     config_data["additional_role_dirs"] = [f"{loopy_root_path}/tests/test-data/roles"]
     config_data["additional_unit_dirs"] = [f"{loopy_root_path}/tests/test-data/units"]
-    config_data["additional_playbook_dirs"] = [f"{loopy_root_path}/tests/test-data/playbooks"]
+    config_data["additional_playbook_dirs"] = [
+        f"{loopy_root_path}/tests/test-data/playbooks"
+    ]
     config_data["output_target_dir"] = os.path.join(generate_random_name())
 
     initializer = Initializer(env_list, config_data, default_vars)

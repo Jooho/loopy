@@ -16,7 +16,7 @@ def summary(ctx):
     components = reportManager.summary_dict["components"]
     first_component_type = reportManager.summary_dict["first_component_type"]
 
-    update_results_from_report(reportManager,report_lines, components)
+    update_results_from_report(reportManager, report_lines, components)
     flattened_components = flatten_components(components, [])
 
     print_report(
@@ -24,7 +24,14 @@ def summary(ctx):
         reportManager,
         first_component_type,
         flattened_components,
-        options={"show_index": True, "show_type": True, "show_name": True, "show_result": True, "show_time": True, "show_folder": True},
+        options={
+            "show_index": True,
+            "show_type": True,
+            "show_name": True,
+            "show_result": True,
+            "show_time": True,
+            "show_folder": True,
+        },
     )
 
 
@@ -75,7 +82,9 @@ def print_report(ctx, reportManager, first_component_type, components, options=N
             row = [str(cell).replace("\n", " ").strip() for cell in row]
             table.add_row(row)
         else:
-            row_list = get_role_table_row(i, cur_component, first_component_type, options)
+            row_list = get_role_table_row(
+                i, cur_component, first_component_type, options
+            )
             for row in row_list:
                 table.add_row(row)
 
@@ -86,7 +95,14 @@ def print_report(ctx, reportManager, first_component_type, components, options=N
 
 def loopy_summary_print(ctx, reportManager, execution_time):
     print(f"{Fore.RESET}")  # Reset Color
-    summary_text = ["╦  ╔═╗╔═╗╔═╗╦ ╦", "║  ║ ║║ ║╠═╝╚╦╝", "╩═╝╚═╝╚═╝╩   ╩ ", "╔═╗┬ ┬┌┬┐┌┬┐┌─┐┬─┐┬ ┬", "╚═╗│ │││││││├─┤├┬┘└┬┘", "╚═╝└─┘┴ ┴┴ ┴┴ ┴┴└─ ┴ "]
+    summary_text = [
+        "╦  ╔═╗╔═╗╔═╗╦ ╦",
+        "║  ║ ║║ ║╠═╝╚╦╝",
+        "╩═╝╚═╝╚═╝╩   ╩ ",
+        "╔═╗┬ ┬┌┬┐┌┬┐┌─┐┬─┐┬ ┬",
+        "╚═╗│ │││││││├─┤├┬┘└┬┘",
+        "╚═╝└─┘┴ ┴┴ ┴┴ ┴┴└─ ┴ ",
+    ]
     first_component_type = reportManager.summary_dict["first_component_type"]
     first_component_name = reportManager.summary_dict["first_component_name"]
     loopy_result_dir = ctx.obj.loopy_result_dir
@@ -108,15 +124,31 @@ def loopy_summary_print(ctx, reportManager, execution_time):
     # Print text with *
     for line in summary_text:
         padding_length = (max_line_length - len(line)) // 2
-        print("* " + " " * padding_length + line + " " * (max_line_length - len(line) - padding_length) + " *")
+        print(
+            "* "
+            + " " * padding_length
+            + line
+            + " " * (max_line_length - len(line) - padding_length)
+            + " *"
+        )
     # Print additional info
     for info in additional_info:
         padding_length = (max_line_length - len(info)) // 2
         key = info.split(":")[0].strip()
         value = info.split(":")[1].strip()
-        new_string = f"{Fore.BLUE}{key}{Style.RESET_ALL}" + ":" + f"{Fore.YELLOW} {value}{Style.RESET_ALL}"
+        new_string = (
+            f"{Fore.BLUE}{key}{Style.RESET_ALL}"
+            + ":"
+            + f"{Fore.YELLOW} {value}{Style.RESET_ALL}"
+        )
 
-        print("* " + " " * padding_length + new_string + " " * (max_line_length - len(info) - padding_length) + " *")
+        print(
+            "* "
+            + " " * padding_length
+            + new_string
+            + " " * (max_line_length - len(info) - padding_length)
+            + " *"
+        )
 
     # Print bottom border
     print("*" * (max_line_length + 4))
@@ -127,7 +159,12 @@ def get_playbook_table_row(index, component, options):
     Get the table row for a playbook component.
     """
     description = shorten_string(
-        component.get("description") if component.get("description") not in (None, "") else component.get("name"), constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH
+        (
+            component.get("description")
+            if component.get("description") not in (None, "")
+            else component.get("name")
+        ),
+        constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH,
     )
 
     color = Fore.YELLOW
@@ -140,10 +177,16 @@ def get_playbook_table_row(index, component, options):
         row.append(f"{color}{description}{Style.RESET_ALL}")
     if options["show_result"]:
         row.append(
-            f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}" if component.get("result_str") == "Success" else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.YELLOW}",
+            (
+                f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}"
+                if component.get("result_str") == "Success"
+                else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.YELLOW}"
+            ),
         )
     if options["show_time"]:
-        row.append(f"{color}{component.get('formatted_execution_time')}{Style.RESET_ALL}")
+        row.append(
+            f"{color}{component.get('formatted_execution_time')}{Style.RESET_ALL}"
+        )
     if options["show_folder"]:
         row.append("")
 
@@ -155,7 +198,12 @@ def get_unit_table_row(index, component, options):
     Get the table row for a unit component.
     """
     description = shorten_string(
-        component.get("description") if component.get("description") not in (None, "") else component.get("name"), constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH
+        (
+            component.get("description")
+            if component.get("description") not in (None, "")
+            else component.get("name")
+        ),
+        constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH,
     )
 
     color = Fore.MAGENTA
@@ -168,10 +216,14 @@ def get_unit_table_row(index, component, options):
         row.append(f"{color}{description}{Style.RESET_ALL}")
     if options["show_result"]:
         row.append(
-            f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{Fore.MAGENTA}" if component.get("result_str") == "Success" else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.MAGENTA}"
+            f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{Fore.MAGENTA}"
+            if component.get("result_str") == "Success"
+            else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.MAGENTA}"
         ),
     if options["show_time"]:
-        row.append(f"{color}{component.get('formatted_execution_time')}{Style.RESET_ALL}")
+        row.append(
+            f"{color}{component.get('formatted_execution_time')}{Style.RESET_ALL}"
+        )
     if options["show_folder"]:
         row.append("")
 
@@ -183,7 +235,12 @@ def get_role_table_row(index, component, first_component_type, options):
     Get the table row for a playbook component.
     """
     description = shorten_string(
-        component.get("description") if component.get("description") not in (None, "") else component.get("name"), constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH
+        (
+            component.get("description")
+            if component.get("description") not in (None, "")
+            else component.get("name")
+        ),
+        constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH,
     )
 
     color = Fore.WHITE
@@ -199,7 +256,11 @@ def get_role_table_row(index, component, first_component_type, options):
     if options["show_name"]:
         row.append(f"{description}")
     if options["show_result"]:
-        row.append(f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{color}" if component.get("result_str") == "Success" else f"{Fore.RED}Fail{Style.RESET_ALL}{color}"),
+        row.append(
+            f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{color}"
+            if component.get("result_str") == "Success"
+            else f"{Fore.RED}Fail{Style.RESET_ALL}{color}"
+        ),
     if options["show_time"]:
         row.append(f"{component.get('formatted_execution_time')}")
     if options["show_folder"]:
@@ -214,7 +275,9 @@ def get_role_table_row(index, component, first_component_type, options):
     commands = component.get("commands")
     if len(commands) > 1:
         for i in range(len(commands)):
-            row = get_command_table_row(index, i, commands[i], options, component.get("artifacts_dir"))
+            row = get_command_table_row(
+                index, i, commands[i], options, component.get("artifacts_dir")
+            )
             row[-1] = row[-1]
             row_list.append(row)
 
@@ -226,9 +289,16 @@ def get_command_table_row(role_idx, index, component, options, artifacts_dir):
     Get the table row for a command component.
     """
     description = shorten_string(
-        component.get("description") if component.get("description") not in (None, "") else component.get("name"), constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH
+        (
+            component.get("description")
+            if component.get("description") not in (None, "")
+            else component.get("name")
+        ),
+        constants.REPORT_MAXIMUM_DESCRIPTION_STRING_LENGTH,
     )
-    formatted_time, result_str = format_time_and_result(component.get("execution_time"), component.get("result"))
+    formatted_time, result_str = format_time_and_result(
+        component.get("execution_time"), component.get("result")
+    )
     prefix = "*"
 
     color = Fore.BLUE
@@ -240,7 +310,11 @@ def get_command_table_row(role_idx, index, component, options, artifacts_dir):
     if options["show_name"]:
         row.append(f"{color}{description}{Style.RESET_ALL}")
     if options["show_result"]:
-        row.append(f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{Fore.BLUE}" if result_str == "Success" else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.BLUE}"),
+        row.append(
+            f"{Style.RESET_ALL}{Fore.GREEN}Success{Style.RESET_ALL}{Fore.BLUE}"
+            if result_str == "Success"
+            else f"{Fore.RED}Fail{Style.RESET_ALL}{Fore.BLUE}"
+        ),
     if options["show_time"]:
         row.append(f"{color}{formatted_time}{Style.RESET_ALL}")
     if options["show_folder"]:
@@ -269,7 +343,9 @@ def flatten_components(component, flat_list, parent=None):
 
     # execution_time + result formatting
     if "execution_time" in component and "result" in component:
-        formatted_time, result_str = format_time_and_result(component["execution_time"], component["result"])
+        formatted_time, result_str = format_time_and_result(
+            component["execution_time"], component["result"]
+        )
         info["formatted_execution_time"] = formatted_time
         info["result_str"] = result_str
 
@@ -305,10 +381,9 @@ def format_time_and_result(execution_time, result):
     return formatted_time, result_str
 
 
-
-
-def update_results_from_report(reportManager,report_lines, components):
+def update_results_from_report(reportManager, report_lines, components):
     playbook_result = 0
+
     def update_role_result(components, role_index, role_name, role_results):
         if isinstance(components, list):
             for component in components:
@@ -316,12 +391,18 @@ def update_results_from_report(reportManager,report_lines, components):
                     continue
         elif isinstance(components, dict):
             if "components" in components:
-                return update_role_result(components["components"], role_index, role_name, role_results)
+                return update_role_result(
+                    components["components"], role_index, role_name, role_results
+                )
 
             if components.get("type") == "role":
-                if components.get("name") == role_name and str(components.get("role_index")) == str(role_index):
+                if components.get("name") == role_name and str(
+                    components.get("role_index")
+                ) == str(role_index):
                     if len(components["commands"]) != len(role_results):
-                        raise ValueError("length of commands and role_results is different")
+                        raise ValueError(
+                            "length of commands and role_results is different"
+                        )
                     for i in range(len(components["commands"])):
                         components["commands"][i]["result"] = int(role_results[i])
                         if components["commands"][i]["result"] == 1:
@@ -381,7 +462,9 @@ def update_results_from_report(reportManager,report_lines, components):
         for idx in range(len(report_lines)):
             role_index, role_name, role_result = parse_report_line(report_lines[idx])
             if idx != len(report_lines) - 1:
-                next_role_index, next_role_name, _ = parse_report_line(report_lines[idx + 1])
+                next_role_index, next_role_name, _ = parse_report_line(
+                    report_lines[idx + 1]
+                )
 
             if role_index == next_role_index and role_name == next_role_name:
                 role_results.append(role_result)

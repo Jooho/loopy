@@ -14,7 +14,9 @@ def copied_config_files():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_config_path = os.path.join(tmpdir, "config.yaml")
-        tmp_internal_config_path = os.path.join(tmpdir, "src", "core", "internal_config.yaml")
+        tmp_internal_config_path = os.path.join(
+            tmpdir, "src", "core", "internal_config.yaml"
+        )
         shutil.copy(config_path, tmp_config_path)
         os.makedirs(os.path.dirname(tmp_internal_config_path), exist_ok=True)
         shutil.copy(internal_config_path, tmp_internal_config_path)
@@ -27,7 +29,9 @@ def copied_config_files():
         # If default_vars_file is specified, update the path and copy the file to the temp directory
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
-            updated_default_vars_path = os.path.join(tmpdir, "commons", "default-variables.yaml")
+            updated_default_vars_path = os.path.join(
+                tmpdir, "commons", "default-variables.yaml"
+            )
 
             # Ensure the 'commons' directory exists in the temp directory
             os.makedirs(os.path.dirname(updated_default_vars_path), exist_ok=True)

@@ -25,15 +25,18 @@ def test_show_playbook(cli_runner, loopy_context):
     assert result.exit_code == 0
     assert "Name: loopy-unit-tests" in result.output
 
+
 @pytest.mark.cli
 @pytest.mark.playbooks
 def test_run_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_playbook, ["loopy-unit-tests", "-l", "-g"], obj=loopy_context
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
-    
+
 
 # @pytest.mark.cli
 # @pytest.mark.playbooks

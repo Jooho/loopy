@@ -12,9 +12,9 @@ if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 from core.initializer import Initializer
-from core.context import get_context
 from core.env import EnvManager
 from core.config_loader import ConfigLoader
+from core.context import LoopyContext
 
 def main():
     envManager = EnvManager()
@@ -33,12 +33,10 @@ def main():
     config_data["additional_playbook_dirs"] = [f"{root_dir}/tests/test-data/playbooks"]
     
     initializer = Initializer(env_list, config_data, default_vars)
-    initializer.initialize()
-
-    global_context = get_context()
+    ctx_object = initializer.initialize()
 
     with open(f"{root_dir}/tests/custom-context.json", "w") as f:
-        json.dump(global_context, f, indent=4)
+        json.dump(ctx_object, f, indent=4)
 
 if __name__ == "__main__":
     main()

@@ -89,9 +89,9 @@ class Initializer:
         self.config_data["stop_when_error_happened"] = stop_when_error_happened
 
         # Set environment variables
-        os.environ["SHOW_DEBUG_LOG"] = show_debug_log
-        os.environ["STOP_WHEN_FAILED"] = stop_when_error_happened
-        os.environ["STOP_WHEN_ERROR_HAPPENED"] = stop_when_error_happened
+        os.environ["SHOW_DEBUG_LOG"] = str(show_debug_log)
+        os.environ["STOP_WHEN_FAILED"] = str(stop_when_error_happened)
+        os.environ["STOP_WHEN_ERROR_HAPPENED"] = str(stop_when_error_happened)
 
         # Set binary path
         bin_path = os.path.join(os.getcwd(), "bin")

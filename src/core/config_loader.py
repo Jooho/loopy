@@ -8,9 +8,7 @@ class ConfigLoader:
     def __init__(self, config_path: str, loopy_root_path: str = ""):
         self.config_path = config_path
         self.loopy_root_path = loopy_root_path
-        self.internal_config_path = os.path.join(
-            self.loopy_root_path, internal_config_path
-        )
+        self.internal_config_path = os.path.join(self.loopy_root_path, internal_config_path)
         self.config_data = {}
         self.default_vars = {}
 
@@ -27,13 +25,11 @@ class ConfigLoader:
 
         for key, value in internal_conf_data.items():
             if isinstance(value, dict):
-                internal_conf_data[key] = {
-                    k: self._add_prefix(v) for k, v in value.items()
-                }
+                internal_conf_data[key] = {k: self._add_prefix(v) for k, v in value.items()}
             else:
                 internal_conf_data[key] = self._add_prefix(value)
 
-        self.config_data = internal_conf_data | config_data
+        self.config_data = {**internal_conf_data, **config_data}
 
     def _load_default_vars(self):
         default_vars_path = self.config_data.get("default_vars_file")

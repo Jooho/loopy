@@ -2,6 +2,7 @@ import os
 import sys
 import yaml
 
+
 def find_root_directory(cur_dir):
     while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
         cur_dir = os.path.dirname(cur_dir)
@@ -14,7 +15,7 @@ def find_root_directory(cur_dir):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_directory = find_root_directory(current_dir)
 if root_directory:
-    if os.getenv("DEBUG") == "0":
+    if os.getenv("DEBUG") == "1" or os.getenv("DEBUG", "").lower() == "true":
         print(f"The root directory is: {root_directory}")
 else:
     print("Error: Unable to find .git folder.")
@@ -29,6 +30,12 @@ sys.path.append(script_dir)
 import py_utils
 
 from core.report_manager import LoopyReportManager
+
+# Check for required environment variables
+required_vars = ["ROLE_DIR", "REPORT_FILE", "LOOPY_RESULT_DIR"]
+missing_vars = [var for var in required_vars if var not in os.environ]
+if missing_vars:
+    raise EnvironmentError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
 ROLE_DIR = os.environ["ROLE_DIR"]
 REPORT_FILE = os.environ["REPORT_FILE"]

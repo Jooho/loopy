@@ -442,7 +442,7 @@ def export_env_variables(ctx, input_variabels):
 
     if "STOP_WHEN_FAILED" not in input_variabels:
         # Set default value of stop_when_failed when it is not specified in the role/unit input_env or params
-        os.environ["STOP_WHEN_FAILED"] = ctx.obj.config["stop_when_failed"]
+        os.environ["STOP_WHEN_FAILED"] = str(ctx.obj.config["stop_when_failed"])
 
     for input_var in input_variabels:
         os.environ[input_var] = input_variabels[input_var]

@@ -106,9 +106,9 @@
         "output_env_dir": "output",
         "output_artifacts_dir": "artifacts",
         "output_report_file": "report",
-        "show_debug_log": "false",
-        "stop_when_failed": "false",
-        "stop_when_error_happened": "false",
+        "show_debug_log": false,
+        "stop_when_failed": false,
+        "stop_when_error_happened": false,
         "enable_loopy_report": true,
         "enable_loopy_logo": true,
         "enable_loopy_log": true,
@@ -191,10 +191,10 @@
         "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
         "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
         "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python",
-        "loopy_result_dir": "/tmp/ms_cli/20250411_2220",
-        "output_dir": "/tmp/ms_cli/20250411_2220/output",
-        "artifacts_dir": "/tmp/ms_cli/20250411_2220/artifacts",
-        "report_file": "/tmp/ms_cli/20250411_2220/report",
+        "loopy_result_dir": "/tmp/ms_cli/20250415_1032",
+        "output_dir": "/tmp/ms_cli/20250415_1032/output",
+        "artifacts_dir": "/tmp/ms_cli/20250415_1032/artifacts",
+        "report_file": "/tmp/ms_cli/20250415_1032/report",
         "role_list": [
             {
                 "name": "cert-generate",
@@ -343,6 +343,36 @@
                 "role_name": "operator-install"
             },
             {
+                "name": "test-kserve-caikit-tgis-rest-using-pipeline",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "test-kserve-caikit-tgis-rest",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
+                "role_name": "minio-deploy"
+            },
+            {
+                "name": "test-kserve-sklearn-v2-iris-role",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
+                "role_name": "minio-deploy"
+            },
+            {
+                "name": "test-kserve-sklearn-v2-iris",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
+                "role_name": "shell-execute"
+            },
+            {
+                "name": "test-kserve-using-notebook",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-using-notebook",
+                "role_name": "kserve-inference-test-from-notebook"
+            },
+            {
+                "name": "test-modelmesh-openvino",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-modelmesh-openvino",
+                "role_name": "minio-deploy"
+            },
+            {
                 "name": "loopy-roles-test-cluster-ops-rosa-install",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/cluster-ops/rosa-install",
                 "role_name": "openshift-rosa-install"
@@ -371,36 +401,6 @@
                 "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-serverless",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/serverless",
                 "role_name": "operator-install"
-            },
-            {
-                "name": "test-kserve-caikit-tgis-rest",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-caikit-tgis-rest-using-pipeline",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
-                "role_name": "shell-execute"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris-role",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-using-notebook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-using-notebook",
-                "role_name": "kserve-inference-test-from-notebook"
-            },
-            {
-                "name": "test-modelmesh-openvino",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-modelmesh-openvino",
-                "role_name": "minio-deploy"
             }
         ],
         "playbook_list": [
@@ -473,16 +473,16 @@
                 "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/vllm-multi-node-odh-poc"
             },
             {
-                "name": "loopy-test-report-playbook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
-            },
-            {
                 "name": "loopy-unit-tests",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/unit-tests"
             },
             {
                 "name": "loopy-fail-unit-tests",
                 "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
+            },
+            {
+                "name": "loopy-test-report-playbook",
+                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
             }
         ]
     },

@@ -85,7 +85,7 @@ playbook:
             oc delete mutatingwebhookconfiguration $(oc get mutatingwebhookconfiguration --no-headers|grep -E "kserve|knative|istio|opendatahub"|awk '{print $1}') %%
 
             # crd
-            oc delete crd $(oc get crd --no-headers|grep -E "kserve|knative|istio|opendatahub|serverless|authorino"|awk '{print $1}') %%
+            for crd in $(oc get crd --no-headers | grep -E "kserve|knative|istio|opendatahub|serverless|authorino" | awk '{print $1}'); do echo "Deleting CRD: $crd"; oc patch crd $crd -p '{"metadata":{"finalizers":[]}}' --type=merge || true; oc delete crd $crd --force --grace-period=0 --ignore-not-found; done  %%
 
             # openshift-operators
             oc delete subs opendatahub-operator --force --grace-period=0 -n openshift-operators                           %%

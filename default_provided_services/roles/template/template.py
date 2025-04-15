@@ -34,6 +34,12 @@ import py_utils
 
 from core.report_manager import LoopyReportManager
 
+# Check for required environment variables
+required_vars = ["ROLE_DIR", "REPORT_FILE", "LOOPY_RESULT_DIR"]
+missing_vars = [var for var in required_vars if var not in os.environ]
+if missing_vars:
+    raise EnvironmentError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
 ROLE_DIR = os.environ["ROLE_DIR"]
 REPORT_FILE = os.environ["REPORT_FILE"]
 LOOPY_RESULT_DIR = os.environ["LOOPY_RESULT_DIR"]

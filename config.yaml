@@ -1,9 +1,16 @@
 default_vars_file: commons/default-variables.yaml
 # enable_print_input_env: false
+output_root_dir: /tmp/ms_cli
+output_env_dir: output
+output_artifacts_dir: artifacts
+output_report_file: report
+show_debug_log: false
+stop_when_failed: false
+stop_when_error_happened: false
 enable_loopy_report: true
 enable_loopy_logo: true
 enable_loopy_log: true
-ignore_validate_env_input: true
+ignore_validate_input_env: true
 keep_env_variables:
   - CLUSTER_API_URL
   - CLUSTER_TYPE
@@ -21,8 +28,8 @@ keep_env_variables:
   - CUSTOM_KSERVE_MANIFESTS
   - HF_TEST_TOKEN
 additional_role_dirs: [] #example /home/roles
-additional_unit_dirs: []
-additional_playbook_dirs: []
+additional_unit_dirs: [./tests/test-data/units]
+additional_playbook_dirs: [./tests/test-data/playbooks]
 
 # Logger Configuration
 logging:

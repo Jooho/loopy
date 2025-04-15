@@ -1,0 +1,12 @@
+# Add Schema paths
+schema:
+  role: src/schema/role.yaml
+  unit: src/schema/unit.yaml
+  playbook: src/schema/playbook.yaml
+
+
+# Add default components paths
+default_roles_dir: default_provided_services/roles
+default_units_dir: default_provided_services/units
+default_playbooks_dir: default_provided_services/playbooks
+    

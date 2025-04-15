@@ -1,0 +1,19 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/loopy.py",
+      "console": "integratedTerminal",
+      "env": { "PYTHONPATH": "src" },
+      // "args": ["roles", "run", "shell-execute", "-p", "COMMANDS=echo test"]
+      "args": ["playbooks", "run", "loopy-unit-tests","-g"]
+      // "args": ["units", "run", "loopy-roles-test-non-cluster-shell-execute"]
+    }    
+  ]
+}

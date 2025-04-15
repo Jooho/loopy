@@ -1,79 +1,35 @@
 # fmt: off
 import os
 import click
-import utils
-import yaml
-import constants
-import loopy_report 
 import logging
-import logging.config
-from component import Role, Get_default_input_value, Get_required_input_keys
-from colorama import Fore, Style, Back
+from cli.commands import utils
+from cli.commands import constants
+from cli.commands import loopy_report
+from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys
+from colorama import Fore, Style
+from core.report_manager import LoopyReportManager
+
+
 
 logger = logging.getLogger(__name__)
 
-role_list = []
-enable_loopy_log=True
-enable_loopy_logo=True
-enable_loopy_report=True
-
 @click.pass_context
 def init(ctx,verbose=None):
-    global role_list
-    global enable_loopy_log
-    global enable_loopy_logo
-    global enable_loopy_report
-    if len(role_list) == 0:
-        # Set log level
-        logging_config = ctx.obj.get("config", {}).get("config_data", {}).get("logging", [])
-        default_log_level=logging_config['handlers']['console']['level']
+    input_log_level=utils.configure_logging(ctx, verbose)
+    if input_log_level == logging.DEBUG:
+        os.environ["SHOW_DEBUG_LOG"] = "true"
+    
         
-        log_levels = {
-            1: logging.WARN,
-            2: logging.INFO,
-            3: logging.DEBUG
-        }
-        input_log_level=log_levels.get(verbose, default_log_level)
-        logging_config['handlers']['console']['level']=input_log_level
-        logging.config.dictConfig(logging_config)
-        
-        if input_log_level == logging.DEBUG:
-             os.environ['SHOW_DEBUG_LOG']="true"
-
-        # Enable Loopy Report
-        enable_loopy_report = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_report", [])
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_report: {enable_loopy_report}")
-        
-        # Enable Loopy Logo
-        enable_loopy_logo = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_logo", [])
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_logo: {enable_loopy_logo}")
-        
-        # Enable Loopy Log
-        enable_loopy_log = ctx.obj.get("config", {}).get("config_data", {}).get("enable_loopy_log", [])
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:enable_loopy_log: {enable_loopy_log}")
-        
-        # Default Roles
-        loopy_root_path = os.environ.get("LOOPY_PATH", "")
-        default_roles_dir = f"{loopy_root_path}/src/roles" if loopy_root_path else "./src/roles"
-        
-        # Additional Roles
-        additional_role_dirs = ctx.obj.get("config", {}).get("config_data", {}).get("additional_role_dirs", [])
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")
-        
-        # Combine default and additional roles directories
-        roles_dir_list = [default_roles_dir] + additional_role_dirs
-        logger.debug(f"{constants.LOG_STRING_CONFIG}:roles_dir_list: {roles_dir_list}")
-        
-        # Initialize roles
-        for directory in roles_dir_list:
-            roles = utils.initialize(directory, "role")
-            role_list.extend(roles)
+    # Additional Roles
+    additional_role_dirs = ctx.obj.config["additional_role_dirs"]
+    logger.debug(f"{constants.LOG_STRING_CONFIG}:additional_role_dirs: {additional_role_dirs}")        
 
 @click.command(name="list")
-def list_roles():
+@click.pass_context
+def list_roles(ctx):
     init()
     click.echo("Available roles:")
-    for role in sorted(role_list, key=lambda x: x["name"]):
+    for role in sorted(ctx.obj.role_list, key=lambda x: x["name"]):
         click.echo(f" - {role['name']}")
 
 @click.command(name="show")
@@ -81,11 +37,13 @@ def list_roles():
 @click.pass_context
 def show_role(ctx, role_name):
     init()
-    verify_role_exist(role_name)
+    role_list=ctx.obj.role_list
+    utils.verify_component_exist(role_name, role_list, "role")
   
     for item in role_list:
         if role_name == item["name"]:
             role_path=item["path"]
+            break
    
     display_role_info(ctx, role_name, role_path)
     
@@ -110,6 +68,11 @@ def test_role(role_name):
 @click.pass_context
 def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, output_env_file_name=None, input_env_file=None):   
     init(verbose)
+    role_list=ctx.obj.role_list
+    os.environ['ENABLE_LOOPY_LOG']=str(ctx.obj.config["enable_loopy_log"])
+    enable_loopy_logo=ctx.obj.config["enable_loopy_logo"]
+    enable_loopy_report=ctx.obj.config["enable_loopy_report"]    
+    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_log: {no_log}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_logo: {no_logo}")    
     logger.debug(f"{constants.LOG_STRING_CONFIG}:no_report: {no_report}")    
@@ -118,10 +81,7 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     # Enable loopy role log
     if no_log:
         os.environ['ENABLE_LOOPY_LOG']="false"
-    elif enable_loopy_log:
-        os.environ['ENABLE_LOOPY_LOG']="true"
-    else:
-        os.environ['ENABLE_LOOPY_LOG']="false"
+
         
     # Print logo    
     if no_logo:
@@ -130,62 +90,31 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
         utils.print_logo()
     else:
         pass
+    
+    reportManager = LoopyReportManager(ctx.obj.loopy_result_dir)
+    reportManager.load_summary()
+    reportManager.update_summary("first_component_type", "Role")
+    reportManager.update_summary("first_component_name", role_name)
         
-    # role command specific validation
-    verify_role_exist(role_name)
-    verify_if_param_exist_in_role(ctx, params, role_name)
+    # role command specific validation    
+    utils.verify_component_exist(role_name, role_list, "role")
+    utils.verify_param_in_component(ctx,params, role_name, role_list, "role")
         
     # Params is priority. additional vars will be overwritten by params
     additional_vars_from_file=utils.load_env_file_if_exist(input_env_file)           
-    params=utils.update_params_with_input_file(additional_vars_from_file,params)    
-
-    role = Role(ctx, None, role_list, role_name, params, output_env_file_name,None)
+    params=utils.update_params_with_input_file(additional_vars_from_file,params)  
+    role_config    = utils.get_config_data_by_name(ctx, role_name, "role", role_list)
+    role_description= role_config.get('description','')
+    role = Role(ctx, None, role_list, role_name, role_description, params, output_env_file_name,None)
     role.start()
     
     # Print report
     if no_report:
         pass
     elif enable_loopy_report:
-        loopy_report.summary(ctx, "role", None,None)
+        loopy_report.summary(ctx)
     else:
         pass
-    
-def verify_role_exist(role_name):
-    for item in role_list:
-        if role_name == item["name"]:
-            return    
-    logger.error(f"Role name({role_name}) does not exist")
-    exit(1)
-
-
-def verify_if_param_exist_in_role(ctx, params, role_name):
-    if not params:
-        return
-    input_exist = False
-    target_param = None
-    for role in role_list:
-        if role_name == role["name"]:
-            role_config_path = role["path"] + "/config.yaml"
-            with open(role_config_path, "r") as file:
-                role_vars = yaml.safe_load(file)
-                for param in params:
-                    target_param = param
-                    for role_config_env in role_vars["role"]["input_env"]:
-                        if str.lower(role_config_env["name"]) == str.lower(param):
-                            input_exist = True
-                            break
-                        else:
-                            input_exist = False
-                            
-    ignore_validate_env_input = ctx.obj.get("config", "config_data")["config_data"]["ignore_validate_env_input"]
-    if input_exist:
-        return
-    elif ignore_validate_env_input:
-        return
-    else:
-        logger.error(f"no input enviroment name exist:{Back.BLUE} {target_param}")
-        exit(1)
-
 
 def display_role_info(ctx, role_name,role_path):
     role_config_data=utils.get_config_data_by_config_file_dir(ctx, role_path)['role']

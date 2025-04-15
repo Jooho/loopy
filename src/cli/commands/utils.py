@@ -2,84 +2,121 @@ import os
 import sys
 import yaml
 import logging
-import re
 import click
-from jsonschema import Draft7Validator
-from colorama import Fore, Style
-from prettytable import PrettyTable
-from config import config_dict
-
-py_utils_dir_path = config_dict["py_utils_dir"]
-sys.path.append(py_utils_dir_path)
-from py_utils import is_positive
+import shutil
+from colorama import Fore
+import logging.config
+from commons.python.py_utils import is_positive
 
 logger = logging.getLogger(__name__)
 
-loopy_root_path = os.environ.get("LOOPY_PATH", "")
 
-ROLE_SCHEMA_FILE_PATH = "./src/schema/role.yaml"
-UNIT_SCHEMA_FILE_PATH = "./src/schema/unit.yaml"
-PLAYBOOK_SCHEMA_FILE_PATH = "./src/schema/playbook.yaml"
+def verify_param_in_component(
+    ctx, params, component_name, component_list, component_type="component"
+):
+    """
+    Check if the given parameters exist in the specified component (role/unit/playbook).
 
-if loopy_root_path:
-    ROLE_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/role.yaml"
-    UNIT_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/unit.yaml"
-    PLAYBOOK_SCHEMA_FILE_PATH = f"{loopy_root_path}/src/schema/playbook.yaml"
+    :param params: List of parameters to check
+    :param component_name: The name of the component (role, unit, or playbook)
+    :param component_list: The list of components to search through
+    :param component_type: Type of the component (role, unit, playbook)
+    """
+    if not params:
+        return
 
+    input_exist = False
+    target_param = None
 
-def initialize(directory, type):
-    item_list = []
+    # Find the component (role, unit, or playbook) from the list
+    for component in component_list:
+        if component_name == component["name"]:
+            component_config_path = component["path"] + "/config.yaml"
+            with open(component_config_path, "r") as file:
+                component_vars = yaml.safe_load(file)
 
-    for root, dirs, files in os.walk(directory):
-        if "config.yaml" in files:
-            config_path = os.path.join(root, "config.yaml")
+                # Depending on the component type, check for parameters
+                if component_type == "role":
+                    input_exist = check_input_env_in_role(
+                        ctx, params, component_vars["role"]["input_env"]
+                    )
+                elif component_type == "unit":
+                    role_name = component_vars["unit"]["steps"][0]["role"]["name"]
+                    role_config_data = get_config_data_by_name(
+                        ctx, role_name, "role", ctx.obj.config["role_list"]
+                    )
+                    input_exist = check_input_env_in_role(
+                        ctx, params, role_config_data["role"]["input_env"]
+                    )
+                elif component_type == "playbook":
+                    first_comp_info = component_vars["playbook"]["steps"][0]
+                    first_comp_type = list(first_comp_info.keys())[0]
+                    if first_comp_type == "role":
+                        input_exist = check_input_env_in_role(
+                            ctx, params, first_comp_info["role"]["name"]
+                        )
+                    elif first_comp_type == "unit":
+                        unit_name = first_comp_info["unit"]["name"]
+                        input_exist = verify_param_in_component(
+                            ctx, params, unit_name, component_list, "unit"
+                        )
 
-            file_errors = validate_role_yaml(config_path, type)
-            if file_errors:
-                for error in file_errors:
-                    print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
-                    print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
-                    print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
-                    exit(1)
+                if input_exist:
+                    return
 
-            with open(config_path, "r") as config_file:
-                config_data = yaml.safe_load(config_file)
-
-                if config_data:
-                    if type == "unit":
-                        path = os.path.abspath(root)
-                        if "name" in config_data[type]:
-                            name = config_data[type]["name"]
-                        else:
-                            name = convert_path_to_component_name(path, type)
-                        if "steps" in config_data[type]:
-                            role_name = config_data[type]["steps"][0]["role"]["name"]
-                        else:
-                            role_name = config_data[type]["role"]["name"]
-                        item_list.append({"name": name, "path": path, "role_name": role_name})
-                    else:
-                        path = os.path.abspath(root)
-                        if "name" in config_data[type]:
-                            name = config_data[type]["name"]
-                        else:
-                            name = convert_path_to_component_name(path, type)
-                        item_list.append({"name": name, "path": path})
-    return item_list
-
-
-def convert_path_to_component_name(path, component):
-    pattern = r"/" + component + "s/(.*)/(.*)$"
-    match = re.search(pattern, path + "/")
-    if match:
-        dir_names = match.group(1).split("/")
-        component_name = "-".join(dir_names)
-        return f"{component_name}"
-    else:
-        return None
+    # If input does not exist, log the error and exit
+    target_param = list(params.keys())[0] if params else None
+    logger.error(f"no input environment name exist: {target_param}")
+    exit(1)
 
 
-def get_default_vars(ctx):
-    return ctx.obj.get("config", "default_vars")["default_vars"]
+def check_input_env_in_role(ctx, params, role_input_env):
+    """
+    Helper function to check if the parameters exist in the given role's input environment.
+
+    :param params: List of parameters to check
+    :param role_input_env: The role's input environment to search in
+    :return: Boolean indicating whether the input exists
+    """
+    ignore_validate_input_env = ctx.obj.config["ignore_validate_input_env"]
+    if ignore_validate_input_env:
+        return True
+
+    input_exist = False
+    for param in params:
+        for role_config_env in role_input_env:
+            if str.lower(role_config_env["name"]) == str.lower(param):
+                input_exist = True
+                break
+    return input_exist
+
+
+def configure_logging(ctx, verbose=2):
+    logging_config = ctx.obj.config["logging"]
+    default_log_level = logging_config["handlers"]["console"]["level"]
+
+    log_levels = {1: logging.WARN, 2: logging.INFO, 3: logging.DEBUG}
+
+    logging_config["handlers"]["console"]["level"] = log_levels.get(
+        verbose, default_log_level
+    )
+    logging.config.dictConfig(logging_config)
+    return logging_config["handlers"]["console"]["level"]
+
+
+def verify_component_exist(component_name, component_list, component_type="component"):
+    """
+    Check if a component exists in the provided list.
+
+    :param component_name: Name of the component to search for.
+    :param component_list: List of components to search through.
+    :param component_type: Type of the component (for error message formatting).
+    """
+    for component in component_list:
+        if component_name == component["name"]:
+            return
+    logger.error(f"{component_type.title()} name({component_name}) does not exist")
+    exit(1)
 
 
 def parse_key_value_pairs(ctx, param, value):
@@ -116,7 +153,6 @@ def load_env_file_if_exist(file):
                         additional_vars[key] = value
         else:
             logger.error(f"File({file}) does not exist")
-            # print(f"File({file}) does not exist")
             exit(1)
     return additional_vars
 
@@ -145,7 +181,9 @@ def get_config_data_by_config_file_dir(ctx, config_file_dir):
             config_data = yaml.safe_load(config_file)
             return config_data
     except FileNotFoundError:
-        ctx.invoke(click.echo(f"Config file '{config_file_dir}/config.yaml' not found."))
+        ctx.invoke(
+            click.echo(f"Config file '{config_file_dir}/config.yaml' not found.")
+        )
 
 
 def get_config_data_by_name(ctx, name, type, list):
@@ -154,12 +192,17 @@ def get_config_data_by_name(ctx, name, type, list):
         for unit in list:
             if name == unit["name"]:
                 path = unit["path"]
+                break
     else:
         for role in list:
             if name == role["name"]:
                 path = role["path"]
+                break
     if path == "":
-        ctx.invoke(click.echo, f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}")
+        ctx.invoke(
+            click.echo,
+            f"{Fore.RED}Component({type})-{name} does not found.{Fore.RESET}",
+        )
         sys.exit(1)
     return get_config_data_by_config_file_dir(ctx, path)
 
@@ -184,37 +227,55 @@ def get_first_role_name_in_unit_by_unit_name(unit_name, list):
             return unit["role_name"]
 
 
-def validate_role_yaml(yaml_file, type):
-    schema = None
-    schema_file_path = None
-    # Load schema file
-    if type == "role":
-        schema_file_path = ROLE_SCHEMA_FILE_PATH
-    elif type == "unit":
-        schema_file_path = UNIT_SCHEMA_FILE_PATH
-    elif type == "playbook":
-        schema_file_path = PLAYBOOK_SCHEMA_FILE_PATH
+def getDescription(ctx, component_name, component_type, parent_description=""):
+    description = ""
 
-    with open(schema_file_path, "r") as schema_file:
-        schema = yaml.safe_load(schema_file)
+    if component_type == "role":
+        if parent_description != "":
+            description = parent_description
+        else:
+            role_config_data = get_config_data_by_name(
+                ctx, component_name, "role", ctx.obj.role_list
+            )
+            if "description" in role_config_data["role"]:
+                description = role_config_data["role"]["description"]
 
-    # Load Target yaml file
-    try:
-        with open(yaml_file, "r") as f:
-            yaml_data = yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        # print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
-        logger.error(f"YAML File Syntax Error: {e}")
-        exit(1)
+    elif component_type == "unit":
+        unit_config_data = get_config_data_by_name(
+            ctx, component_name, "unit", ctx.obj.unit_list
+        )
+        if "description" in unit_config_data["unit"]:
+            description = unit_config_data["unit"]["description"]
+    elif component_type == "playbook":
+        playbook_config_data = get_config_data_by_name(
+            ctx, component_name, "playbook", ctx.obj.playbook_list
+        )
+        if "description" in playbook_config_data["playbook"]:
+            description = playbook_config_data["playbook"]["description"]
 
-    # Create validator
-    validator = Draft7Validator(schema)
+    return description
 
-    # Validate YAML Data
-    errors = []
-    for error in validator.iter_errors(yaml_data):
-        errors.append({"message": error.message, "path": list(error.path)})
-    return errors
+def safe_rmtree(path):
+    """
+    Delete a directory safely only if it meets safety checks.
+
+    Args:
+        path (str): The directory path to remove.        
+
+    Raises:
+        RuntimeError: If safety check fails.
+    """
+    if not path:
+        raise ValueError("Empty path provided.")
+
+    abs_path = os.path.abspath(path)
+
+    # Safety: prevent removing root or home or top-level dirs
+    dangerous_paths = ["/", "/home", "/root", "/usr", "/etc", os.path.expanduser("~")]
+    if abs_path in dangerous_paths or abs_path == os.path.abspath(os.sep):
+        raise RuntimeError(f"Refusing to delete dangerous path: {abs_path}")
+    else: 
+          shutil.rmtree(abs_path)
 
 
 def print_logo():
@@ -249,4 +310,3 @@ def print_logo():
             else:
                 result += char
         print(f"{result}{Fore.RESET}")
-

@@ -7,8 +7,12 @@ __pycache__
 */__pycache__/*
 test.py
 config.txt
+config.json
+role_time.json
 summary.txt
+summary.json
 loopy.log
 ./loopy_auto*
 /build
 .idea/
+# .vscode/

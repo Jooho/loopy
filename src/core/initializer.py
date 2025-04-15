@@ -3,10 +3,10 @@
 import os
 import re
 import yaml
-import shutil
+
 from datetime import datetime
 from jsonschema import Draft7Validator
-
+from cli.commands import utils
 import logging
 from core.report_manager import LoopyReportManager
 
@@ -39,15 +39,9 @@ class Initializer:
 
     def initialize(self):
         # Initialize result directory
-        output_dir = os.path.join(
-            self.loopy_result_dir, self.config_data["output_env_dir"]
-        )
-        artifacts_dir = os.path.join(
-            self.loopy_result_dir, self.config_data["output_artifacts_dir"]
-        )
-        report_file = os.path.join(
-            self.loopy_result_dir, self.config_data["output_report_file"]
-        )
+        output_dir = os.path.join(self.loopy_result_dir, self.config_data["output_env_dir"])
+        artifacts_dir = os.path.join(self.loopy_result_dir, self.config_data["output_artifacts_dir"])
+        report_file = os.path.join(self.loopy_result_dir, self.config_data["output_report_file"])
 
         # Update config data with paths
         self.config_data["output_dir"] = output_dir
@@ -60,11 +54,16 @@ class Initializer:
         os.environ["REPORT_FILE"] = report_file
 
         # Create output/artifacts directories
-
         if output_dir and os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
+            try:
+                utils.safe_rmtree(output_dir)
+            except RuntimeError as e:
+                print(f"{Fore.RED}Error deleting folder: {e}{Style.RESET_ALL}")
         if artifacts_dir and os.path.exists(artifacts_dir):
-            shutil.rmtree(artifacts_dir)
+            try:
+                utils.safe_rmtree(artifacts_dir)
+            except RuntimeError as e:
+                print(f"{Fore.RED}Error deleting folder: {e}{Style.RESET_ALL}")
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(artifacts_dir, exist_ok=True)
 
@@ -95,7 +94,7 @@ class Initializer:
 
         # Set binary path
         bin_path = os.path.join(os.getcwd(), "bin")
-        os.environ["PATH"] = f"{bin_path}:{os.environ['PATH']}"
+        os.environ["PATH"] = f"{bin_path}{os.pathsep}{os.environ['PATH']}"
 
         # Add Schema paths
         self.config_data["schema"] = {
@@ -105,15 +104,9 @@ class Initializer:
         }
 
         # Add default components paths
-        self.config_data["default_roles_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/roles"
-        )
-        self.config_data["default_units_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/units"
-        )
-        self.config_data["default_playbooks_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/playbooks"
-        )
+        self.config_data["default_roles_dir"] = f"{self.loopy_root_path}/default_provided_services/roles"
+        self.config_data["default_units_dir"] = f"{self.loopy_root_path}/default_provided_services/units"
+        self.config_data["default_playbooks_dir"] = f"{self.loopy_root_path}/default_provided_services/playbooks"
 
         # Initialize the list of components
         self.initialize_component_list("role")
@@ -166,15 +159,16 @@ class Initializer:
             if "config.yaml" in files:
                 config_path = os.path.join(root, "config.yaml")
 
-                file_errors = self.validate_config_yaml_schema(config_path, type)
-                if file_errors:
-                    for error in file_errors:
-                        print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
-                        print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
-                        print(
-                            f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}"
-                        )
-                        exit(1)
+                try:
+                    file_errors = self.validate_config_yaml_schema(config_path, type)
+                except RuntimeError as e:
+                    print(f"Error loading config: {e}")
+                    if file_errors:
+                        for error in file_errors:
+                            print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
+                            print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
+                            print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
+                            exit(1)
 
                 with open(config_path, "r") as config_file:
                     config_data = yaml.safe_load(config_file)
@@ -187,14 +181,10 @@ class Initializer:
                             else:
                                 name = self.convert_path_to_component_name(path, type)
                             if "steps" in config_data[type]:
-                                role_name = config_data[type]["steps"][0]["role"][
-                                    "name"
-                                ]
+                                role_name = config_data[type]["steps"][0]["role"]["name"]
                             else:
                                 role_name = config_data[type]["role"]["name"]
-                            item_list.append(
-                                {"name": name, "path": path, "role_name": role_name}
-                            )
+                            item_list.append({"name": name, "path": path, "role_name": role_name})
                         else:
                             path = os.path.abspath(root)
                             if "name" in config_data[type]:
@@ -233,9 +223,7 @@ class Initializer:
             with open(yaml_file, "r") as f:
                 yaml_data = yaml.safe_load(f)
         except yaml.YAMLError as e:
-            # print(f"{Fore.RED}YAML File Syntax Error:{Style.RESET_ALL}", e)
-            self.logger.error(f"YAML File Syntax Error: {e}")
-            exit(1)
+            raise RuntimeError("Fail to Load YAML File.")
 
         # Create validator
         validator = Draft7Validator(schema)
@@ -245,3 +233,5 @@ class Initializer:
         for error in validator.iter_errors(yaml_data):
             errors.append({"message": error.message, "path": list(error.path)})
         return errors
+
+

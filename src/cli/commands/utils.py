@@ -3,6 +3,7 @@ import sys
 import yaml
 import logging
 import click
+import shutil
 from colorama import Fore
 import logging.config
 from commons.python.py_utils import is_positive
@@ -253,6 +254,28 @@ def getDescription(ctx, component_name, component_type, parent_description=""):
             description = playbook_config_data["playbook"]["description"]
 
     return description
+
+def safe_rmtree(path):
+    """
+    Delete a directory safely only if it meets safety checks.
+
+    Args:
+        path (str): The directory path to remove.        
+
+    Raises:
+        RuntimeError: If safety check fails.
+    """
+    if not path:
+        raise ValueError("Empty path provided.")
+
+    abs_path = os.path.abspath(path)
+
+    # Safety: prevent removing root or home or top-level dirs
+    dangerous_paths = ["/", "/home", "/root", "/usr", "/etc", os.path.expanduser("~")]
+    if abs_path in dangerous_paths or abs_path == os.path.abspath(os.sep):
+        raise RuntimeError(f"Refusing to delete dangerous path: {abs_path}")
+    else: 
+          shutil.rmtree(abs_path)
 
 
 def print_logo():

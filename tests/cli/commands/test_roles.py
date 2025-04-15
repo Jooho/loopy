@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.cli
 @pytest.mark.roles
 def test_test_role(cli_runner, loopy_context):
-    from src.cli.commands.roles import test_role
+    from cli.commands.roles import test_role
 
     result = cli_runner.invoke(test_role, ["test"], obj=loopy_context)
     assert result.exit_code == 0

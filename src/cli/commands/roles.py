@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 def init(ctx,verbose=None):
     input_log_level=utils.configure_logging(ctx, verbose)
     if input_log_level == logging.DEBUG:
-         os.environ['SHOW_DEBUG_LOG']="true"
+        os.environ["SHOW_DEBUG_LOG"] = "true"
+    
         
     # Additional Roles
     additional_role_dirs = ctx.obj.config["additional_role_dirs"]

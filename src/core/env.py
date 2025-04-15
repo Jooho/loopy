@@ -5,6 +5,10 @@ import sys
 class EnvManager:
 
     def __init__(self):
+        """
+        Initialize environment manager, collecting LOOPY-prefixed environment variables
+        and setting up paths for configuration and module imports.
+        """
         self.env = self.add_loopy_env_vars()
 
         if not self.env.get("loopy_root_path"):

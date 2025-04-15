@@ -3,12 +3,10 @@ import pytest
 import os
 import yaml
 import shutil
-from core.context import LoopyContext
 import random
 import string
 
-# from core.context import LoopyContextBuilder, set_context, get_context
-
+from core.context import LoopyContext
 from core.initializer import Initializer
 from core.env import EnvManager
 from core.config_loader import ConfigLoader

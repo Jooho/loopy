@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 import subprocess
 import yaml
 
@@ -17,22 +18,28 @@ def find_root_directory(cur_dir):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_directory = find_root_directory(current_dir)
 if root_directory:
-    print(f"The root directory is: {root_directory}")
+    if os.getenv("DEBUG") == "1" or os.getenv("DEBUG", "").lower() == "true":
+        print(f"The root directory is: {root_directory}")
 else:
     print("Error: Unable to find .git folder.")
-
 config_yaml_file = os.path.join(current_dir, "config.yaml")
 with open(config_yaml_file, "r") as config_file:
     config_data = yaml.safe_load(config_file)
+# Load python utils
+script_dir = os.path.join(root_directory, "commons", "python")
+src_dir = os.path.join(root_directory, "src")
+sys.path.append(src_dir)
+sys.path.append(script_dir)
+import py_utils
 
-with open(f"{root_directory}/config.txt", "r") as file:
-    config_dict_str = file.read()
-    config_dict = eval(config_dict_str)
+from core.report_manager import LoopyReportManager
 
-OUTPUT_DIR = config_dict["output_dir"]
-ARTIFACTS_DIR = config_dict["artifacts_dir"]
-ROLE_DIR = config_dict["role_dir"]
-REPORT_FILE = config_dict["report_file"]
+ROLE_DIR = os.environ["ROLE_DIR"]
+REPORT_FILE = os.environ["REPORT_FILE"]
+LOOPY_RESULT_DIR = os.environ["LOOPY_RESULT_DIR"]
+
+reportManager = LoopyReportManager(LOOPY_RESULT_DIR)
+reportManager.load_role_time()
 ## INIT END ##
 
 #################################################################

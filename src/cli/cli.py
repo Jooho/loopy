@@ -39,7 +39,11 @@ playbooks.add_command(run_playbook)
 @click.group()
 @click.pass_context
 def cli(ctx):
-    ctx.obj = LoopyContext(ctx.obj)
+    try:
+        ctx.obj = LoopyContext(ctx.obj or {})
+    except Exception as e:
+        click.echo(f"Error initializing Loopy context: {e}", err=True)
+        ctx.exit(1)
     pass
 
 

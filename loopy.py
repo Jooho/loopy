@@ -2,7 +2,6 @@
 from core.env import EnvManager
 from core.config_loader import ConfigLoader
 from core.initializer import Initializer
-from core.context import get_context
 
 # 1. Setup environment variabls
 envManager = EnvManager()
@@ -22,9 +21,6 @@ loopy_context = initializer.initialize()
 
 # import cli after initializer
 from cli.cli import cli
-
-# 4. CLI execution
-global_context = get_context()
 
 if __name__ == "__main__":
     cli(obj=loopy_context)

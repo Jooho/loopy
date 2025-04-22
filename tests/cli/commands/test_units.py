@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.cli
 @pytest.mark.units
+@pytest.mark.non_cluster_tests
 def test_list_units(cli_runner, loopy_context):
     from src.cli.commands.units import list_units
 
@@ -19,6 +20,7 @@ def test_list_units(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.units
+@pytest.mark.non_cluster_tests
 def test_show_unit(cli_runner, loopy_context):
     from src.cli.commands.units import show_unit
 
@@ -31,6 +33,7 @@ def test_show_unit(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.units
+@pytest.mark.non_cluster_tests
 def test_run_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
@@ -75,6 +78,7 @@ def test_run_unit(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.units
+@pytest.mark.non_cluster_tests
 def test_run_unit_non_exist_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 

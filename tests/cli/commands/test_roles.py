@@ -3,6 +3,7 @@ import pytest
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_test_role(cli_runner, loopy_context):
     from cli.commands.roles import test_role
 
@@ -13,6 +14,7 @@ def test_test_role(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_list_roles(cli_runner, loopy_context):
     from cli.commands.roles import list_roles
 
@@ -25,6 +27,7 @@ def test_list_roles(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_show_role(cli_runner, loopy_context):
     from cli.commands.roles import show_role
 
@@ -35,6 +38,7 @@ def test_show_role(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_run_role(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 
@@ -49,6 +53,7 @@ def test_run_role(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_run_role_multi_commands(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 
@@ -63,6 +68,7 @@ def test_run_role_multi_commands(cli_runner, loopy_context):
 
 @pytest.mark.cli
 @pytest.mark.roles
+@pytest.mark.non_cluster_tests
 def test_run_role_failed(cli_runner, loopy_context):
     from cli.commands.roles import run_role
 

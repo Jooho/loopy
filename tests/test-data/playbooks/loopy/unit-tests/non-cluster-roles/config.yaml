@@ -1,0 +1,18 @@
+playbook:
+  created_date: "20240221"
+  support: "false"
+  description: |
+    This will test roles tests
+  steps:
+  - role:
+      name: shell-execute
+      description: playbook-shell
+      input_env:
+        COMMANDS: |
+          echo "playbook-role-c1" %% echo "playbook-role-c2"          
+  - role:
+      name: shell-execute
+      description: playbook-shell
+      input_env:
+        COMMANDS: |
+          echo "playbook-role-c3" %% echo "playbook-role-c4"          

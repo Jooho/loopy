@@ -436,7 +436,7 @@ def update_results_from_report(reportManager, report_lines, components):
                 return update_unit_result(components)
 
             if components.get("type") == "role":
-                if component["result"] == 1:
+                if components["result"] == 1:
                     playbook_result = 1
                     return True
 

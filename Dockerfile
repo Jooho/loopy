@@ -30,4 +30,4 @@ RUN cd /home/loopy && \
 
 #USER 1000
 
-CMD /bin/bash
+CMD ["/bin/bash"]

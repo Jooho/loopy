@@ -18,6 +18,8 @@ role:
   # output_filename: operator-install-output.sh
   manifests:
     minio_deployment: ./manifests/minio.yaml
+    minio_route: ./manifests/route.yaml
+    minio_route_ssl: ./manifests/route-ssl.yaml
   input_env:
     - name: MINIO_NAMESPACE
       description: The namespace where the minio pod is running

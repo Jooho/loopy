@@ -15,23 +15,6 @@ spec:
       targetPort: 9001
   selector:
     app: minio
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: minio
-  namespace: %minio_namespace%
-spec:
-  port:
-    targetPort: minio-ui-port
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-  to:
-    kind: Service
-    name: minio
-    weight: 100
-  wildcardPolicy: None
 ---  
 apiVersion: v1
 kind: Pod

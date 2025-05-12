@@ -16,3 +16,11 @@ oc rsh minio-test
 
 curl --cacert /home/root.crt https://minio.minio.svc:9000
 ~~~
+
+Test ssl minio with route domain
+~~~
+MINIO_URL=$(oc get route minio -ojsonpath='{.status.ingress[0].host}')
+
+# This minio use Reencrypt so it does not need to specify root cert for the minio server
+curl  "https://$MINIO_URL"
+~~~

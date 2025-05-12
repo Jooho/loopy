@@ -4,6 +4,13 @@ import pytest
 import tempfile
 import shutil
 import os
+import random
+import string
+from unittest.mock import Mock
+from core.context import LoopyContext
+from core.initializer import Initializer
+from core.env import EnvManager
+from core.config_loader import ConfigLoader
 
 
 @pytest.fixture()
@@ -30,9 +37,7 @@ def copied_config_files():
         # If default_vars_file is specified, update the path and copy the file to the temp directory
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
-            updated_default_vars_path = os.path.join(
-                tmpdir, "commons", "default-variables.yaml"
-            )
+            updated_default_vars_path = os.path.join(tmpdir, "commons", "default-variables.yaml")
 
             # Ensure the 'commons' directory exists in the temp directory
             os.makedirs(os.path.dirname(updated_default_vars_path), exist_ok=True)
@@ -52,3 +57,41 @@ def loopy_root_path():
     """Returns the default root path of the Loopy project (2 levels up from current file)."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.abspath(os.path.join(current_dir, ".."))
+
+
+@pytest.fixture(autouse=True)
+def loopy_context(loopy_root_path):
+    envManager = EnvManager()
+    config_path = envManager.get_config_path()
+    root_path = envManager.get_root_path()
+    env_list = envManager.get_env()
+    env_list["loopy_root_path"] = loopy_root_path
+    env_list["loopy_config_path"] = os.path.join(loopy_root_path, "config.yaml")
+
+    config_loader = ConfigLoader(config_path, root_path)
+    config_loader.load()
+    config_data = config_loader.get_config()
+    default_vars = config_loader.get_default_vars()
+
+    # Set test role/unit/playbook path
+    config_data["additional_role_dirs"] = [f"{loopy_root_path}/tests/test-data/roles"]
+    config_data["additional_unit_dirs"] = [f"{loopy_root_path}/tests/test-data/units"]
+    config_data["additional_playbook_dirs"] = [f"{loopy_root_path}/tests/test-data/playbooks"]
+    config_data["output_target_dir"] = os.path.join(generate_random_name())
+
+    # Enable input environment validation for testing
+    config_data["ignore_validate_input_env"] = False
+    initializer = Initializer(env_list, config_data, default_vars)
+    ctx_object = initializer.initialize()
+    return LoopyContext(ctx_object)
+
+
+@pytest.fixture
+def mock_loopy_ctx(loopy_root_path):
+    ctx = Mock()
+    ctx.obj.loopy_result_dir = os.path.join(loopy_root_path, "tmp", "loopy_result")
+    return ctx
+
+
+def generate_random_name(length=5):
+    return "".join(random.choices(string.ascii_lowercase, k=length))

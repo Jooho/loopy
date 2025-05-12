@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_list_playbooks(cli_runner, loopy_context):
     from src.cli.commands.playbooks import list_playbooks
@@ -18,7 +18,7 @@ def test_list_playbooks(cli_runner, loopy_context):
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_show_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import show_playbook
@@ -29,7 +29,7 @@ def test_show_playbook(cli_runner, loopy_context):
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_run_playbook_units(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
@@ -40,7 +40,7 @@ def test_run_playbook_units(cli_runner, loopy_context):
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_run_playbook_role_unit(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
@@ -51,7 +51,7 @@ def test_run_playbook_role_unit(cli_runner, loopy_context):
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_run_playbook_unit_role(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
@@ -61,7 +61,7 @@ def test_run_playbook_unit_role(cli_runner, loopy_context):
     assert "Success" in result.stdout.strip()
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.non_cluster_tests
 def test_run_playbook_roles(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
@@ -72,7 +72,7 @@ def test_run_playbook_roles(cli_runner, loopy_context):
 
 
 @pytest.mark.cli
-@pytest.mark.playbooks
+@pytest.mark.cli_playbooks
 @pytest.mark.cluster_tests
 def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
     from src.cli.commands.playbooks import run_playbook
@@ -84,7 +84,7 @@ def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
 
 
 # @pytest.mark.cli
-# @pytest.mark.playbooks
+# @pytest.mark.cli_playbooks
 # def test_run_playbook(cli_runner, custom_context):
 #     from src.cli.commands.playbooks import run_playbook
 
@@ -98,7 +98,7 @@ def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
 
 
 # @pytest.mark.cli
-# @pytest.mark.playbooks
+# @pytest.mark.cli_playbooks
 # def test_run_playbook_fail_with_stop_when_error_happened_0(cli_runner, custom_context):
 #     from src.cli.commands.playbooks import run_playbook
 #     result = cli_runner.invoke(run_playbook, ["loopy-fail-unit-tests", "-l", "-g"], env={"STOP_WHEN_FAILED": "0"})

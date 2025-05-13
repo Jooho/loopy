@@ -30,6 +30,7 @@ def mock_env_and_config():
 
 
 # Test for the initialization of directories and environment variables
+@pytest.mark.fvt
 @pytest.mark.core
 def test_initializer_initialization(mock_env_and_config):
     env_list, config_data, default_vars = mock_env_and_config
@@ -66,6 +67,7 @@ def test_initializer_initialization(mock_env_and_config):
 
 
 # Test for sync_env_to_config method
+@pytest.mark.fvt
 @pytest.mark.core
 def test_sync_env_to_config(mock_env_and_config):
     env_list, config_data, _ = mock_env_and_config
@@ -80,6 +82,7 @@ def test_sync_env_to_config(mock_env_and_config):
 
 
 # Test for initialize_list method for role
+@pytest.mark.fvt
 @pytest.mark.core
 def test_initialize_list_role(mock_env_and_config):
     # Test Data
@@ -128,6 +131,7 @@ def test_initialize_list_role(mock_env_and_config):
 
 
 # Test for validate_config_yaml_schema method with mock schema validation
+@pytest.mark.fvt
 @pytest.mark.core
 def test_validate_config_yaml_schema(mock_env_and_config, loopy_root_path):
     env_list, config_data, default_vars = mock_env_and_config

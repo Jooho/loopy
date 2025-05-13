@@ -1,6 +1,7 @@
 import pytest
 from core.context import LoopyContext
 
+@pytest.mark.fvt
 @pytest.mark.core
 def test_loopy_context(custom_context):
     config_dict = custom_context["config"]

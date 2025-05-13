@@ -7,7 +7,9 @@ import os
 
 @pytest.fixture
 def copied_config_files():
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
+    # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))  # loopy/../
+
     config_path = os.path.join(base_dir, "config.yaml")
     internal_config_path = os.path.join(base_dir, "src", "core", "internal_config.yaml")
     default_vars_path = os.path.join(base_dir, "commons", "default-variables.yaml")
@@ -47,6 +49,7 @@ def copied_config_files():
 
 
 # Test function to validate ConfigLoader with the real files copied to the temp directory
+@pytest.mark.fvt
 @pytest.mark.core
 def test_config_loader_with_real_files(copied_config_files):
     # Get the temp paths for config.yaml and root_path from the fixture

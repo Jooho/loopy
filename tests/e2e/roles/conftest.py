@@ -1,65 +1,66 @@
 # tests/e2e/roles/conftest.py
 
 import os
-import json
+import subprocess
 import pytest
+from cli.commands import utils
 from pathlib import Path
 from core.report_manager import LoopyReportManager
+from tests.conftest import generate_random_name
 
-def pytest_sessionstart(session):
-    """Initialize report manager before any tests start"""
-    # Create a temporary directory for test results
-    test_results_dir = Path("/tmp/loopy_test_results")
-    test_results_dir.mkdir(exist_ok=True)
-    
-    # Initialize report manager
-    report_manager = LoopyReportManager(str(test_results_dir))
-    
-    # Initialize role_time.json with required structure
-    role_time_data = {
-        "start_time": [],
-        "end_time": []
-    }
-    role_time_file = test_results_dir / "role_time.json"
-    with open(role_time_file, 'w') as f:
-        json.dump(role_time_data, f)
-    
-    # Initialize summary.json with required structure
-    summary_data = {
-        "first_component_type": "role",
-        "first_component_name": "cert-generate",
-        "components": []
-    }
-    summary_file = test_results_dir / "summary.json"
-    with open(summary_file, 'w') as f:
-        json.dump(summary_data, f)
-    
-    # Initialize report file
-    report_file = test_results_dir / "report"
-    with open(report_file, 'w') as f:
-        f.write("# This is a report.\n")
+def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml):
+    # Ensure namespace exists
+    ns_check = subprocess.run(["oc", "get", "namespace", namespace], capture_output=True, text=True)
+    if ns_check.returncode != 0:
+        subprocess.run(["oc", "create", "namespace", namespace], check=True)
+
+    # Ensure OperatorGroup exists
+    og_check = subprocess.run(
+        ["oc", "get", "operatorgroup", operatorgroup_name, "-n", namespace], capture_output=True, text=True
+    )
+    if og_check.returncode != 0:
+        subprocess.run(["oc", "apply", "-f", "-"], input=operatorgroup_yaml, text=True, check=True)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_operator_namespace_and_group():
+    namespace = "openshift-operators"
+    operatorgroup_name = "global-operator-group"
+    operatorgroup_yaml = """
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: global-operator-group
+  namespace: openshift-operators
+spec: {}
+"""
+    ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml)
+
 
 @pytest.fixture(scope="class")
-def role_dir():
-    """Fixture providing the path to the role directory"""
-    return Path("default_provided_services/roles")
-
-@pytest.fixture(scope="class")
-def output_dir(tmp_path_factory,generate_random_name):
-    """Fixture providing a temporary directory for test outputs"""
-    return tmp_path_factory.mktemp("/tmp/ms_cli/"+generate_random_name())
-
-@pytest.fixture(scope="class")
-def base_env(output_dir):
+def base_env():
     """Fixture providing base environment variables needed for all tests"""
     return {
-        "OUTPUT_ROOT_DIR": output_dir,
-        "OUTPUT_REPORT_FILE": "report",
-        "OUTPUT_DATE": "test",
-        "OUTPUT_DIR": output_dir+"/output",
-        "LOOPY_RESULT_DIR": output_dir+"/results",
         "SHOW_DEBUG_LOG": "false",
         "STOP_WHEN_FAILED": "false",
         "STOP_WHEN_ERROR_HAPPENED": "false",
-        "ENABLE_LOOPY_LOG": "true"
+        "ENABLE_LOOPY_LOG": "true",
+        "TEST_KIND": "true",
+        "CLUSTER_API_URL": "",
+        "CLUSTER_ADMIN_ID": "",
+        "CLUSTER_ADMIN_PW": "",
+        "LOOPY_OUTPUT_ROOT_DIR": "/tmp/e2e_loopy_result",
+        "LOOPY_OUTPUT_TARGET_DIR": generate_random_name(),
     }
+
+@pytest.fixture(scope="function", autouse=True)
+def cleanup_output_root_dir(base_env):
+    yield
+
+    output_root_dir = Path(base_env["LOOPY_OUTPUT_ROOT_DIR"]) / base_env["LOOPY_OUTPUT_TARGET_DIR"] 
+    if output_root_dir and os.path.exists(output_root_dir):
+        try:
+            utils.safe_rmtree(output_root_dir)
+        except RuntimeError as e:
+            pytest.fail(f"Error deleting folder: {e}", pytrace=True)
+    

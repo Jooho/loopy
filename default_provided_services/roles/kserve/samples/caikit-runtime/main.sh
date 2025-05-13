@@ -34,13 +34,14 @@ while IFS=: read -r manifest_name manifest_path; do
   temp_name=${variable_name}_manifests_path
 done <<<"$manifests"
 
-if [[ z${CLUSTER_TOKEN} != z ]]; then
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+if [[ z${TEST_KIND} == z ]]; then
+  if [[ z${CLUSTER_TOKEN} != z ]]; then
+    oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
+  else
+    oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+  fi
+  check_oc_status
 fi
-check_oc_status
-
 # Deploy a sample model
 oc get ns ${TEST_NAMESPACE} >/dev/null 2>&1 || oc new-project ${TEST_NAMESPACE}
 use_data_connection=$(is_positive ${USE_DATA_CONNECTION})

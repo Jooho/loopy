@@ -5,9 +5,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_list_playbooks(cli_runner, loopy_context):
     from src.cli.commands.playbooks import list_playbooks
 
@@ -17,9 +17,9 @@ def test_list_playbooks(cli_runner, loopy_context):
     assert "loopy-test-report-playbook" in result.output
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_show_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import show_playbook
 
@@ -28,9 +28,9 @@ def test_show_playbook(cli_runner, loopy_context):
     assert "Name: loopy-unit-tests" in result.output
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_run_playbook_units(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
@@ -39,9 +39,9 @@ def test_run_playbook_units(cli_runner, loopy_context):
     assert "Success" in result.stdout.strip()
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_run_playbook_role_unit(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
@@ -50,9 +50,9 @@ def test_run_playbook_role_unit(cli_runner, loopy_context):
     assert "Success" in result.stdout.strip()
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_run_playbook_unit_role(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
@@ -60,9 +60,10 @@ def test_run_playbook_unit_role(cli_runner, loopy_context):
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
+
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_playbooks
-@pytest.mark.non_cluster_tests
 def test_run_playbook_roles(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
@@ -71,18 +72,24 @@ def test_run_playbook_roles(cli_runner, loopy_context):
     assert "Success" in result.stdout.strip()
 
 
-@pytest.mark.cli
-@pytest.mark.cli_playbooks
-@pytest.mark.cluster_tests
-def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
-    from src.cli.commands.playbooks import run_playbook
+# @pytest.mark.fvt
+# @pytest.mark.cli
+# @pytest.mark.cli_playbooks
+# @pytest.mark.cluster_tests
+# def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
+#     from src.cli.commands.playbooks import run_playbook
 
-    cluster_sh_path = f"{loopy_root_path}/tests/test-data/cluster-info/cluster-crc.sh"
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests-on-cluster-install-kserve-raw-on-existing-cluster", "-l", "-g", "-i", cluster_sh_path], obj=loopy_context)
-    assert result.exit_code == 0
-    assert "Success" in result.stdout.strip()
+#     cluster_sh_path = f"{loopy_root_path}/tests/test-data/cluster-info/cluster-crc.sh"
+#     result = cli_runner.invoke(
+#         run_playbook,
+#         ["loopy-unit-tests-on-cluster-install-kserve-raw-on-existing-cluster", "-l", "-g", "-i", cluster_sh_path],
+#         obj=loopy_context,
+#     )
+#     assert result.exit_code == 0
+#     assert "Success" in result.stdout.strip()
 
 
+# @pytest.mark.fvt
 # @pytest.mark.cli
 # @pytest.mark.cli_playbooks
 # def test_run_playbook(cli_runner, custom_context):
@@ -97,6 +104,7 @@ def test_run_playbook_kserve_raw(cli_runner, loopy_context, loopy_root_path):
 # Environment variable must start with LOOPY
 
 
+# @pytest.mark.fvt
 # @pytest.mark.cli
 # @pytest.mark.cli_playbooks
 # def test_run_playbook_fail_with_stop_when_error_happened_0(cli_runner, custom_context):

@@ -8,8 +8,10 @@ pytest == 8.0.0
 jsonschema == 4.21.1
 prettytable
 pytest-xdist
+pytest-order
 virtualenv 
 virtualenvwrapper
+debugpy
 
 #argparse == 1.4.0 
 

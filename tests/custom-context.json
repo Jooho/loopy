@@ -1,497 +1,494 @@
 {
-    "default_vars": {
-        "operator": {
-            "channel": "stable",
-            "install_approval": "Automatic",
-            "catalogsource_name": "community-operators",
-            "catalogsource_namespace": "openshift-marketplace",
-            "catalogsource_displayname": "custom catalogsource",
-            "catalogsource_publisher": "custom catalogsource",
-            "operator_version": "latest",
-            "operattor_group_create": "true",
-            "config_env": "",
-            "csv_delete": "true",
-            "catalogsource_delete": "false"
-        },
-        "openshift": {
-            "cluster_type": "psi",
-            "cluster_name": "serving-fips",
-            "machine_pool_type": "m5.2xlarge",
-            "product_type": "ODH"
-        },
-        "opendatahub": {
-            "opendatahub_type": "rhoai",
-            "datasciencecluster_name": "rhoai",
-            "enable_codeflare": "Removed",
-            "enable_dashboard": "Removed",
-            "custom_dashboard_manifiests": "",
-            "enable_datasciencepipelines": "Removed",
-            "enable_kserve": "Managed",
-            "custom_kserve_manifiests": "",
-            "custom_odh_model_controller_manifiests": "",
-            "enable_kserve_knative": "Managed",
-            "enable_modelmesh": "Removed",
-            "enable_ray": "Removed",
-            "enable_trustyai": "Removed",
-            "enable_workbenches": "Removed",
-            "enable_trainingoperator": "Removed",
-            "enable_kueue": "Removed",
-            "enable_modelregistry": "Removed",
-            "custom_modelmesh_manifiests": "",
-            "dsci_name": "default-dsci",
-            "istio_namespace": "istio-system",
-            "monitoring_namespace": "redhat-ods-monitoring",
-            "application_namespace": "redhat-ods-applications",
-            "enable_trustedCAbundle": "Managed",
-            "enable_monitoring": "Managed",
-            "enable_servicemesh": "Managed",
-            "default_deploymentmode": "Serverless"
-        },
-        "minio": {
-            "minio_namespace": "minio",
-            "access_key_id": "admin",
-            "secret_access_key": "password",
-            "minio_image": "quay.io/jooholee/model-minio:latest",
-            "enable_ssl": "false",
-            "enable_console": "false",
-            "minio_region": "us-east-1",
-            "default_bucket_name": "example-models"
-        },
-        "kserve": {
-            "caikit_arch_type": "caikit-tgis",
-            "protocol": "rest",
-            "isvc_storage_path_type": "storage",
-            "isvc_deployment_mode": "Serverless",
-            "test_namespace": "kserve-demo",
-            "storage_config_type": "json",
-            "default_bucket_name": "example-models",
-            "minio_region": "us-east-1",
-            "use_data_connection": "true",
-            "git_url": "https://github.com/JooHo/loopy.git",
-            "git_revision": "main",
-            "working_namespace": "pipeline-test",
-            "python_image": "registry.redhat.io/ubi9/python-39:latest",
-            "oc_image": "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest",
-            "isvc_deployment_verbose": "true",
-            "keep_namespace": "true",
-            "minio_access_key_id": "admin",
-            "minio_secret_access_key": "password",
-            "use_minio": "false"
-        },
-        "cert": {
-            "root_ca_cert_name": "root.crt",
-            "root_ca_key_name": "root.key",
-            "root_ca_cert": "",
-            "root_ca_key": "",
-            "cert_name": "custom.crt",
-            "key_name": "custom.key",
-            "csr_name": "custom.csr",
-            "cn": "custom"
-        },
-        "modelmesh": {
-            "test_namespace": "mm-test"
-        }
+  "default_vars": {
+    "operator": {
+      "channel": "stable",
+      "install_approval": "Automatic",
+      "catalogsource_name": "community-operators",
+      "catalogsource_namespace": "openshift-marketplace",
+      "catalogsource_displayname": "custom catalogsource",
+      "catalogsource_publisher": "custom catalogsource",
+      "operator_version": "latest",
+      "operattor_group_create": "true",
+      "config_env": "",
+      "csv_delete": "true",
+      "catalogsource_delete": "false"
     },
-    "config": {
-        "schema": {
-            "role": "/home/jooho/temp/20250404_loopy/loopy/src/schema/role.yaml",
-            "unit": "/home/jooho/temp/20250404_loopy/loopy/src/schema/unit.yaml",
-            "playbook": "/home/jooho/temp/20250404_loopy/loopy/src/schema/playbook.yaml"
-        },
-        "default_roles_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles",
-        "default_units_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units",
-        "default_playbooks_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks",
-        "default_vars_file": "commons/default-variables.yaml",
-        "output_root_dir": "/tmp/ms_cli",
-        "output_env_dir": "output",
-        "output_artifacts_dir": "artifacts",
-        "output_report_file": "report",
-        "show_debug_log": false,
-        "stop_when_failed": false,
-        "stop_when_error_happened": false,
-        "enable_loopy_report": true,
-        "enable_loopy_logo": true,
-        "enable_loopy_log": true,
-        "ignore_validate_input_env": true,
-        "keep_env_variables": [
-            "CLUSTER_API_URL",
-            "CLUSTER_TYPE",
-            "CLUSTER_ADMIN_ID",
-            "CLUSTER_ADMIN_PW",
-            "CLUSTER_TOKEN",
-            "MINIO_S3_SVC_URL",
-            "MINIO_DEFAULT_BUCKET_NAME",
-            "MINIO_ACCESS_KEY_ID",
-            "MINIO_SECRET_ACCESS_KEY",
-            "MINIO_REGION",
-            "JENKINS_USER",
-            "JENKINS_TOKEN",
-            "JENKINS_URL",
-            "CUSTOM_KSERVE_MANIFESTS",
-            "HF_TEST_TOKEN"
-        ],
-        "additional_role_dirs": [
-            "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/roles"
-        ],
-        "additional_unit_dirs": [
-            "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units"
-        ],
-        "additional_playbook_dirs": [
-            "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks"
-        ],
-        "logging": {
-            "version": 1,
-            "disable_existing_loggers": false,
-            "formatters": {
-                "simple": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-                },
-                "detailed": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]"
-                },
-                "colored": {
-                    "()": "colorlog.ColoredFormatter",
-                    "format": "%(log_color)s%(asctime)s %(levelname)s:[%(filename)s:%(lineno)3d] %(message)s",
-                    "datefmt": "%Y-%m-%d %H:%M:%S",
-                    "log_colors": {
-                        "DEBUG": "cyan",
-                        "INFO": "light_blue",
-                        "WARNING": "yellow",
-                        "ERROR": "red",
-                        "CRITICAL": "bold_red"
-                    }
-                }
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "level": "ERROR",
-                    "formatter": "colored",
-                    "stream": "ext://sys.stdout"
-                },
-                "file": {
-                    "class": "logging.FileHandler",
-                    "level": "DEBUG",
-                    "formatter": "detailed",
-                    "filename": "loopy.log",
-                    "mode": "w"
-                }
-            },
-            "root": {
-                "level": "DEBUG",
-                "handlers": [
-                    "console",
-                    "file"
-                ]
-            }
-        },
-        "loopy_root_path": "/home/jooho/temp/20250404_loopy/loopy",
-        "loopy_config_name": "config.yaml",
-        "commands_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/commands",
-        "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
-        "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
-        "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python",
-        "loopy_result_dir": "/tmp/ms_cli/20250415_1032",
-        "output_dir": "/tmp/ms_cli/20250415_1032/output",
-        "artifacts_dir": "/tmp/ms_cli/20250415_1032/artifacts",
-        "report_file": "/tmp/ms_cli/20250415_1032/report",
-        "role_list": [
-            {
-                "name": "cert-generate",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/cert/generate"
-            },
-            {
-                "name": "dev-python-virtualenv",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/dev/python-virtualenv"
-            },
-            {
-                "name": "kserve-caikit-test",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/caikit-runtime"
-            },
-            {
-                "name": "kserve-inference-test-from-notebook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/from-notebook"
-            },
-            {
-                "name": "kserve-caikit-test-using-pipeline",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/from-pipeline"
-            },
-            {
-                "name": "kserve-sklearn-test",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/sklearn"
-            },
-            {
-                "name": "minio-deploy",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/minio/deploy"
-            },
-            {
-                "name": "modelmesh-openvino-test",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/modelmesh/samples/openvino"
-            },
-            {
-                "name": "deploy-nfs-provisioner",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/nfs-provisioner"
-            },
-            {
-                "name": "opendatahub-create-dsc",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/opendatahub/dsc"
-            },
-            {
-                "name": "opendatahub-create-dsci",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/opendatahub/dsci"
-            },
-            {
-                "name": "openshift-fips-install",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/install-psi-fips"
-            },
-            {
-                "name": "openshift-install",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/install_TBD"
-            },
-            {
-                "name": "openshift-rosa-add-machinepool",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-add-machinepool"
-            },
-            {
-                "name": "openshift-rosa-delete-machinepool",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-delete-machinepool"
-            },
-            {
-                "name": "openshift-rosa-install",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-install"
-            },
-            {
-                "name": "openshift-rosa-uninstall",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-uninstall"
-            },
-            {
-                "name": "openshift-fips-uninstall",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/uninstall-psi-fips"
-            },
-            {
-                "name": "operator-delete",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/operator/delete"
-            },
-            {
-                "name": "operator-install",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/operator/install"
-            },
-            {
-                "name": "shell-execute",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/shell/execute"
-            }
-        ],
-        "unit_list": [
-            {
-                "name": "deploy-rhoai-kserve",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/deploy-rhoai-kserve",
-                "role_name": "opendatahub-create-dsc"
-            },
-            {
-                "name": "deploy-ssl-minio",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/deploy-ssl-minio",
-                "role_name": "cert-generate"
-            },
-            {
-                "name": "example-deploy-rhoai-kserve-with-custom-manifests",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/example-deploy-rhoai-kserve-with-custom-manifests",
-                "role_name": "opendatahub-create-dsc"
-            },
-            {
-                "name": "install-authorino-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-authorino-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-2.5-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-2.5-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-stable-operator-without-dsci",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-stable-operator-without-dsci",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-ossm-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-ossm-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-pipelines-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-pipelines-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-rhoai-stable-operator-without-dsci",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-rhoai-stable-operator-without-dsci",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-rhoai-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-rhoai-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-serverless-stable-operator",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-serverless-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "test-kserve-caikit-tgis-rest-using-pipeline",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "test-kserve-caikit-tgis-rest",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris-role",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
-                "role_name": "shell-execute"
-            },
-            {
-                "name": "test-kserve-using-notebook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-using-notebook",
-                "role_name": "kserve-inference-test-from-notebook"
-            },
-            {
-                "name": "test-modelmesh-openvino",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-modelmesh-openvino",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "loopy-roles-test-cluster-ops-rosa-install",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/cluster-ops/rosa-install",
-                "role_name": "openshift-rosa-install"
-            },
-            {
-                "name": "loopy-roles-test-non-cluster-cert-generate",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/cert-generate",
-                "role_name": "cert-generate"
-            },
-            {
-                "name": "loopy-roles-test-non-cluster-shell-execute",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/shell-execute",
-                "role_name": "shell-execute"
-            },
-            {
-                "name": "loopy-roles-test-non-cluster-fail-test-shell-execute",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/fail-test-shell-execute",
-                "role_name": "shell-execute"
-            },
-            {
-                "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-rawDeployment",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/rawDeployment",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-serverless",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/serverless",
-                "role_name": "operator-install"
-            }
-        ],
-        "playbook_list": [
-            {
-                "name": "cleanup-all-rhoai-kserve",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/cleanup-all-rhoai-kserve"
-            },
-            {
-                "name": "demo-rhoai-for-global-cert",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/demo-rhoai-for-global-cert"
-            },
-            {
-                "name": "kserve-full-sanity-test-on-new-fips-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/kserve-full-sanity-test-on-new-fips-cluster"
-            },
-            {
-                "name": "loopy-test-report-playbook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/loopy-test-report-playbook"
-            },
-            {
-                "name": "odh-fast-install-kserve-raw-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/install-kserve-raw-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-install-kserve-serverless-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/install-kserve-serverless-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-raw-simple-sanity-test-caikit-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-raw-simple-sanity-test-caikit-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-raw-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-raw-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-serverless-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-serverless-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "private-endpoint-poc",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/private-endpoint-poc"
-            },
-            {
-                "name": "rhoai-stable-install-kserve-raw-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/install-kserve-raw-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-install-kserve-serverless-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/install-kserve-serverless-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-kserve-raw-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/kserve-raw-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-kserve-serverless-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/kserve-serverless-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "setup-rhoai-for-global-cert",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/setup-rhoai-for-global-cert"
-            },
-            {
-                "name": "template",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/template"
-            },
-            {
-                "name": "vllm-multi-node-odh-poc",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/vllm-multi-node-odh-poc"
-            },
-            {
-                "name": "loopy-unit-tests",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/unit-tests"
-            },
-            {
-                "name": "loopy-fail-unit-tests",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
-            },
-            {
-                "name": "loopy-test-report-playbook",
-                "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
-            }
-        ]
+    "openshift": {
+      "cluster_type": "psi",
+      "cluster_name": "serving-fips",
+      "machine_pool_type": "m5.2xlarge",
+      "product_type": "ODH"
     },
-    "env": {
-        "loopy_root_path": "/home/jooho/temp/20250404_loopy/loopy",
-        "loopy_config_name": "config.yaml",
-        "commands_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/commands",
-        "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
-        "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
-        "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python"
+    "opendatahub": {
+      "opendatahub_type": "rhoai",
+      "datasciencecluster_name": "rhoai",
+      "enable_codeflare": "Removed",
+      "enable_dashboard": "Removed",
+      "custom_dashboard_manifiests": "",
+      "enable_datasciencepipelines": "Removed",
+      "enable_kserve": "Managed",
+      "custom_kserve_manifiests": "",
+      "custom_odh_model_controller_manifiests": "",
+      "enable_kserve_knative": "Managed",
+      "enable_modelmesh": "Removed",
+      "enable_ray": "Removed",
+      "enable_trustyai": "Removed",
+      "enable_workbenches": "Removed",
+      "enable_trainingoperator": "Removed",
+      "enable_kueue": "Removed",
+      "enable_modelregistry": "Removed",
+      "custom_modelmesh_manifiests": "",
+      "dsci_name": "default-dsci",
+      "istio_namespace": "istio-system",
+      "monitoring_namespace": "redhat-ods-monitoring",
+      "application_namespace": "redhat-ods-applications",
+      "enable_trustedCAbundle": "Managed",
+      "enable_monitoring": "Managed",
+      "enable_servicemesh": "Managed",
+      "default_deploymentmode": "Serverless"
+    },
+    "minio": {
+      "minio_namespace": "minio",
+      "access_key_id": "admin",
+      "secret_access_key": "password",
+      "minio_image": "quay.io/jooholee/model-minio:latest",
+      "enable_ssl": "false",
+      "enable_console": "false",
+      "minio_region": "us-east-1",
+      "default_bucket_name": "example-models"
+    },
+    "kserve": {
+      "caikit_arch_type": "caikit-tgis",
+      "protocol": "rest",
+      "isvc_storage_path_type": "storage",
+      "isvc_deployment_mode": "Serverless",
+      "test_namespace": "kserve-demo",
+      "storage_config_type": "json",
+      "default_bucket_name": "example-models",
+      "minio_region": "us-east-1",
+      "use_data_connection": "true",
+      "git_url": "https://github.com/JooHo/loopy.git",
+      "git_revision": "main",
+      "working_namespace": "pipeline-test",
+      "python_image": "registry.redhat.io/ubi9/python-39:latest",
+      "oc_image": "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest",
+      "isvc_deployment_verbose": "true",
+      "keep_namespace": "true",
+      "minio_access_key_id": "admin",
+      "minio_secret_access_key": "password",
+      "use_minio": "false"
+    },
+    "cert": {
+      "root_ca_cert_name": "root.crt",
+      "root_ca_key_name": "root.key",
+      "root_ca_cert": "",
+      "root_ca_key": "",
+      "cert_name": "custom.crt",
+      "key_name": "custom.key",
+      "csr_name": "custom.csr",
+      "cn": "custom"
+    },
+    "modelmesh": {
+      "test_namespace": "mm-test"
     }
+  },
+  "config": {
+    "schema": {
+      "role": "/home/jooho/temp/20250404_loopy/loopy/src/schema/role.yaml",
+      "unit": "/home/jooho/temp/20250404_loopy/loopy/src/schema/unit.yaml",
+      "playbook": "/home/jooho/temp/20250404_loopy/loopy/src/schema/playbook.yaml"
+    },
+    "default_roles_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles",
+    "default_units_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units",
+    "default_playbooks_dir": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks",
+    "default_vars_file": "commons/default-variables.yaml",
+    "output_root_dir": "/tmp/ms_cli",
+    "output_env_dir": "output",
+    "output_artifacts_dir": "artifacts",
+    "output_report_file": "report",
+    "show_debug_log": false,
+    "stop_when_failed": false,
+    "stop_when_error_happened": false,
+    "enable_loopy_report": true,
+    "enable_loopy_logo": true,
+    "enable_loopy_log": true,
+    "ignore_validate_input_env": true,
+    "keep_env_variables": [
+      "CLUSTER_API_URL",
+      "CLUSTER_TYPE",
+      "CLUSTER_ADMIN_ID",
+      "CLUSTER_ADMIN_PW",
+      "CLUSTER_TOKEN",
+      "MINIO_S3_SVC_URL",
+      "MINIO_DEFAULT_BUCKET_NAME",
+      "MINIO_ACCESS_KEY_ID",
+      "MINIO_SECRET_ACCESS_KEY",
+      "MINIO_REGION",
+      "JENKINS_USER",
+      "JENKINS_TOKEN",
+      "JENKINS_URL",
+      "CUSTOM_KSERVE_MANIFESTS",
+      "HF_TEST_TOKEN"
+    ],
+    "additional_role_dirs": [
+      "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/roles"
+    ],
+    "additional_unit_dirs": [
+      "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units"
+    ],
+    "additional_playbook_dirs": [
+      "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks"
+    ],
+    "logging": {
+      "version": 1,
+      "disable_existing_loggers": false,
+      "formatters": {
+        "simple": {
+          "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        },
+        "detailed": {
+          "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]"
+        },
+        "colored": {
+          "()": "colorlog.ColoredFormatter",
+          "format": "%(log_color)s%(asctime)s %(levelname)s:[%(filename)s:%(lineno)3d] %(message)s",
+          "datefmt": "%Y-%m-%d %H:%M:%S",
+          "log_colors": {
+            "DEBUG": "cyan",
+            "INFO": "light_blue",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "bold_red"
+          }
+        }
+      },
+      "handlers": {
+        "console": {
+          "class": "logging.StreamHandler",
+          "level": "ERROR",
+          "formatter": "colored",
+          "stream": "ext://sys.stdout"
+        },
+        "file": {
+          "class": "logging.FileHandler",
+          "level": "DEBUG",
+          "formatter": "detailed",
+          "filename": "loopy.log",
+          "mode": "w"
+        }
+      },
+      "root": {
+        "level": "DEBUG",
+        "handlers": ["console", "file"]
+      }
+    },
+    "loopy_root_path": "/home/jooho/temp/20250404_loopy/loopy",
+    "loopy_config_name": "config.yaml",
+    "commands_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/commands",
+    "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
+    "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
+    "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python",
+    "loopy_result_dir": "/tmp/ms_cli/20250415_1032",
+    "output_dir": "/tmp/ms_cli/20250415_1032/output",
+    "artifacts_dir": "/tmp/ms_cli/20250415_1032/artifacts",
+    "report_file": "/tmp/ms_cli/20250415_1032/report",
+    "role_list": [
+      {
+        "name": "cert-generate",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/cert/generate"
+      },
+      {
+        "name": "dev-python-virtualenv",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/dev/python-virtualenv"
+      },
+      {
+        "name": "kserve-caikit-test",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/caikit-runtime"
+      },
+      {
+        "name": "kserve-inference-test-from-notebook",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/from-notebook"
+      },
+      {
+        "name": "kserve-caikit-test-using-pipeline",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/from-pipeline"
+      },
+      {
+        "name": "kserve-sklearn-test",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/kserve/samples/sklearn"
+      },
+      {
+        "name": "minio-deploy",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/minio/deploy"
+      },
+      {
+        "name": "modelmesh-openvino-test",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/modelmesh/samples/openvino"
+      },
+      {
+        "name": "nfs-provisioner-deploy",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/nfs-provisioner"
+      },
+      {
+        "name": "opendatahub-create-dsc",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/opendatahub/dsc"
+      },
+      {
+        "name": "opendatahub-create-dsci",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/opendatahub/dsci"
+      },
+      {
+        "name": "openshift-fips-install",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/install-psi-fips"
+      },
+      {
+        "name": "openshift-install",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/install_TBD"
+      },
+      {
+        "name": "openshift-rosa-add-machinepool",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-add-machinepool"
+      },
+      {
+        "name": "openshift-rosa-delete-machinepool",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-delete-machinepool"
+      },
+      {
+        "name": "openshift-rosa-install",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-install"
+      },
+      {
+        "name": "openshift-rosa-uninstall",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/rosa-uninstall"
+      },
+      {
+        "name": "openshift-fips-uninstall",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/openshift/uninstall-psi-fips"
+      },
+      {
+        "name": "operator-uninstall",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/operator/delete"
+      },
+      {
+        "name": "operator-install",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/operator/install"
+      },
+      {
+        "name": "shell-execute",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/roles/shell/execute"
+      }
+    ],
+    "unit_list": [
+      {
+        "name": "deploy-rhoai-kserve",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/deploy-rhoai-kserve",
+        "role_name": "opendatahub-create-dsc"
+      },
+      {
+        "name": "deploy-ssl-minio",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/deploy-ssl-minio",
+        "role_name": "cert-generate"
+      },
+      {
+        "name": "example-deploy-rhoai-kserve-with-custom-manifests",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/example-deploy-rhoai-kserve-with-custom-manifests",
+        "role_name": "opendatahub-create-dsc"
+      },
+      {
+        "name": "install-authorino-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-authorino-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-odh-2.5-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-2.5-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-odh-stable-operator-without-dsci",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-stable-operator-without-dsci",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-odh-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-odh-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-ossm-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-ossm-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-pipelines-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-pipelines-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-rhoai-stable-operator-without-dsci",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-rhoai-stable-operator-without-dsci",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-rhoai-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-rhoai-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "install-serverless-stable-operator",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/units/install-serverless-stable-operator",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "test-kserve-caikit-tgis-rest-using-pipeline",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "test-kserve-caikit-tgis-rest",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
+        "role_name": "minio-deploy"
+      },
+      {
+        "name": "test-kserve-sklearn-v2-iris-role",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
+        "role_name": "minio-deploy"
+      },
+      {
+        "name": "test-kserve-sklearn-v2-iris",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
+        "role_name": "shell-execute"
+      },
+      {
+        "name": "test-kserve-using-notebook",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-kserve-using-notebook",
+        "role_name": "kserve-inference-test-from-notebook"
+      },
+      {
+        "name": "test-modelmesh-openvino",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/test-modelmesh-openvino",
+        "role_name": "minio-deploy"
+      },
+      {
+        "name": "loopy-roles-test-cluster-ops-rosa-install",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/cluster-ops/rosa-install",
+        "role_name": "openshift-rosa-install"
+      },
+      {
+        "name": "loopy-roles-test-non-cluster-cert-generate",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/cert-generate",
+        "role_name": "cert-generate"
+      },
+      {
+        "name": "loopy-roles-test-non-cluster-shell-execute",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/shell-execute",
+        "role_name": "shell-execute"
+      },
+      {
+        "name": "loopy-roles-test-non-cluster-fail-test-shell-execute",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/non-cluster/fail-test-shell-execute",
+        "role_name": "shell-execute"
+      },
+      {
+        "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-rawDeployment",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/rawDeployment",
+        "role_name": "operator-install"
+      },
+      {
+        "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-serverless",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/serverless",
+        "role_name": "operator-install"
+      }
+    ],
+    "playbook_list": [
+      {
+        "name": "cleanup-all-rhoai-kserve",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/cleanup-all-rhoai-kserve"
+      },
+      {
+        "name": "demo-rhoai-for-global-cert",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/demo-rhoai-for-global-cert"
+      },
+      {
+        "name": "kserve-full-sanity-test-on-new-fips-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/kserve-full-sanity-test-on-new-fips-cluster"
+      },
+      {
+        "name": "loopy-test-report-playbook",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/loopy-test-report-playbook"
+      },
+      {
+        "name": "odh-fast-install-kserve-raw-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/install-kserve-raw-on-existing-cluster"
+      },
+      {
+        "name": "odh-fast-install-kserve-serverless-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/install-kserve-serverless-on-existing-cluster"
+      },
+      {
+        "name": "odh-fast-kserve-raw-simple-sanity-test-caikit-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-raw-simple-sanity-test-caikit-on-existing-cluster"
+      },
+      {
+        "name": "odh-fast-kserve-raw-simple-sanity-test-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-raw-simple-sanity-test-on-existing-cluster"
+      },
+      {
+        "name": "odh-fast-kserve-serverless-simple-sanity-test-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/odh/fast/kserve-serverless-simple-sanity-test-on-existing-cluster"
+      },
+      {
+        "name": "private-endpoint-poc",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/private-endpoint-poc"
+      },
+      {
+        "name": "rhoai-stable-install-kserve-raw-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/install-kserve-raw-on-existing-cluster"
+      },
+      {
+        "name": "rhoai-stable-install-kserve-serverless-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/install-kserve-serverless-on-existing-cluster"
+      },
+      {
+        "name": "rhoai-stable-kserve-raw-simple-sanity-test-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/kserve-raw-simple-sanity-test-on-existing-cluster"
+      },
+      {
+        "name": "rhoai-stable-kserve-serverless-simple-sanity-test-on-existing-cluster",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/rhoai/stable/kserve-serverless-simple-sanity-test-on-existing-cluster"
+      },
+      {
+        "name": "setup-rhoai-for-global-cert",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/setup-rhoai-for-global-cert"
+      },
+      {
+        "name": "template",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/template"
+      },
+      {
+        "name": "vllm-multi-node-odh-poc",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/default_provided_services/playbooks/vllm-multi-node-odh-poc"
+      },
+      {
+        "name": "loopy-unit-tests",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/unit-tests"
+      },
+      {
+        "name": "loopy-fail-unit-tests",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
+      },
+      {
+        "name": "loopy-test-report-playbook",
+        "path": "/home/jooho/temp/20250404_loopy/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
+      }
+    ]
+  },
+  "env": {
+    "loopy_root_path": "/home/jooho/temp/20250404_loopy/loopy",
+    "loopy_config_name": "config.yaml",
+    "commands_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/commands",
+    "cli_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli",
+    "logics_dir": "/home/jooho/temp/20250404_loopy/loopy/src/cli/logics",
+    "py_utils_dir": "/home/jooho/temp/20250404_loopy/loopy/commons/python"
+  }
 }

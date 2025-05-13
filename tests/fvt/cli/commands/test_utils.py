@@ -20,8 +20,8 @@ def ctx(loopy_context):
 # Test to verify that parameters are correctly checked in a role component.
 # This test ensures that the verify_param_in_component function correctly identifies
 # if a given parameter exists in the specified role's input environment.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_verify_param_in_component_role(tmp_path, ctx):
     # Setup dummy role config
     config_path = tmp_path / "role1/config.yaml"
@@ -36,8 +36,8 @@ def test_verify_param_in_component_role(tmp_path, ctx):
 # Test to verify that input environment parameters are correctly checked in a role.
 # This test ensures that the check_input_env_in_role function correctly identifies
 # if a given parameter exists in the role's input environment.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_check_input_env_in_role(ctx):
     params = ["FOO"]
     role_input_env = [{"name": "FOO"}, {"name": "BAR"}]
@@ -49,8 +49,8 @@ def test_check_input_env_in_role(ctx):
 # Test to verify that logging is configured correctly with the specified verbosity.
 # This test ensures that the configure_logging function sets the correct log level
 # based on the provided verbosity.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_configure_logging(ctx):
     level = utils.configure_logging(ctx, verbose=3)
     assert level == logging.DEBUG
@@ -59,8 +59,8 @@ def test_configure_logging(ctx):
 # Test to verify that a component exists in the provided list.
 # This test ensures that the verify_component_exist function correctly identifies
 # if a component exists in the provided list.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_verify_component_exist_found():
     component_list = [{"name": "foo", "path": "/tmp"}]
     utils.verify_component_exist("foo", component_list)
@@ -69,8 +69,8 @@ def test_verify_component_exist_found():
 # Test to verify that a component does not exist in the provided list.
 # This test ensures that the verify_component_exist function raises a SystemExit
 # when a component does not exist in the provided list.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_verify_component_exist_not_found():
     component_list = [{"name": "foo", "path": "/tmp"}]
     with pytest.raises(SystemExit):
@@ -80,8 +80,8 @@ def test_verify_component_exist_not_found():
 # Test to verify that key-value pairs are parsed correctly.
 # This test ensures that the parse_key_value_pairs function correctly parses
 # key-value pairs from a list of strings.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_parse_key_value_pairs():
     ctx = None
     param = None
@@ -97,8 +97,8 @@ def test_parse_key_value_pairs():
 # Test to verify that environment variables are loaded from a file if it exists.
 # This test ensures that the load_env_file_if_exist function correctly loads
 # environment variables from a file and handles non-existent files.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_load_env_file_if_exist(tmp_path):
     env_file = tmp_path / "envfile"
     env_file.write_text('FOO=bar\nBAR="baz"\n# comment\n')
@@ -112,8 +112,8 @@ def test_load_env_file_if_exist(tmp_path):
 # Test to verify that environment variables are set from a file if it exists.
 # This test ensures that the set_env_vars_if_file_exist function correctly sets
 # environment variables from a file.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_set_env_vars_if_file_exist(tmp_path):
     env_file = tmp_path / "envfile"
     env_file.write_text("FOO=bar\nBAR=baz\n")
@@ -125,8 +125,8 @@ def test_set_env_vars_if_file_exist(tmp_path):
 # Test to verify that parameters are updated with input file values.
 # This test ensures that the update_params_with_input_file function correctly updates
 # parameters with values from an input file.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_update_params_with_input_file():
     params = {"A": "1"}
     additional = {"B": "2"}
@@ -140,8 +140,8 @@ def test_update_params_with_input_file():
 # Test to verify that configuration data is retrieved from a config file directory.
 # This test ensures that the get_config_data_by_config_file_dir function correctly retrieves
 # configuration data from a specified directory.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_config_data_by_config_file_dir(tmp_path, ctx):
     config_file = tmp_path / "config.yaml"
     config_file.write_text("foo: bar")
@@ -152,8 +152,8 @@ def test_get_config_data_by_config_file_dir(tmp_path, ctx):
 # Test to verify that an error is raised when a config file is not found.
 # This test ensures that the get_config_data_by_config_file_dir function raises an error
 # when the specified config file does not exist.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_config_data_by_config_file_dir_not_found(ctx):
     with mock.patch.object(ctx, "invoke") as m:
         utils.get_config_data_by_config_file_dir(ctx, "/not/exist")
@@ -163,8 +163,8 @@ def test_get_config_data_by_config_file_dir_not_found(ctx):
 # Test to verify that configuration data is retrieved by name for a role.
 # This test ensures that the get_config_data_by_name function correctly retrieves
 # configuration data for a specified role.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_config_data_by_name_role(tmp_path, ctx):
     config_file = tmp_path / "config.yaml"
     config_file.write_text("role:\n  foo: bar")
@@ -177,8 +177,8 @@ def test_get_config_data_by_name_role(tmp_path, ctx):
 # Test to verify that an error is raised when a component is not found by name.
 # This test ensures that the get_config_data_by_name function raises an error
 # when the specified component is not found.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_config_data_by_name_not_found(ctx):
     with mock.patch.object(ctx, "invoke") as m, pytest.raises(SystemExit):
         utils.get_config_data_by_name(ctx, "notfound", "role", [])
@@ -188,8 +188,8 @@ def test_get_config_data_by_name_not_found(ctx):
 # Test to verify that input environment is retrieved from config data.
 # This test ensures that the get_input_env_from_config_data function correctly retrieves
 # the input environment from the provided config data.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_input_env_from_config_data():
     assert utils.get_input_env_from_config_data({"input_env": 123}) == 123
     assert utils.get_input_env_from_config_data({}) is None
@@ -198,8 +198,8 @@ def test_get_input_env_from_config_data():
 # Test to verify that input environment is retrieved from unit config data.
 # This test ensures that the get_input_env_from_unit_config_data function correctly retrieves
 # the input environment from the provided unit config data.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_input_env_from_unit_config_data():
     assert utils.get_input_env_from_unit_config_data({"input_env": 456}) == 456
     assert utils.get_input_env_from_unit_config_data({}) is None
@@ -208,8 +208,8 @@ def test_get_input_env_from_unit_config_data():
 # Test to verify that the first role name in a unit is retrieved correctly.
 # This test ensures that the get_first_role_name_in_unit_by_unit_name function correctly retrieves
 # the first role name from a unit.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_get_first_role_name_in_unit_by_unit_name():
     units = [{"name": "u1", "role_name": "r1"}]
     assert utils.get_first_role_name_in_unit_by_unit_name("u1", units) == "r1"
@@ -219,8 +219,8 @@ def test_get_first_role_name_in_unit_by_unit_name():
 # Test to verify that the description is retrieved for a role.
 # This test ensures that the getDescription function correctly retrieves
 # the description for a specified role.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_getDescription_role(ctx):
     with mock.patch("src.cli.commands.utils.get_config_data_by_name", return_value={"role": {"description": "desc"}}):
         desc = utils.getDescription(ctx, "r1", "role")
@@ -230,8 +230,8 @@ def test_getDescription_role(ctx):
 # Test to verify that the description is retrieved for a unit.
 # This test ensures that the getDescription function correctly retrieves
 # the description for a specified unit.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_getDescription_unit(ctx):
     with mock.patch("src.cli.commands.utils.get_config_data_by_name", return_value={"unit": {"description": "udesc"}}):
         desc = utils.getDescription(ctx, "u1", "unit")
@@ -241,8 +241,8 @@ def test_getDescription_unit(ctx):
 # Test to verify that the description is retrieved for a playbook.
 # This test ensures that the getDescription function correctly retrieves
 # the description for a specified playbook.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_getDescription_playbook(ctx):
     with mock.patch(
         "src.cli.commands.utils.get_config_data_by_name", return_value={"playbook": {"description": "pdesc"}}
@@ -254,8 +254,8 @@ def test_getDescription_playbook(ctx):
 # Test to verify that a directory is safely removed.
 # This test ensures that the safe_rmtree function correctly removes a directory
 # and handles dangerous paths appropriately.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_safe_rmtree(tmp_path):
     d = tmp_path / "dir"
     d.mkdir()
@@ -271,8 +271,8 @@ def test_safe_rmtree(tmp_path):
 
 # Test to verify that the logo is printed without errors.
 # This test ensures that the print_logo function runs without raising any errors.
+@pytest.mark.fvt
 @pytest.mark.cli
-@pytest.mark.non_cluster_tests
 def test_print_logo():
     # Just ensure it runs without error
     utils.print_logo()

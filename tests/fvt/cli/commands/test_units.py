@@ -5,9 +5,9 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_units
-@pytest.mark.non_cluster_tests
 def test_list_units(cli_runner, loopy_context):
     from src.cli.commands.units import list_units
 
@@ -18,22 +18,20 @@ def test_list_units(cli_runner, loopy_context):
     assert "loopy-roles-test-non-cluster-shell-execute" in result.output
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_units
-@pytest.mark.non_cluster_tests
 def test_show_unit(cli_runner, loopy_context):
     from src.cli.commands.units import show_unit
 
-    result = cli_runner.invoke(
-        show_unit, ["loopy-roles-test-non-cluster-shell-execute"], obj=loopy_context
-    )
+    result = cli_runner.invoke(show_unit, ["loopy-roles-test-non-cluster-shell-execute"], obj=loopy_context)
     assert result.exit_code == 0
     assert "Name: loopy-roles-test-non-cluster-shell-execute" in result.output
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_units
-@pytest.mark.non_cluster_tests
 def test_run_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
@@ -50,7 +48,8 @@ def test_run_unit(cli_runner, loopy_context):
 # Environment variable can overwrite the parameter in the component
 # Environment variable must start with LOOPY
 
-# @pytest.mark.cli
+# @pytest.mark.fvt
+@pytest.mark.cli
 # @pytest.mark.cli_units
 # def test_run_unit_fail_with_stop_when_error_happened_1(cli_runner, loopy_context):
 #     """Report an warn if the executed test role fails  with STOP_WHEN_FAILED = 1"""
@@ -63,7 +62,8 @@ def test_run_unit(cli_runner, loopy_context):
 #     assert "[WARN] There are some errors" in result.stdout.strip()
 
 
-# @pytest.mark.cli
+# @pytest.mark.fvt
+@pytest.mark.cli
 # @pytest.mark.cli_units
 # def test_run_unit_fail_with_stop_when_error_happened_0(cli_runner, loopy_context):
 #     """Report an error if the executed test role fails with STOP_WHEN_FAILED = 0"""
@@ -76,14 +76,12 @@ def test_run_unit(cli_runner, loopy_context):
 #     assert "[FATAL]: STOP_WHEN_ERROR_HAPPENED(0) is set and there are some errors detected, stopping all processes." in result.stdout.strip()
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_units
-@pytest.mark.non_cluster_tests
 def test_run_unit_non_exist_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
-    result = cli_runner.invoke(
-        run_unit, ["NOT-EXIST-UNIT", "-l", "-g"], obj=loopy_context
-    )
+    result = cli_runner.invoke(run_unit, ["NOT-EXIST-UNIT", "-l", "-g"], obj=loopy_context)
     assert result.exit_code == 1
     assert "Unit name(NOT-EXIST-UNIT) does not exist" in result.stdout.strip()

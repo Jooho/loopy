@@ -27,12 +27,14 @@ minio_deployment_manifests=$(yq e '.role.manifests.minio_deployment' $current_di
 minio_deployment_manifests_path=$current_dir/$minio_deployment_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
-if [[ z${CLUSTER_TOKEN} != z ]]; then
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+if [[ z${TEST_KIND} == z ]]; then
+  if [[ z${CLUSTER_TOKEN} != z ]]; then
+    oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
+  else
+    oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+  fi
+  check_oc_status
 fi
-check_oc_status
 
 oc get ns ${MINIO_NAMESPACE} >/dev/null 2>&1 || oc new-project ${MINIO_NAMESPACE} >/dev/null 2>&1
 oc label namespace ${MINIO_NAMESPACE} pod-security.kubernetes.io/enforce=baseline --overwrite

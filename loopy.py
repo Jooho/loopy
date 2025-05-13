@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
+import os
 from core.env import EnvManager
 from core.config_loader import ConfigLoader
 from core.initializer import Initializer
 
+if os.getenv("LOOPY_DEBUG") == "1":
+    import debugpy
+    debugpy.listen(("0.0.0.0", 5678))
+    print("Waiting for debugger attach...")
+    debugpy.wait_for_client()
+    
 # 1. Setup environment variabls
 envManager = EnvManager()
 config_path = envManager.get_config_path()

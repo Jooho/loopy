@@ -1,43 +1,43 @@
 role:
   created_date: "20240215"
-  name: operator-delete
+  name: operator-uninstall
 
   input_env:
-    - name: SUBSCRIPTION_NAME
-      description: Subscription object name
-      required: true
+  - name: SUBSCRIPTION_NAME
+    description: Subscription object name
+    required: true
 
-    - name: OPERATOR_NAMESPACE
-      description: Namespace where the operator will run      
-      required: true
-    
-    - name: OPERATOR_NAME
-      description: The target operator name to be installed
-      required: true
-      
-    - name: CSV_DELETE
-      description: Set false, if you want to leave CSV.
+  - name: OPERATOR_NAMESPACE
+    description: Namespace where the operator will run
+    required: true
 
-    - name: CATALOGSOURCE_NAME
-      description: The catalog source name that contains the target operator
+  - name: OPERATOR_NAME
+    description: The target operator name to be installed
+    required: true
 
-    - name: CATALOGSOURCE_NAMESPACE
-      description: The namespace that the catalog source is in
+  - name: CSV_DELETE
+    description: Set false, if you want to leave CSV.
 
-    - name: CATALOGSOURCE_DELETE
-      description: Set 'true' to delete catalogsource
-      
-    - name: CLUSTER_API_URL
-      description: openshift api url
-      required: true
+  - name: CATALOGSOURCE_NAME
+    description: The catalog source name that contains the target operator
 
-    - name: CLUSTER_ADMIN_ID
-      description: openshift cluster user id
-      required: true
+  - name: CATALOGSOURCE_NAMESPACE
+    description: The namespace that the catalog source is in
 
-    - name: CLUSTER_ADMIN_PW
-      description: openshift cluster user password
-      required: true
+  - name: CATALOGSOURCE_DELETE
+    description: Set 'true' to delete catalogsource
 
-    - name: CLUSTER_TOKEN  
-      description: openshift cluster login token
+  - name: CLUSTER_API_URL
+    description: openshift api url
+    required: true
+
+  - name: CLUSTER_ADMIN_ID
+    description: openshift cluster user id
+    required: true
+
+  - name: CLUSTER_ADMIN_PW
+    description: openshift cluster user password
+    required: true
+
+  - name: CLUSTER_TOKEN
+    description: openshift cluster login token

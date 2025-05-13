@@ -1,9 +1,9 @@
 role:
   created_date: "20240926"
-  name: deploy-nfs-provisioner
+  name: nfs-provisioner-deploy
   description: |
     This role deploy nfs-provisioner in the openshift cluster.
-   
+
     pre-requirements:
       This need a storageclass to create a PVC for nfs provisioner.
 
@@ -18,7 +18,7 @@ role:
       - STORAGE_SIZE: PVC size for nfs server
 
     To run it:
-    ./loopy roles run deploy-nfs-provisioner \
+    ./loopy roles run nfs-provisioner-deploy \
       -p NFS_PROVISIONER_NS=nfs-provisioner \
       -p NFS_PROVISIONER_NAME=nfs-provisioner-loopy \
       -p PVC_STORAGECLASS_NAME=gp3-csi \
@@ -29,35 +29,34 @@ role:
     nfs_provisioner_cr: manifests/nfs-provisioner-cr.yaml
 
   input_env:
-    - name: NFS_PROVISIONER_NS
-      description: Set namespace where nfs provisioner will run/
-      default: nfs-provisioner
-      
-    - name: NFS_PROVISIONER_NAME
-      description: nfs provisioner CR name 
-      default: nfs-provisioner-loopy
+  - name: NFS_PROVISIONER_NS
+    description: Set namespace where nfs provisioner will run/
+    default: nfs-provisioner
 
-    - name: PVC_STORAGECLASS_NAME
-      description: Set storageclass name that will create a PVC for nfs server
-      required: true
+  - name: NFS_PROVISIONER_NAME
+    description: nfs provisioner CR name
+    default: nfs-provisioner-loopy
 
-    - name: NFS_STORAGECLASS_NAME
-      description: Set nfs storageclass name for nfs-provioner. It will be set default StorageClass
-      default: nfs
+  - name: PVC_STORAGECLASS_NAME
+    description: Set storageclass name that will create a PVC for nfs server
+    required: true
 
-    - name: STORAGE_SIZE
-      description: PVC size for nfs server
-      default: 100Gi
+  - name: NFS_STORAGECLASS_NAME
+    description: Set nfs storageclass name for nfs-provioner. It will be set default StorageClass
+    default: nfs
 
-    - name: CLUSTER_API_URL
-      description: openshift api url
-      required: true
-    - name: CLUSTER_ADMIN_ID
-      description: openshift cluster user id
-      required: true
-    - name: CLUSTER_ADMIN_PW
-      description: openshift cluster user password
-      required: true
-    - name: CLUSTER_TOKEN  
-      description: openshift cluster login token
-    
+  - name: STORAGE_SIZE
+    description: PVC size for nfs server
+    default: 100Gi
+
+  - name: CLUSTER_API_URL
+    description: openshift api url
+    required: true
+  - name: CLUSTER_ADMIN_ID
+    description: openshift cluster user id
+    required: true
+  - name: CLUSTER_ADMIN_PW
+    description: openshift cluster user password
+    required: true
+  - name: CLUSTER_TOKEN
+    description: openshift cluster login token

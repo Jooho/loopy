@@ -33,12 +33,14 @@ nfs_provisioner_cr_manifests_path=$current_dir/$nfs_provisioner_cr_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
 
-if [[ z${CLUSTER_TOKEN} != z ]]; then
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+if [[ z${TEST_KIND} == z ]]; then
+  if [[ z${CLUSTER_TOKEN} != z ]]; then
+    oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
+  else
+    oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+  fi
+  check_oc_status
 fi
-check_oc_status
 
 # Check if the storageclass exist
 oc get sc ${PVC_STORAGECLASS_NAME} >/dev/null 2>&1

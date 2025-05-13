@@ -1,303 +1,303 @@
 playbook:
   description: This playbook show end-to-end poc for vllm multinode feature.
   steps:
-    - role:
-        name: openshift-rosa-install
-        description: Install ROSA Openshift Cluster
-        input_env:
-          STOP_WHEN_FAILED: "true"
+  - role:
+      name: openshift-rosa-install
+      description: Install ROSA Openshift Cluster
+      input_env:
+        STOP_WHEN_FAILED: "true"
 
-    - role:
-        name: openshift-rosa-add-machinepool
-        description: Add nividia machinepool to the created ROSA Openshift Cluster
-        input_env:
-          MACHINE_POOL_REPLICA_COUNT: "2"
-          NEW_MACHINE_POOL_TYPE: g5.8xlarge
-          STOP_WHEN_FAILED: "true"
+  - role:
+      name: openshift-rosa-add-machinepool
+      description: Add nividia machinepool to the created ROSA Openshift Cluster
+      input_env:
+        MACHINE_POOL_REPLICA_COUNT: "2"
+        NEW_MACHINE_POOL_TYPE: g5.8xlarge
+        STOP_WHEN_FAILED: "true"
 
-    - role:
-        name: operator-install
-        description: Install Node Feature Discovery Operator
-        input_env:
-          SUBSCRIPTION_NAME: nfd
-          OPERATOR_NAMESPACE: vllm-test-nfd
-          OPERATOR_NAME: nfd
-          OPERATOR_LABEL: control-plane=controller-manager
-          CATALOGSOURCE_NAME: redhat-operators
-          TARGET_NAMESPACES: vllm-test-nfd
-          CHANNEL: stable
+  - role:
+      name: operator-install
+      description: Install Node Feature Discovery Operator
+      input_env:
+        SUBSCRIPTION_NAME: nfd
+        OPERATOR_NAMESPACE: vllm-test-nfd
+        OPERATOR_NAME: nfd
+        OPERATOR_LABEL: control-plane=controller-manager
+        CATALOGSOURCE_NAME: redhat-operators
+        TARGET_NAMESPACES: vllm-test-nfd
+        CHANNEL: stable
 
-    - role:
-        name: shell-execute
-        description: Create the default example NodeFeatureDiscovery CR
-        input_env:
-          COMMANDS: |
-            nfd_csv_name=$(oc get csv -n vllm-test-nfd|grep nfd|cut -d' ' -f1)
-            oc get csv -n vllm-test-nfd $nfd_csv_name -o yaml|yq .metadata.annotations.alm-examples|jq '.[0]' | sed 's/openshift-nfd/vllm-test-nfd/g' | oc create -f -  %%
-            sleep 3
-            oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=nfd-master -n vllm-test-nfd
-            oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=nfd-worker -n vllm-test-nfd
-    - role:
-        name: operator-install
-        description: Install NVIDIA GPU Operator
-        input_env:
-          SUBSCRIPTION_NAME: gpu-operator-certified
-          OPERATOR_NAMESPACE: nvidia-gpu-operator
-          OPERATOR_NAME: gpu-operator-certified
-          OPERATOR_LABEL: app=gpu-operator
-          CATALOGSOURCE_NAME: certified-operators
-          TARGET_NAMESPACES: nvidia-gpu-operator
-          CHANNEL: v24.6
+  - role:
+      name: shell-execute
+      description: Create the default example NodeFeatureDiscovery CR
+      input_env:
+        COMMANDS: |
+          nfd_csv_name=$(oc get csv -n vllm-test-nfd|grep nfd|cut -d' ' -f1)
+          oc get csv -n vllm-test-nfd $nfd_csv_name -o yaml|yq .metadata.annotations.alm-examples|jq '.[0]' | sed 's/openshift-nfd/vllm-test-nfd/g' | oc create -f -  %%
+          sleep 3
+          oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=nfd-master -n vllm-test-nfd
+          oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=nfd-worker -n vllm-test-nfd
+  - role:
+      name: operator-install
+      description: Install NVIDIA GPU Operator
+      input_env:
+        SUBSCRIPTION_NAME: gpu-operator-certified
+        OPERATOR_NAMESPACE: nvidia-gpu-operator
+        OPERATOR_NAME: gpu-operator-certified
+        OPERATOR_LABEL: app=gpu-operator
+        CATALOGSOURCE_NAME: certified-operators
+        TARGET_NAMESPACES: nvidia-gpu-operator
+        CHANNEL: v24.6
 
-    - role:
-        name: shell-execute
-        description: Create the default example ClusterPolicy CR
-        input_env:
-          COMMANDS: |
-            nvidia_csv_name=$(oc get csv -n nvidia-gpu-operator|grep gpu|cut -d' ' -f1)
-            oc get csv -n nvidia-gpu-operator $nvidia_csv_name -o yaml|yq .metadata.annotations.alm-examples|jq '.[0]' |oc create -f - %%
-            sleep 3
-            oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=gpu-operator -n nvidia-gpu-operator
+  - role:
+      name: shell-execute
+      description: Create the default example ClusterPolicy CR
+      input_env:
+        COMMANDS: |
+          nvidia_csv_name=$(oc get csv -n nvidia-gpu-operator|grep gpu|cut -d' ' -f1)
+          oc get csv -n nvidia-gpu-operator $nvidia_csv_name -o yaml|yq .metadata.annotations.alm-examples|jq '.[0]' |oc create -f - %%
+          sleep 3
+          oc wait --for=jsonpath='{.status.phase}'=Running pod -l app=gpu-operator -n nvidia-gpu-operator
 
-    - unit:
-        name: install-odh-stable-operator-without-dsci
-        description: Install ODH operator fast channel
-        input_env:
-          CHANNEL: "fast"
+  - unit:
+      name: install-odh-stable-operator-without-dsci
+      description: Install ODH operator fast channel
+      input_env:
+        CHANNEL: "fast"
 
-    - role:
-        name: opendatahub-create-dsci
-        description: Create a DSCI set servicemesh to "Removed"
-        input_env:
-          ENABLE_SERVICEMESH: Removed
-          OPENDATAHUB_TYPE: opendatahub
+  - role:
+      name: opendatahub-create-dsci
+      description: Create a DSCI set servicemesh to "Removed"
+      input_env:
+        ENABLE_SERVICEMESH: Removed
+        OPENDATAHUB_TYPE: opendatahub
 
-    - role:
-        name: opendatahub-create-dsc
-        description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
-        input_env:
-          OPENDATAHUB_TYPE: opendatahub
-          ENABLE_KSERVE: Managed
-          ENABLE_KSERVE_KNATIVE: Removed
-          DEFAULT_DEPLOYMENTMODE: RawDeployment
-          CUSTOM_KSERVE_MANIFESTS: https://github.com/
+  - role:
+      name: opendatahub-create-dsc
+      description: Create a DSC setting knative to "Removed" and defaultDeploymentMode to "RawDeployment"
+      input_env:
+        OPENDATAHUB_TYPE: opendatahub
+        ENABLE_KSERVE: Managed
+        ENABLE_KSERVE_KNATIVE: Removed
+        DEFAULT_DEPLOYMENTMODE: RawDeployment
+        CUSTOM_KSERVE_MANIFESTS: https://github.com/
 
-    - role:
-        name: shell-execute
-        description: Create a PVC and download a model(meta-llama/Meta-Llama-3-8B-Instruct)
-        input_env:
-          COMMANDS: |
-            oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/1.create-pvc.yaml &&
+  - role:
+      name: shell-execute
+      description: Create a PVC and download a model(meta-llama/Meta-Llama-3-8B-Instruct)
+      input_env:
+        COMMANDS: |
+          oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/1.create-pvc.yaml &&
 
-            curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/2.download-model-to-pvc.yaml 
-            export MODEL=meta-llama/Meta-Llama-3-8B-Instruct
-            cat 2.download-model-to-pvc.yaml|oc delete -n vllm-multinode -f -
-            cat 2.download-model-to-pvc.yaml|envsubst |oc apply -n vllm-multinode -f -
+          curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/2.download-model-to-pvc.yaml 
+          export MODEL=meta-llama/Meta-Llama-3-8B-Instruct
+          cat 2.download-model-to-pvc.yaml|oc delete -n vllm-multinode -f -
+          cat 2.download-model-to-pvc.yaml|envsubst |oc apply -n vllm-multinode -f -
 
-    - role:
-        name: shell-execute
-        description: Waiting for downloading the model
-        input_env:
-          COMMANDS: |
-            while [[ $(oc get pod setup-llama3-8b-binary -n vllm-multinode -o jsonpath='{.status.containerStatuses[?(@.name=="download-model")].state.terminated.reason}') != "Completed" ]]; do
-              echo "Waiting for container to complete..."
-              sleep 10
-            done
-            echo "Container download-model in pod setup-llama3-8b-binary has completed."
-            oc delete -f 2.download-model-to-pvc.yaml
+  - role:
+      name: shell-execute
+      description: Waiting for downloading the model
+      input_env:
+        COMMANDS: |
+          while [[ $(oc get pod setup-llama3-8b-binary -n vllm-multinode -o jsonpath='{.status.containerStatuses[?(@.name=="download-model")].state.terminated.reason}') != "Completed" ]]; do
+            echo "Waiting for container to complete..."
+            sleep 10
+          done
+          echo "Container download-model in pod setup-llama3-8b-binary has completed."
+          oc delete -f 2.download-model-to-pvc.yaml
 
-    - role:
-        name: shell-execute
-        description: Update ServingRuntime and InferenceService CRD
-        input_env:
-          COMMANDS: |
-            oc delete -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
-            oc apply --server-side=true -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
+  - role:
+      name: shell-execute
+      description: Update ServingRuntime and InferenceService CRD
+      input_env:
+        COMMANDS: |
+          oc delete -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
+          oc apply --server-side=true -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
 
-    - role:
-        name: shell-execute
-        description: Create vLLM Multi Node ServingRuntime
-        input_env:
-          COMMANDS: |
-            oc apply -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-multinode-template-image.yaml  
-            oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -  
+  - role:
+      name: shell-execute
+      description: Create vLLM Multi Node ServingRuntime
+      input_env:
+        COMMANDS: |
+          oc apply -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-multinode-template-image.yaml  
+          oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -  
 
-    - role:
-        name: shell-execute
-        description: Create a inferenceService
-        input_env:
-          COMMANDS: |
-            oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
+  - role:
+      name: shell-execute
+      description: Create a inferenceService
+      input_env:
+        COMMANDS: |
+          oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
 
-    - role:
-        name: shell-execute
-        description: Send a Restful request
-        input_env:
-          COMMANDS: |
-            podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
+  - role:
+      name: shell-execute
+      description: Send a Restful request
+      input_env:
+        COMMANDS: |
+          podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
 
-            oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
-            export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
+          oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
+          export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
 
-            curl http://$isvc_url/v1/completions \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "model": "vllm-llama3-8b",
-                    "prompt": "At what temperature does Nitrogen boil?",
-                    "max_tokens": 100,
-                    "temperature": 0
-                }'
-            httpCode=$(curl -s -o /dev/null -w "%{http_code}"  http://$isvc_url/v1/completions \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "model": "vllm-llama3-8b",
-                    "prompt": "At what temperature does Nitrogen boil?",
-                    "max_tokens": 100,
-                    "temperature": 0
-                    }')
-            if [[ $httpCode != "200" ]]
-            then
-               echo "Failed" 1>&2
-            fiooho/kserve/tarball/vllm-multinode
+          curl http://$isvc_url/v1/completions \
+              -H "Content-Type: application/json" \
+              -d '{
+                  "model": "vllm-llama3-8b",
+                  "prompt": "At what temperature does Nitrogen boil?",
+                  "max_tokens": 100,
+                  "temperature": 0
+              }'
+          httpCode=$(curl -s -o /dev/null -w "%{http_code}"  http://$isvc_url/v1/completions \
+              -H "Content-Type: application/json" \
+              -d '{
+                  "model": "vllm-llama3-8b",
+                  "prompt": "At what temperature does Nitrogen boil?",
+                  "max_tokens": 100,
+                  "temperature": 0
+                  }')
+          if [[ $httpCode != "200" ]]
+          then
+             echo "Failed" 1>&2
+          fiooho/kserve/tarball/vllm-multinode
 
-    - role:
-        name: deploy-nfs-provisioner
-        description: Deploy NFS Provisioner
-        input_env:
-          PVC_STORAGECLASS_NAME: standard-csi
-          # PVC_STORAGECLASS_NAME: gp3-csi
+  - role:
+      name: nfs-provisioner-deploy
+      description: Deploy NFS Provisioner
+      input_env:
+        PVC_STORAGECLASS_NAME: standard-csi
+        # PVC_STORAGECLASS_NAME: gp3-csi
 
-    - role:
-        name: shell-execute
-        description: Create demo namespace(vllm-multinode)
-        input_env:
-          COMMANDS: |
-            oc new-project vllm-multinode
+  - role:
+      name: shell-execute
+      description: Create demo namespace(vllm-multinode)
+      input_env:
+        COMMANDS: |
+          oc new-project vllm-multinode
 
-    - role:
-        name: shell-execute
-        description: Create a PVC and download a model(meta-llama/Meta-Llama-3-8B-Instruct)
-        input_env:
-          COMMANDS: |
-            oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/1.create-pvc.yaml &&
+  - role:
+      name: shell-execute
+      description: Create a PVC and download a model(meta-llama/Meta-Llama-3-8B-Instruct)
+      input_env:
+        COMMANDS: |
+          oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/1.create-pvc.yaml &&
 
-            curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/2.download-model-to-pvc.yaml 
-            export MODEL=meta-llama/Meta-Llama-3-8B-Instruct
-            cat 2.download-model-to-pvc.yaml|oc delete -n vllm-multinode -f -
-            cat 2.download-model-to-pvc.yaml|envsubst |oc apply -n vllm-multinode -f -
+          curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/kserve-vllm-multinode/2.download-model-to-pvc.yaml 
+          export MODEL=meta-llama/Meta-Llama-3-8B-Instruct
+          cat 2.download-model-to-pvc.yaml|oc delete -n vllm-multinode -f -
+          cat 2.download-model-to-pvc.yaml|envsubst |oc apply -n vllm-multinode -f -
 
-    - role:
-        name: shell-execute
-        description: Waiting for downloading the model
-        input_env:
-          COMMANDS: |
-            while [[ $(oc get pod setup-llama3-8b-binary -n vllm-multinode -o jsonpath='{.status.containerStatuses[?(@.name=="download-model")].state.terminated.reason}') != "Completed" ]]; do
-              echo "Waiting for container to complete..."
-              sleep 10
-            done
-            echo "Container download-model in pod setup-llama3-8b-binary has completed."
-            oc delete -f 2.download-model-to-pvc.yaml
+  - role:
+      name: shell-execute
+      description: Waiting for downloading the model
+      input_env:
+        COMMANDS: |
+          while [[ $(oc get pod setup-llama3-8b-binary -n vllm-multinode -o jsonpath='{.status.containerStatuses[?(@.name=="download-model")].state.terminated.reason}') != "Completed" ]]; do
+            echo "Waiting for container to complete..."
+            sleep 10
+          done
+          echo "Container download-model in pod setup-llama3-8b-binary has completed."
+          oc delete -f 2.download-model-to-pvc.yaml
 
-    - role:
-        name: shell-execute
-        description: Update ServingRuntime and InferenceService CRD
-        input_env:
-          COMMANDS: |
-            oc delete -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
-            oc apply --server-side=true -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
+  - role:
+      name: shell-execute
+      description: Update ServingRuntime and InferenceService CRD
+      input_env:
+        COMMANDS: |
+          oc delete -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
+          oc apply --server-side=true -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/crd/custom-crd.yaml
 
-    - role:
-        name: shell-execute
-        description: Create vLLM Multi Node ServingRuntime
-        input_env:
-          COMMANDS: |
-            curl -OL https://raw.githubusercontent.com/opendatahub-io/odh-model-controller/refs/heads/main/config/runtimes/vllm-multinode-template.yaml
-            cat ./vllm-multinode-template.yaml| sed "s+image: .*$+image: quay.io/modh/vllm@sha256:ce5a8e5fc91442229ea4f54ea251cf65f10d383021138f8f0d55dcc5c3eb038b+g" |oc apply -f -
-            oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -  
+  - role:
+      name: shell-execute
+      description: Create vLLM Multi Node ServingRuntime
+      input_env:
+        COMMANDS: |
+          curl -OL https://raw.githubusercontent.com/opendatahub-io/odh-model-controller/refs/heads/main/config/runtimes/vllm-multinode-template.yaml
+          cat ./vllm-multinode-template.yaml| sed "s+image: .*$+image: quay.io/modh/vllm@sha256:ce5a8e5fc91442229ea4f54ea251cf65f10d383021138f8f0d55dcc5c3eb038b+g" |oc apply -f -
+          oc process vllm-multinode-runtime-template -n vllm-multinode|oc apply -n vllm-multinode -f -  
 
-    - role:
-        name: shell-execute
-        description: Create a inferenceService
-        input_env:
-          COMMANDS: |
-            oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
+  - role:
+      name: shell-execute
+      description: Create a inferenceService
+      input_env:
+        COMMANDS: |
+          oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
 
-    - role:
-        name: shell-execute
-        description: Send a Restful request
-        input_env:
-          COMMANDS: |
-            podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
+  - role:
+      name: shell-execute
+      description: Send a Restful request
+      input_env:
+        COMMANDS: |
+          podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
 
-            oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
-            export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
+          oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
+          export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
 
-            curl http://$isvc_url/v1/completions \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "model": "vllm-llama3-8b",
-                    "prompt": "At what temperature does Nitrogen boil?",
-                    "max_tokens": 100,
-                    "temperature": 0
-                }'
-            httpCode=$(curl -s -o /dev/null -w "%{http_code}"  http://$isvc_url/v1/completions \
-                -H "Content-Type: application/json" \
-                -d '{
-                    "model": "vllm-llama3-8b",
-                    "prompt": "At what temperature does Nitrogen boil?",
-                    "max_tokens": 100,
-                    "temperature": 0
-                    }')
-            if [[ $httpCode != "200" ]]
-            then
-               echo "Failed" 1>&2
-            fi
-# ----------
-    # - role:
-    #     name: shell-execute
-    #     description: Delete the inferenceService for next test
-    #     input_env:
-    #       COMMANDS: |
-    #         oc delete -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
-    #         while true; do
-    #           POD_COUNT=$(kubectl get pods -n vllm-multinode --no-headers | wc -l)
+          curl http://$isvc_url/v1/completions \
+              -H "Content-Type: application/json" \
+              -d '{
+                  "model": "vllm-llama3-8b",
+                  "prompt": "At what temperature does Nitrogen boil?",
+                  "max_tokens": 100,
+                  "temperature": 0
+              }'
+          httpCode=$(curl -s -o /dev/null -w "%{http_code}"  http://$isvc_url/v1/completions \
+              -H "Content-Type: application/json" \
+              -d '{
+                  "model": "vllm-llama3-8b",
+                  "prompt": "At what temperature does Nitrogen boil?",
+                  "max_tokens": 100,
+                  "temperature": 0
+                  }')
+          if [[ $httpCode != "200" ]]
+          then
+             echo "Failed" 1>&2
+          fi
+  # ----------
+  # - role:
+  #     name: shell-execute
+  #     description: Delete the inferenceService for next test
+  #     input_env:
+  #       COMMANDS: |
+  #         oc delete -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-http.yaml
+  #         while true; do
+  #           POD_COUNT=$(kubectl get pods -n vllm-multinode --no-headers | wc -l)
 
-    #           if [ "$POD_COUNT" -eq 0 ]; then
-    #               echo "All pods are removed"
-    #               break
-    #           else
-    #               echo "Still $POD_COUNT Pods exist. Waiting..."
-    #               sleep 5
-    #           fi
-    #         done
+  #           if [ "$POD_COUNT" -eq 0 ]; then
+  #               echo "All pods are removed"
+  #               break
+  #           else
+  #               echo "Still $POD_COUNT Pods exist. Waiting..."
+  #               sleep 5
+  #           fi
+  #         done
 
-    # - role:
-    #     name: shell-execute
-    #     description: Create a inferenceService
-    #     input_env:
-    #       COMMANDS: |
-    #         oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-grpc.yaml
+  # - role:
+  #     name: shell-execute
+  #     description: Create a inferenceService
+  #     input_env:
+  #       COMMANDS: |
+  #         oc create -n vllm-multinode -f https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/vllm-isvc-pvc-grpc.yaml
 
-    # - role:
-    #     name: shell-execute
-    #     description: Send a GRPC request
-    #     input_env:
-    #       COMMANDS: |
-    #         podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
+  # - role:
+  #     name: shell-execute
+  #     description: Send a GRPC request
+  #     input_env:
+  #       COMMANDS: |
+  #         podName=$(kubectl get pod -l app=isvc.vllm-llama3-8b-predictor --no-headers|cut -d' ' -f1)
 
-    #         oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
-    #         export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
-    #         curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/generation.proto
-    #         grpcurl -v -plaintext -proto ./generation.proto -d '{
-    #             "requests": [
-    #               {
-    #                 "text": "At what temperature does Nitrogen boil?"
-    #               }
-    #             ],
-    #             "params": {
-    #               "stopping": {
-    #                 "min_new_tokens": 10,
-    #                 "max_new_tokens": 100
-    #               }
-    #             }
-    #           }' $isvc_url:8033 fmaas.GenerationService/Generate
+  #         oc wait --for=condition=ready pod/${podName} -n vllm-multinode --timeout=300s
+  #         export isvc_url=$(oc get route |grep vllm-llama3-8b-vllm-multinode| awk '{print $2}')
+  #         curl -OL https://raw.githubusercontent.com/Jooho/jhouse_openshift/refs/heads/main/Kserve/poc/multi-node/odh-vllm-multinode/generation.proto
+  #         grpcurl -v -plaintext -proto ./generation.proto -d '{
+  #             "requests": [
+  #               {
+  #                 "text": "At what temperature does Nitrogen boil?"
+  #               }
+  #             ],
+  #             "params": {
+  #               "stopping": {
+  #                 "min_new_tokens": 10,
+  #                 "max_new_tokens": 100
+  #               }
+  #             }
+  #           }' $isvc_url:8033 fmaas.GenerationService/Generate

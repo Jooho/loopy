@@ -31,14 +31,14 @@ statefulset_manifests_path=$current_dir/${statefulset_manifests}
 errorHappened=1 # 0 is true, 1 is false
 ## Parameters Preparation #######################################
 
-if [[ z${CLUSTER_TOKEN} != z ]]; then
-  echo "Trying to login to the cluster with the token"
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else
-  echo "Trying to login to the cluster to get the token for user ${CLUSTER_ADMIN_ID}"
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+if [[ z${TEST_KIND} == z ]]; then
+  if [[ z${CLUSTER_TOKEN} != z ]]; then
+    oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
+  else
+    oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+  fi
+  check_oc_status
 fi
-check_oc_status
 
 declare envs=(
   "S3_ACCESS_KEY=${MINIO_ACCESS_KEY_ID}"

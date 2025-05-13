@@ -12,8 +12,19 @@
       "console": "integratedTerminal",
       "env": { "PYTHONPATH": "src" },
       // "args": ["roles", "run", "shell-execute", "-p", "COMMANDS=echo test"]
-      "args": ["playbooks", "run", "loopy-unit-tests","-g"]
+      "args": ["playbooks", "run", "loopy-unit-tests", "-g"]
       // "args": ["units", "run", "loopy-roles-test-non-cluster-shell-execute"]
-    }    
+    },
+
+    {
+      "name": "Attach to Loopy",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "justMyCode": false
+    }
   ]
 }

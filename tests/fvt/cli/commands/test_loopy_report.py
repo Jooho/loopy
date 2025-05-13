@@ -133,9 +133,9 @@ def sample_components():
     }
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_shorten_string():
     # Test string shorter than max length
     assert shorten_string("test", 10) == "test"
@@ -147,9 +147,9 @@ def test_shorten_string():
     assert shorten_string("test_string", 8) == "test_..."
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_format_time_and_result():
     # Test successful result
     time, result = format_time_and_result(65.5, 0)
@@ -162,9 +162,9 @@ def test_format_time_and_result():
     assert result == "Fail"
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_parse_report_file(sample_report_content):
     with patch("builtins.open", mock_open(read_data=sample_report_content)):
         result = parse_report_file("dummy_path")
@@ -176,9 +176,9 @@ def test_parse_report_file(sample_report_content):
         ]
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_get_playbook_table_row():
     component = {
         "type": "playbook",
@@ -207,9 +207,9 @@ def test_get_playbook_table_row():
     assert "1min 0.0" in row[4]
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_get_unit_table_row():
     component = {
         "type": "unit",
@@ -238,9 +238,9 @@ def test_get_unit_table_row():
     assert "0min 30.0" in row[4]
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_get_role_table_row():
     component = {
         "type": "role",
@@ -270,9 +270,9 @@ def test_get_role_table_row():
     assert "/tmp/artifacts" in rows[0][5]
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_flatten_components(sample_components):
     flat_list = flatten_components(sample_components, [])
     assert len(flat_list) == 5
@@ -285,9 +285,9 @@ def test_flatten_components(sample_components):
     assert "result_str" in flat_list[2]
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 @patch("cli.commands.loopy_report.LoopyReportManager")
 def test_summary(mock_report_manager_class, mock_loopy_ctx, sample_report_content, sample_components):
     # Setup mock report manager
@@ -318,9 +318,9 @@ def test_summary(mock_report_manager_class, mock_loopy_ctx, sample_report_conten
             mock_report_manager.update_summary.assert_called_once_with("components", sample_components)
 
 
+@pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-@pytest.mark.non_cluster_tests
 def test_update_results_from_report(mock_report_manager, sample_report_content, sample_components):
     mock_report_manager.summary_dict["components"] = sample_components
 

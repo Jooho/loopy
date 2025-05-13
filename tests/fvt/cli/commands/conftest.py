@@ -1,10 +1,6 @@
 from click.testing import CliRunner
 import pytest
 import os
-import shutil
-import types
-import random
-import string
 from cli.commands import utils
 from core.context import LoopyContext
 from core.initializer import Initializer

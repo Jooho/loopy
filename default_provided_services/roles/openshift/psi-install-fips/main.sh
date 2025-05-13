@@ -56,12 +56,14 @@ oc login -u "${cluster_admin_id}" -p ${cluster_admin_pw} --server=${cluster_api_
 cluster_token=$(oc whoami -t)
 
 ############# VERIFY #############
-if [[ z${CLUSTER_TOKEN} != z ]]; then
-  oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
-else
-  oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+if [[ z${TEST_KIND} == z ]]; then
+  if [[ z${CLUSTER_TOKEN} != z ]]; then
+    oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
+  else
+    oc login --username=${CLUSTER_ADMIN_ID} --password=${CLUSTER_ADMIN_PW} --server=${CLUSTER_API_URL}
+  fi
+  check_oc_status
 fi
-check_oc_status
 
 result=$?
 if [[ $result == 0 ]]; then

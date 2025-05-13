@@ -59,72 +59,71 @@ for index, command in enumerate(commands_list):
     rcresult = {"stdout": "", "stderr": "", "returncode": None}
     if command.strip() != "":
         try:
-            command = py_utils.remove_comment_lines(command)
-            if not command.startswith("#"):
-                start_time.append(time.time())
-                showCommand = py_utils.is_positive(os.environ["SHOW_COMMAND"])
-                if showCommand == 0:
-                    print(command, end="\n")
+            command = py_utils.remove_comment_lines(command)            
+            start_time.append(time.time())
+            showCommand = py_utils.is_positive(os.environ["SHOW_COMMAND"])
+            if showCommand == 0:
+                print(command, end="\n")
 
-                with subprocess.Popen(
-                    command,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    bufsize=1,
-                    universal_newlines=True,
-                    close_fds=True,
-                ) as process:
-                    try:
-                        for line in process.stdout:
-                            print(line, end="")  # Print in real time
-                            rcresult["stdout"] += line  # store stdout to result
-                        for line in process.stderr:
-                            print(line, end="", file=sys.stderr)  # Print in real time
-                            rcresult["stderr"] += line  # store stderr to result
-                    except Exception as e:
-                        print(f"Error occurred: {e}")
-                    process.wait()
-                    rcresult["returncode"] = process.returncode
+            with subprocess.Popen(
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
+                universal_newlines=True,
+                close_fds=True,
+            ) as process:
+                try:
+                    for line in process.stdout:
+                        print(line, end="")  # Print in real time
+                        rcresult["stdout"] += line  # store stdout to result
+                    for line in process.stderr:
+                        print(line, end="", file=sys.stderr)  # Print in real time
+                        rcresult["stderr"] += line  # store stderr to result
+                except Exception as e:
+                    print(f"Error occurred: {e}")
+                process.wait()
+                rcresult["returncode"] = process.returncode
 
-                end_time.append(time.time())
-                reportManager.update_role_time("start_time", start_time)
-                reportManager.update_role_time("end_time", end_time)
+            end_time.append(time.time())
+            reportManager.update_role_time("start_time", start_time)
+            reportManager.update_role_time("end_time", end_time)
 
-                with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
-                    temp_result = 0
-                    each_command_output_file.write(f"######## {index} command #######\n")
-                    each_command_output_file.write(f"COMMAND: {command}\n")
-                    each_command_output_file.write("STDOUT: ")
-                    if isinstance(rcresult["stdout"], str):
-                        each_command_output_file.write(rcresult["stdout"])
-                    each_command_output_file.write("\n\n")
-                    if rcresult["stderr"]:
-                        each_command_output_file.write("STDERR:\n")
-                        if isinstance(rcresult["stderr"], str):
-                            each_command_output_file.write(rcresult["stderr"])
-                        # each_command_output_file.write(result.stderr)
-                        each_command_output_file.write("\n")
-                        temp_result = 1
-                        py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
+            with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
+                temp_result = 0
+                each_command_output_file.write(f"######## {index} command #######\n")
+                each_command_output_file.write(f"COMMAND: {command}\n")
+                each_command_output_file.write("STDOUT: ")
+                if isinstance(rcresult["stdout"], str):
+                    each_command_output_file.write(rcresult["stdout"])
+                each_command_output_file.write("\n\n")
+                if rcresult["stderr"]:
+                    each_command_output_file.write("STDERR:\n")
+                    if isinstance(rcresult["stderr"], str):
+                        each_command_output_file.write(rcresult["stderr"])
+                    # each_command_output_file.write(result.stderr)
+                    each_command_output_file.write("\n")
+                    temp_result = 1
+                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
 
-                with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
-                    temp_result = 0
-                    all_command_output_file.write(f"######## {index} command #######\n")
-                    all_command_output_file.write(f"COMMAND: {command}\n")
-                    all_command_output_file.write("STDOUT: ")
-                    if isinstance(rcresult["stdout"], str):
-                        all_command_output_file.write(rcresult["stdout"])
-                    all_command_output_file.write("\n\n")
-                    if rcresult["stderr"]:
-                        all_command_output_file.write("STDERR:\n")
-                        if isinstance(rcresult["stderr"], str):
-                            all_command_output_file.write(rcresult["stderr"])
-                        all_command_output_file.write("\n")
-                        temp_result = 1
-                        py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
-                    results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
+            with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
+                temp_result = 0
+                all_command_output_file.write(f"######## {index} command #######\n")
+                all_command_output_file.write(f"COMMAND: {command}\n")
+                all_command_output_file.write("STDOUT: ")
+                if isinstance(rcresult["stdout"], str):
+                    all_command_output_file.write(rcresult["stdout"])
+                all_command_output_file.write("\n\n")
+                if rcresult["stderr"]:
+                    all_command_output_file.write("STDERR:\n")
+                    if isinstance(rcresult["stderr"], str):
+                        all_command_output_file.write(rcresult["stderr"])
+                    all_command_output_file.write("\n")
+                    temp_result = 1
+                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
+                results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
 
         except Exception as e:
             print(f"Error occurred while executing command '{command}': {e}")

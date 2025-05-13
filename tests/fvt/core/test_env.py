@@ -6,7 +6,7 @@ from core.env import EnvManager
 # Function to get dynamic root path
 def get_default_loopy_root_path():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(current_dir, "..", ".."))
+    return os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
 
 
 @pytest.fixture(
@@ -51,6 +51,7 @@ def env_manager_with_params(monkeypatch, request):
     yield env_manager, expected_loopy_root_path, expected_config_path
 
 
+@pytest.mark.fvt
 @pytest.mark.core
 def test_env_manager_initialization(env_manager_with_params):
     # Check if the environment variables are set correctly.
@@ -63,6 +64,7 @@ def test_env_manager_initialization(env_manager_with_params):
     assert env_manager.get_config_path() == expected_config_path
 
 
+@pytest.mark.fvt
 @pytest.mark.core
 def test_additional_env_variables():
     env_manager = EnvManager()
@@ -73,6 +75,7 @@ def test_additional_env_variables():
         assert key in env_manager.get_env()
 
 
+@pytest.mark.fvt
 @pytest.mark.core
 def test_loopy_env_vars():
     # Set an environment variable starting with "LOOPY" and check if it's added to the env dictionary.
@@ -81,10 +84,11 @@ def test_loopy_env_vars():
         EnvManager()
     )  # A new instance to reflect the updated environment variables.
 
-    assert "loopy_test_var" in env_manager.get_env()
-    assert env_manager.get_env()["loopy_test_var"] == "test_value"
+    assert "test_var" in env_manager.get_env()
+    assert env_manager.get_env()["test_var"] == "test_value"
 
 
+@pytest.mark.fvt
 @pytest.mark.core
 def test_sys_paths():
     env_manager = EnvManager()

@@ -68,11 +68,13 @@ warn() {
 # When error happen during processes
 error() {
   printf "${error}[ERROR] $*${color_reset}\n"
+  echo "[ERROR] $*" >&2
 }
 
 # When component result is 1(failed)
 fail() {
   printf "${fail}[FAIL] $*${color_reset}\n"
+  echo "[FAIL] $*" >&2
 }
 
 # When one function succeed in the process

@@ -16,3 +16,4 @@ loopy.log
 /build
 .idea/
 # .vscode/
+privkey.pem

@@ -27,13 +27,18 @@ class Initializer:
         self.now = datetime.now()
         self.loopy_root_path = self.config_data["loopy_root_path"]
         self.output_root_dir = self.config_data["output_root_dir"]
+
+        if self.env_list.get("OUTPUT_ROOT_DIR"):
+            output_root_dir = self.env_list.get("OUTPUT_ROOT_DIR")
         # result folder format
         target_report_dir = self.now.strftime("%Y%m%d_%H%M")
         if self.config_data.get("output_target_dir"):
             target_report_dir = self.config_data["output_target_dir"]
+        if self.env_list.get("OUTPUT_TARGET_DIR"):
+            target_report_dir = self.env_list.get("OUTPUT_TARGET_DIR")
         self.loopy_result_dir = os.path.join(self.output_root_dir, target_report_dir)
 
-        # if self.config_data.get("loopy_result_dir"):
+        # if self.env_list.get("LOOPY_RESULT_DIR"):
         #     self.loopy_result_dir = self.config_data["loopy_result_dir"]
         self.config_data["loopy_result_dir"] = self.loopy_result_dir
 
@@ -94,7 +99,10 @@ class Initializer:
 
         # Set binary path
         bin_path = os.path.join(os.getcwd(), "bin")
-        os.environ["PATH"] = f"{bin_path}{os.pathsep}{os.environ['PATH']}"
+        if os.environ.get("PATH"):
+            os.environ["PATH"] = f"{bin_path}{os.pathsep}{os.environ['PATH']}"
+        else:
+            os.environ["PATH"] = bin_path
 
         # Add Schema paths
         self.config_data["schema"] = {
@@ -233,5 +241,3 @@ class Initializer:
         for error in validator.iter_errors(yaml_data):
             errors.append({"message": error.message, "path": list(error.path)})
         return errors
-
-

@@ -3,6 +3,7 @@ import yaml
 import pytest
 import tempfile
 import shutil
+import types
 import os
 import random
 import string
@@ -87,6 +88,13 @@ def loopy_context(loopy_root_path):
 
 
 @pytest.fixture
+def cli_loopy_ctx(loopy_context,loopy_root_path):
+    ctx = types.SimpleNamespace()
+    ctx.obj = loopy_context
+    ctx.obj.loopy_result_dir = os.path.join(loopy_root_path, "tmp", "loopy_result")
+    return ctx
+
+@pytest.fixture
 def mock_loopy_ctx(loopy_root_path):
     ctx = Mock()
     ctx.obj.loopy_result_dir = os.path.join(loopy_root_path, "tmp", "loopy_result")
@@ -95,3 +103,4 @@ def mock_loopy_ctx(loopy_root_path):
 
 def generate_random_name(length=5):
     return "".join(random.choices(string.ascii_lowercase, k=length))
+

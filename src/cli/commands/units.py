@@ -77,10 +77,11 @@ def run_unit(
 
     # Enable loopy role log
     if no_log:
-        os.environ['ENABLE_LOOPY_LOG']="false"
+        ctx.obj.config["enable_loopy_log"] = False
 
     # Print logo    
     if no_logo:
+        ctx.obj.config["enable_loopy_logo"] = False
         pass
     elif enable_loopy_logo:
         utils.print_logo()
@@ -128,6 +129,7 @@ def run_unit(
 
     # Print report
     if no_report:
+        ctx.obj.config["enable_loopy_report"] = False
         pass
     elif enable_loopy_report:
         loopy_report.summary(ctx)

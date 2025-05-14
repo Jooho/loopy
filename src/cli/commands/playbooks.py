@@ -69,7 +69,7 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
     role_list = ctx.obj.role_list
     unit_list = ctx.obj.unit_list
     playbook_list = ctx.obj.playbook_list
-    os.environ["ENABLE_LOOPY_LOG"] = str(ctx.obj.config["enable_loopy_log"])
+
     enable_loopy_logo = ctx.obj.config["enable_loopy_logo"]
     enable_loopy_report = ctx.obj.config["enable_loopy_report"]
 
@@ -80,10 +80,11 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
 
     # Enable loopy role log
     if no_log:
-        os.environ["ENABLE_LOOPY_LOG"] = "false"
+        ctx.obj.config["enable_loopy_log"] = False
 
     # Print logo
     if no_logo:
+        ctx.obj.config["enable_loopy_logo"] = False
         pass
     elif enable_loopy_logo:
         utils.print_logo()
@@ -195,6 +196,7 @@ def run_playbook(ctx, playbook_name, no_report, no_logo, no_log, verbose, params
     playbook.start()
     # Print report
     if no_report:
+        ctx.obj.config["enable_loopy_report"] = False
         pass
     elif enable_loopy_report:
         loopy_report.summary(ctx)

@@ -28,12 +28,8 @@ class Initializer:
         self.loopy_root_path = self.config_data["loopy_root_path"]
         self.output_root_dir = self.config_data["output_root_dir"]
 
-        if self.env_list.get("output_root_dir"):
-            self.output_root_dir = self.env_list.get("output_root_dir")
         # result folder format
         target_report_dir = self.now.strftime("%Y%m%d_%H%M")
-        if self.config_data.get("output_target_dir"):
-            target_report_dir = self.config_data["output_target_dir"]
         if self.env_list.get("output_target_dir"):
             target_report_dir = self.env_list.get("output_target_dir")
         self.loopy_result_dir = os.path.join(self.output_root_dir, target_report_dir)

@@ -34,7 +34,7 @@ input_onnx_manifests_path=$current_dir/$input_onnx_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else

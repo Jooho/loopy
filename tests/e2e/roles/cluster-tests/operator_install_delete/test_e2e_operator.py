@@ -4,14 +4,15 @@ import os
 from tests.conftest import timeout
 
 
-@pytest.mark.e2e
+@pytest.mark.e2e_test
 @pytest.mark.e2e_roles
 @pytest.mark.cluster_tests
-@pytest.mark.order(1)
 def test_operator_install_default(role_env):
     """Test the full command line behavior of operator-install role"""
     # Create a copy of the environment with PATH
     env = os.environ.copy()
+    # This is for debugging purposes in subprocesses
+    # env["LOOPY_DEBUG"] = "1"
     env.update(role_env)
 
     # Run the loopy command

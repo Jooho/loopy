@@ -30,7 +30,7 @@ result=1 # 0 is "succeed", 1 is "fail"
 
 cp $dsci_manifests_path ${ROLE_DIR}/$(basename $dsci_manifests_path)
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else

@@ -26,7 +26,7 @@ role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 dsc_manifests=$(yq e '.role.manifests.datasciencecluster' $current_dir/config.yaml)
 dsc_manifests_path=$root_directory/$dsc_manifests
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else

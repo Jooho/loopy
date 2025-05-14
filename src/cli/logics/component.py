@@ -47,7 +47,8 @@ class Role:
         reportManager.load_summary()
 
         logger.info(f"{Back.BLUE}Start Role '{self.name}' {Fore.RESET}")
-        enable_loopy_log = utils.is_positive(os.environ.get("ENABLE_LOOPY_LOG", False))
+        # enable_loopy_log = utils.is_positive(os.environ.get("ENABLE_LOOPY_LOG", False))
+        enable_loopy_log = config_dict["enable_loopy_log"]
         output_env_dir_path = config_dict["output_dir"]
         artifacts_dir_path = config_dict["artifacts_dir"]
         report_file = config_dict["report_file"]
@@ -159,6 +160,7 @@ class Role:
                             )
                             if proc.stderr:
                                 logger.error(f"{Fore.RED}Error message: {proc.stderr}{Fore.RESET}")
+                            proc.returncode=actual_return_code    
                 except Exception as e:
                     logger.error(f"{Fore.RED}subprocess failed to execute role: {e} {Fore.RESET}")
 

@@ -23,7 +23,10 @@ role:
       -p NFS_PROVISIONER_NAME=nfs-provisioner-loopy \
       -p PVC_STORAGECLASS_NAME=gp3-csi \
       -p NFS_STORAGECLASS_NAME=nfs \
-      -p STORAGE_SIZE=100Gi 
+      -p STORAGE_SIZE=100Gi \
+      -p CATALOGSOURCE_NAME=community-operators \
+      -p CATALOGSOURCE_NAMESPACE=openshift-marketplace
+
   manifests:
     nfs_provisioner_operator: manifests/nfs-provisioner-operator.yaml
     nfs_provisioner_cr: manifests/nfs-provisioner-cr.yaml
@@ -48,6 +51,14 @@ role:
   - name: STORAGE_SIZE
     description: PVC size for nfs server
     default: 100Gi
+
+  - name: CATALOGSOURCE_NAME
+    description: The catalog source name that contains the target operator
+    default: community-operators
+
+  - name: CATALOGSOURCE_NAMESPACE
+    description: The namespace that the catalog source is in
+    default: openshift-marketplace
 
   - name: CLUSTER_API_URL
     description: openshift api url

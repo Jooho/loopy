@@ -34,7 +34,7 @@ catalogsource_manifests_path=$root_directory/$catalogsource_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else
@@ -42,7 +42,7 @@ if [[ z${TEST_KIND} == z ]]; then
   fi
   check_oc_status
 fi
-if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] && [[ z${TEST_KIND} == z ]]; then  
+if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] && [[ z${USE_KIND} == z ]]; then  
   oc get ns $OPERATOR_NAMESPACE || oc create ns $OPERATOR_NAMESPACE
   result=$?
   if [[ $result != 0 ]]; then

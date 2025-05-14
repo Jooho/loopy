@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def role_env(base_env):
     """Fixture providing base environment variables needed for all tests"""
 

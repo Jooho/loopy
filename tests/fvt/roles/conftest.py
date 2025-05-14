@@ -3,13 +3,14 @@ import json
 import pytest
 from pathlib import Path
 
-@pytest.fixture(scope="class")
+
+@pytest.fixture()
 def output_root_dir():
     """Fixture providing a temporary output rootdirectory for test outputs"""
     return "/tmp/loopy_fvt_test"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def output_dir(output_root_dir, role_name):
     """Fixture providing a temporary directory for test outputs"""
     output_dir_path = Path(output_root_dir) / (role_name + "-test")
@@ -17,7 +18,7 @@ def output_dir(output_root_dir, role_name):
     return output_dir_path
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def base_env(output_dir, output_root_dir, role_name):
     """Fixture providing base environment variables needed for all tests"""
     return {
@@ -33,7 +34,7 @@ def base_env(output_dir, output_root_dir, role_name):
         "STOP_WHEN_FAILED": "false",
         "STOP_WHEN_ERROR_HAPPENED": "false",
         "ENABLE_LOOPY_LOG": "true",
-        "TEST_KIND": "true",
+        "USE_KIND": "true",
     }
 
 

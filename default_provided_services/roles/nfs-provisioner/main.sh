@@ -32,8 +32,8 @@ nfs_provisioner_cr_manifests=$(yq e '.role.manifests.nfs_provisioner_cr' $curren
 nfs_provisioner_cr_manifests_path=$current_dir/$nfs_provisioner_cr_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
-
-if [[ z${TEST_KIND} == z ]]; then
+info "JHOUSE --- TEST"
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else
@@ -73,7 +73,7 @@ sed -e \
 
 # Create NFS Provisioner namespace if it does not exist
 info "Create a namespace(${NFS_PROVISIONER_NS}) if it does not exist"
-oc get ns ${NFS_PROVISIONER_NS} >/dev/null 2>&1 || oc new-project ${NFS_PROVISIONER_NS}
+oc get ns ${NFS_PROVISIONER_NS} >/dev/null 2>&1 || oc create ns ${NFS_PROVISIONER_NS}
 
 # Install NFS Provisioner operator if it is not installed.
 exist_nfs_csv=$(oc get csv -n openshift-operators | grep nfs-provisioner-operator | grep Succeeded | wc -l)
@@ -83,7 +83,12 @@ else
   info "Install NFS Provisioner Operator in openshift-operators namespace"
 
   debug "oc apply -f ${nfs_provisioner_operator_manifests_path}"
-  oc apply -f ${nfs_provisioner_operator_manifests_path}
+
+  sed -e \
+    "s+%catalogsource-name%+$CATALOGSOURCE_NAME+g; \
+   s+%catalogsource-namespace%+$CATALOGSOURCE_NAMESPACE+g" ${nfs_provisioner_operator_manifests_path} >${ROLE_DIR}/$(basename $nfs_provisioner_operator_manifests_path)
+
+  oc apply -f ${ROLE_DIR}/$(basename $nfs_provisioner_operator_manifests_path)
   oc::wait::return::true "oc get csv -n openshift-operators|grep nfs-provisioner-operator |grep Succeeded" 6 50 # 5 min
   csvNotInstalled=$?
   if [[ $csvNotInstalled == 1 ]]; then

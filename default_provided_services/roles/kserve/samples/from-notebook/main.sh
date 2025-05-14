@@ -31,7 +31,7 @@ statefulset_manifests_path=$current_dir/${statefulset_manifests}
 errorHappened=1 # 0 is true, 1 is false
 ## Parameters Preparation #######################################
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else

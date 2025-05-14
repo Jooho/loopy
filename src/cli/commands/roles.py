@@ -80,12 +80,13 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     
     # Enable loopy role log
     if no_log:
-        os.environ['ENABLE_LOOPY_LOG']="false"
+        ctx.obj.config["enable_loopy_log"] = False
 
         
     # Print logo    
     if no_logo:
-       pass
+        ctx.obj.config["enable_loopy_logo"] = False
+        pass
     elif enable_loopy_logo:
         utils.print_logo()
     else:
@@ -110,6 +111,7 @@ def run_role(ctx, role_name, no_report, no_logo, no_log, verbose, params=None, o
     
     # Print report
     if no_report:
+        ctx.obj.config["enable_loopy_report"] = False
         pass
     elif enable_loopy_report:
         loopy_report.summary(ctx)

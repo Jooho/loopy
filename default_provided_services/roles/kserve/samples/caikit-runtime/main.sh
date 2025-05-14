@@ -34,7 +34,7 @@ while IFS=: read -r manifest_name manifest_path; do
   temp_name=${variable_name}_manifests_path
 done <<<"$manifests"
 
-if [[ z${TEST_KIND} == z ]]; then
+if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}
   else

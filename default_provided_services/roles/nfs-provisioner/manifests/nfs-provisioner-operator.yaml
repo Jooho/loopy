@@ -7,5 +7,5 @@ spec:
   channel: alpha
   installPlanApproval: Automatic
   name: nfs-provisioner-operator
-  source: community-operators
-  sourceNamespace: openshift-marketplace
+  source: %catalogsource-name%
+  sourceNamespace: %catalogsource-namespace%

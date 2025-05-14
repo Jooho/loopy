@@ -8,6 +8,7 @@ from pathlib import Path
 from core.report_manager import LoopyReportManager
 from tests.conftest import generate_random_name
 
+
 def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml):
     # Ensure namespace exists
     ns_check = subprocess.run(["oc", "get", "namespace", namespace], capture_output=True, text=True)
@@ -37,15 +38,15 @@ spec: {}
     ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def base_env():
     """Fixture providing base environment variables needed for all tests"""
     return {
         "SHOW_DEBUG_LOG": "false",
         "STOP_WHEN_FAILED": "false",
         "STOP_WHEN_ERROR_HAPPENED": "false",
-        "ENABLE_LOOPY_LOG": "true",
-        "TEST_KIND": "true",
+        "ENABLE_LOOPY_LOG": "false",
+        "USE_KIND": "true",
         "CLUSTER_API_URL": "",
         "CLUSTER_ADMIN_ID": "",
         "CLUSTER_ADMIN_PW": "",
@@ -53,14 +54,14 @@ def base_env():
         "LOOPY_OUTPUT_TARGET_DIR": generate_random_name(),
     }
 
+
 @pytest.fixture(scope="function", autouse=True)
 def cleanup_output_root_dir(base_env):
     yield
 
-    output_root_dir = Path(base_env["LOOPY_OUTPUT_ROOT_DIR"]) / base_env["LOOPY_OUTPUT_TARGET_DIR"] 
-    if output_root_dir and os.path.exists(output_root_dir):
-        try:
-            utils.safe_rmtree(output_root_dir)
-        except RuntimeError as e:
-            pytest.fail(f"Error deleting folder: {e}", pytrace=True)
-    
+    # output_root_dir = Path(base_env["LOOPY_OUTPUT_ROOT_DIR"]) / base_env["LOOPY_OUTPUT_TARGET_DIR"]
+    # if output_root_dir and os.path.exists(output_root_dir):
+    #     try:
+    #         utils.safe_rmtree(output_root_dir)
+    #     except RuntimeError as e:
+    #         pytest.fail(f"Error deleting folder: {e}", pytrace=True)

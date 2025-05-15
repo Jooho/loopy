@@ -48,7 +48,7 @@ def test_cert_generate(role_env):
     assert result.returncode == 0, f"Command failed: {result.stderr}"
 
     # Verify certificate files were generated
-    output_dir = Path(role_env["LOOPY_OUTPUT_ROOT_DIR"]) / role_env["LOOPY_OUTPUT_TARGET_DIR"]
+    output_dir = Path(role_env["OUTPUT_ROOT_DIR"]) / role_env["OUTPUT_TARGET_DIR"]
     role_dir = output_dir / "artifacts/cert-generate"
     assert role_dir.exists()
 
@@ -60,7 +60,13 @@ def test_cert_generate(role_env):
 
     # Verify certificate content
     verify_result = subprocess.run(
-        ["openssl", "verify", "-CAfile", str(role_dir / "root.crt"), str(role_dir / "custom.crt")],
+        [
+            "openssl",
+            "verify",
+            "-CAfile",
+            str(role_dir / "root.crt"),
+            str(role_dir / "custom.crt"),
+        ],
         capture_output=True,
         text=True,
     )
@@ -77,4 +83,3 @@ def test_cert_generate(role_env):
         assert "ROOT_CA_KEY_FILE_PATH=" in env_content
         assert "CERT_FILE_PATH=" in env_content
         assert "KEY_FILE_PATH=" in env_content
-

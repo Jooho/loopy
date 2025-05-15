@@ -4,6 +4,7 @@ import os
 from tests.conftest import timeout
 from pathlib import Path
 
+
 @pytest.mark.e2e
 @pytest.mark.e2e_roles
 @pytest.mark.cluster_tests
@@ -35,7 +36,7 @@ def test_nfs_provisioner_default(role_env):
             "-p",
             f"CATALOGSOURCE_NAME={role_env['CATALOGSOURCE_NAME']}",
             "-p",
-            f"CATALOGSOURCE_NAMESPACE={role_env['CATALOGSOURCE_NAMESPACE']}",            
+            f"CATALOGSOURCE_NAMESPACE={role_env['CATALOGSOURCE_NAMESPACE']}",
             "-l",
             "-g",
             "-r",
@@ -64,8 +65,9 @@ def test_nfs_provisioner_default(role_env):
         text=True,
     )
     assert result.returncode == 0, f"Operator pod not ready: {result.stderr}"
-    assert "condition met" in result.stdout, f"'condition met' not found in output: {result.stdout}"
-
+    assert (
+        "condition met" in result.stdout
+    ), f"'condition met' not found in output: {result.stdout}"
 
     result = subprocess.run(
         [
@@ -83,5 +85,6 @@ def test_nfs_provisioner_default(role_env):
         text=True,
     )
     assert result.returncode == 0, f"Operator pod not ready: {result.stderr}"
-    assert "condition met" in result.stdout, f"'condition met' not found in output: {result.stdout}"
-
+    assert (
+        "condition met" in result.stdout
+    ), f"'condition met' not found in output: {result.stdout}"

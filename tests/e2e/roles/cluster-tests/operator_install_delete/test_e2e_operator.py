@@ -4,9 +4,10 @@ import os
 from tests.conftest import timeout
 
 
-@pytest.mark.e2e_test
+@pytest.mark.e2e
 @pytest.mark.e2e_roles
 @pytest.mark.cluster_tests
+@pytest.mark.order(1)
 def test_operator_install_default(role_env):
     """Test the full command line behavior of operator-install role"""
     # Create a copy of the environment with PATH
@@ -66,7 +67,9 @@ def test_operator_install_default(role_env):
         text=True,
     )
     assert result.returncode == 0, f"Operator pod not ready: {result.stderr}"
-    assert "condition met" in result.stdout, f"'condition met' not found in output: {result.stdout}"
+    assert (
+        "condition met" in result.stdout
+    ), f"'condition met' not found in output: {result.stdout}"
 
 
 @pytest.mark.e2e
@@ -121,5 +124,12 @@ def test_operator_delete(role_env):
     assert result.returncode == 0, f"Operator pod not ready: {result.stderr}"
     assert result.stderr == "", f"Operator pod found: {result.stderr}"
 
-    result = subprocess.run( "oc get csv --no-headers | grep minio | wc -l",shell=True, capture_output=True, text=True)
-    assert result.stdout.strip() == "0", f"CRD tenants.minio.min.io found: {result.stderr}"
+    result = subprocess.run(
+        "oc get csv --no-headers | grep minio | wc -l",
+        shell=True,
+        capture_output=True,
+        text=True,
+    )
+    assert (
+        result.stdout.strip() == "0"
+    ), f"CRD tenants.minio.min.io found: {result.stderr}"

@@ -17,9 +17,9 @@ def cli_runner():
 def cleanup_report_dir(loopy_context):
     yield
 
-    output_root_dir = loopy_context.config["output_root_dir"]
-    if output_root_dir and os.path.exists(output_root_dir):
-        try:
-            utils.safe_rmtree(output_root_dir)
-        except RuntimeError as e:
-            pytest.fail(f"Error deleting folder: {e}", pytrace=True)
+    # output_root_dir = loopy_context.config["output_root_dir"]
+    # if output_root_dir and os.path.exists(output_root_dir):
+    #     try:
+    #         utils.safe_rmtree(output_root_dir)
+    #     except RuntimeError as e:
+    #         pytest.fail(f"Error deleting folder: {e}", pytrace=True)

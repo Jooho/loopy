@@ -25,4 +25,3 @@ def role_env(base_env):
     base_env["CSR_NAME"] = "test.csr"
     base_env["CN"] = "test"
     return base_env
-

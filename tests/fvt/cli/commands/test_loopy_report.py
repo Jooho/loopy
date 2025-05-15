@@ -250,7 +250,14 @@ def test_get_role_table_row():
         "execution_time": 45,
         "formatted_execution_time": "0min 45.0",
         "artifacts_dir": "/tmp/artifacts",
-        "commands": [{"name": "command1", "description": "Test Command 1", "execution_time": 20, "result": 0}],
+        "commands": [
+            {
+                "name": "command1",
+                "description": "Test Command 1",
+                "execution_time": 20,
+                "result": 0,
+            }
+        ],
     }
 
     options = {
@@ -289,7 +296,9 @@ def test_flatten_components(sample_components):
 @pytest.mark.cli
 @pytest.mark.cli_report
 @patch("cli.commands.loopy_report.LoopyReportManager")
-def test_summary(mock_report_manager_class, mock_loopy_ctx, sample_report_content, sample_components):
+def test_summary(
+    mock_report_manager_class, mock_loopy_ctx, sample_report_content, sample_components
+):
     # Setup mock report manager
     mock_report_manager = Mock()
     mock_report_manager_class.return_value = mock_report_manager
@@ -303,7 +312,9 @@ def test_summary(mock_report_manager_class, mock_loopy_ctx, sample_report_conten
     report_path = os.path.join(mock_loopy_ctx.obj.loopy_result_dir, "report")
 
     # Mock file operations
-    with patch("builtins.open", mock_open(read_data=sample_report_content)) as mock_file:
+    with patch(
+        "builtins.open", mock_open(read_data=sample_report_content)
+    ) as mock_file:
         # Mock os.path.join to return our mocked path
         with patch("os.path.join", return_value=report_path):
             summary(mock_loopy_ctx)
@@ -315,16 +326,22 @@ def test_summary(mock_report_manager_class, mock_loopy_ctx, sample_report_conten
             assert (
                 mock_report_manager.load_summary.call_count == 2
             )  # Called twice: once in summary() and once in update_results_from_report()
-            mock_report_manager.update_summary.assert_called_once_with("components", sample_components)
+            mock_report_manager.update_summary.assert_called_once_with(
+                "components", sample_components
+            )
 
 
 @pytest.mark.fvt
 @pytest.mark.cli
 @pytest.mark.cli_report
-def test_update_results_from_report(mock_report_manager, sample_report_content, sample_components):
+def test_update_results_from_report(
+    mock_report_manager, sample_report_content, sample_components
+):
     mock_report_manager.summary_dict["components"] = sample_components
 
     with patch("builtins.open", mock_open(read_data=sample_report_content)):
-        update_results_from_report(mock_report_manager, [sample_report_content], sample_components)
+        update_results_from_report(
+            mock_report_manager, [sample_report_content], sample_components
+        )
         mock_report_manager.load_summary.assert_called_once()
         mock_report_manager.update_summary.assert_called_once()

@@ -5,10 +5,10 @@ import sys
 
 @pytest.fixture()
 def role_env(base_env):
-    """Fixture providing base environment variables needed for all tests"""    
+    """Fixture providing base environment variables needed for all tests"""
     # This is for testing purposes
-    base_env["MINIO_LABEL"] = "app=minio"    
-    base_env["MINIO_NAMESPACE"] = "minio"    
+    base_env["MINIO_LABEL"] = "app=minio"
+    base_env["MINIO_NAMESPACE"] = "minio"
     return base_env
 
 
@@ -16,7 +16,7 @@ def role_env(base_env):
 def cleanup(base_env):
     yield
     # List of cleanup commands to execute
-    cleanup_commands = [        
+    cleanup_commands = [
         f"oc delete ns {base_env['MINIO_NAMESPACE']}",
     ]
 

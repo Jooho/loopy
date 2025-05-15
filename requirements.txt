@@ -12,7 +12,7 @@ pytest-order
 virtualenv 
 virtualenvwrapper
 debugpy
-
+black
 #argparse == 1.4.0 
 
 

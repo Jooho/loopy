@@ -9,18 +9,26 @@ from core.report_manager import LoopyReportManager
 from tests.conftest import generate_random_name
 
 
-def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml):
+def ensure_namespace_and_operatorgroup(
+    namespace, operatorgroup_name, operatorgroup_yaml
+):
     # Ensure namespace exists
-    ns_check = subprocess.run(["oc", "get", "namespace", namespace], capture_output=True, text=True)
+    ns_check = subprocess.run(
+        ["oc", "get", "namespace", namespace], capture_output=True, text=True
+    )
     if ns_check.returncode != 0:
         subprocess.run(["oc", "create", "namespace", namespace], check=True)
 
     # Ensure OperatorGroup exists
     og_check = subprocess.run(
-        ["oc", "get", "operatorgroup", operatorgroup_name, "-n", namespace], capture_output=True, text=True
+        ["oc", "get", "operatorgroup", operatorgroup_name, "-n", namespace],
+        capture_output=True,
+        text=True,
     )
     if og_check.returncode != 0:
-        subprocess.run(["oc", "apply", "-f", "-"], input=operatorgroup_yaml, text=True, check=True)
+        subprocess.run(
+            ["oc", "apply", "-f", "-"], input=operatorgroup_yaml, text=True, check=True
+        )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -35,7 +43,9 @@ metadata:
   namespace: openshift-operators
 spec: {}
 """
-    ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml)
+    ensure_namespace_and_operatorgroup(
+        namespace, operatorgroup_name, operatorgroup_yaml
+    )
 
 
 @pytest.fixture(scope="session")
@@ -50,18 +60,18 @@ def base_env():
         "CLUSTER_API_URL": "",
         "CLUSTER_ADMIN_ID": "",
         "CLUSTER_ADMIN_PW": "",
-        "LOOPY_OUTPUT_ROOT_DIR": "/tmp/e2e_loopy_result",
-        "LOOPY_OUTPUT_TARGET_DIR": generate_random_name(),
+        "OUTPUT_ROOT_DIR": "/tmp/e2e_loopy_result",
+        "OUTPUT_TARGET_DIR": generate_random_name(),
     }
 
 
 @pytest.fixture(scope="function", autouse=True)
-def cleanup_output_root_dir(base_env):
+def cleanup_output_dir(base_env):
     yield
 
-    # output_root_dir = Path(base_env["LOOPY_OUTPUT_ROOT_DIR"]) / base_env["LOOPY_OUTPUT_TARGET_DIR"]
-    # if output_root_dir and os.path.exists(output_root_dir):
-    #     try:
-    #         utils.safe_rmtree(output_root_dir)
-    #     except RuntimeError as e:
-    #         pytest.fail(f"Error deleting folder: {e}", pytrace=True)
+    output_root_dir = Path(base_env["OUTPUT_ROOT_DIR"]) / base_env["OUTPUT_TARGET_DIR"]
+    if output_root_dir and os.path.exists(output_root_dir):
+        try:
+            utils.safe_rmtree(output_root_dir)
+        except RuntimeError as e:
+            pytest.fail(f"Error deleting folder: {e}", pytrace=True)

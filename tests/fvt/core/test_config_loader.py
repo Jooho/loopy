@@ -7,12 +7,12 @@ import os
 
 @pytest.fixture
 def copied_config_files():
-    # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))  # loopy/../
+    base_dir = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    )  # loopy/../
 
     config_path = os.path.join(base_dir, "config.yaml")
     internal_config_path = os.path.join(base_dir, "src", "core", "internal_config.yaml")
-    default_vars_path = os.path.join(base_dir, "commons", "default-variables.yaml")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_config_path = os.path.join(tmpdir, "config.yaml")

@@ -13,6 +13,7 @@ from core.env import EnvManager
 from core.config_loader import ConfigLoader
 from tests.conftest import generate_random_name
 
+
 @pytest.fixture()
 def custom_context():
     with open("./tests/custom-context.json", "r") as f:
@@ -37,7 +38,9 @@ def copied_config_files():
         # If default_vars_file is specified, update the path and copy the file to the temp directory
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
-            updated_default_vars_path = os.path.join(tmpdir, "commons", "default-variables.yaml")
+            updated_default_vars_path = os.path.join(
+                tmpdir, "commons", "default-variables.yaml"
+            )
 
             # Ensure the 'commons' directory exists in the temp directory
             os.makedirs(os.path.dirname(updated_default_vars_path), exist_ok=True)
@@ -76,7 +79,9 @@ def loopy_context(loopy_root_path):
     # Set test role/unit/playbook path
     config_data["additional_role_dirs"] = [f"{loopy_root_path}/tests/test-data/roles"]
     config_data["additional_unit_dirs"] = [f"{loopy_root_path}/tests/test-data/units"]
-    config_data["additional_playbook_dirs"] = [f"{loopy_root_path}/tests/test-data/playbooks"]
+    config_data["additional_playbook_dirs"] = [
+        f"{loopy_root_path}/tests/test-data/playbooks"
+    ]
     config_data["output_target_dir"] = os.path.join(generate_random_name())
 
     # Enable input environment validation for testing

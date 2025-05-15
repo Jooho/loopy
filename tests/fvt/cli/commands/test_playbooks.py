@@ -23,7 +23,9 @@ def test_list_playbooks(cli_runner, loopy_context):
 def test_show_playbook(cli_runner, loopy_context):
     from src.cli.commands.playbooks import show_playbook
 
-    result = cli_runner.invoke(show_playbook, ["loopy-unit-tests-non-cluster-units"], obj=loopy_context)
+    result = cli_runner.invoke(
+        show_playbook, ["loopy-unit-tests-non-cluster-units"], obj=loopy_context
+    )
     assert result.exit_code == 0
     assert "Name: loopy-unit-tests" in result.output
 
@@ -34,7 +36,11 @@ def test_show_playbook(cli_runner, loopy_context):
 def test_run_playbook_units(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests-non-cluster-units", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_playbook,
+        ["loopy-unit-tests-non-cluster-units", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -45,7 +51,11 @@ def test_run_playbook_units(cli_runner, loopy_context):
 def test_run_playbook_role_unit(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests-non-cluster-role-unit", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_playbook,
+        ["loopy-unit-tests-non-cluster-role-unit", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -56,7 +66,11 @@ def test_run_playbook_role_unit(cli_runner, loopy_context):
 def test_run_playbook_unit_role(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests-non-cluster-unit-role", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_playbook,
+        ["loopy-unit-tests-non-cluster-unit-role", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 
@@ -67,7 +81,11 @@ def test_run_playbook_unit_role(cli_runner, loopy_context):
 def test_run_playbook_roles(cli_runner, loopy_context):
     from src.cli.commands.playbooks import run_playbook
 
-    result = cli_runner.invoke(run_playbook, ["loopy-unit-tests-non-cluster-roles", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_playbook,
+        ["loopy-unit-tests-non-cluster-roles", "-l", "-g"],
+        obj=loopy_context,
+    )
     assert result.exit_code == 0
     assert "Success" in result.stdout.strip()
 

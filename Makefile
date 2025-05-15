@@ -2,6 +2,7 @@ IMG=quay.io/jooholee/loopy
 IMG_TAG=latest
 
 PYTEST_CONFIG ?= "pytest.ini"
+TEST_ENV ?= "local"
 
 .PHONY: build push
 build:
@@ -11,7 +12,7 @@ push:
 
 .PHONY: download-cli
 download-cli:
-	./commons/scripts/download-cli.sh
+	./hacks/download-cli.sh
 
 .PHONY: install-lib
 install-lib:
@@ -22,10 +23,16 @@ install-lib:
 .PHONY: init
 init: download-cli install-lib
 
-.PHONY: unit
-unit:  
-	pytest -c "${PYTEST_CONFIG}" -n 6 --dist worksteal 
-
+.PHONY: fvt
+fvt:  
+	pytest -c "${PYTEST_CONFIG}" -n 1 -m fvt
+	
+.PHONY: e2e
+e2e:  
+	if [[ "$TEST_ENV" == "local" ]]; then
+		./hacks/setup-kind.sh
+	fi
+	pytest -c "${PYTEST_CONFIG}" -n 5 --dist worksteal -m e2e
 
 .PHONY: update-test-data
 update-test-data:
@@ -33,7 +40,7 @@ update-test-data:
 
 .PHONY: py-lint
 py-lint:
-	black ./src ./test	
+	black ./src ./tests ./default_provided_services/roles/shell
 
 .PHONY: precommit
-precommit: py-lint unit 
+precommit: py-lint fvt 

@@ -28,7 +28,9 @@ def base_env(output_dir, output_root_dir, role_name):
         "ROLE_DIR": str(output_dir / "artifacts" / role_name),
         "REPORT_FILE": str(output_dir / "report"),
         "OUTPUT_DIR": str(output_dir / "output"),
-        "OUTPUT_ENV_FILE": str(output_dir / "output" / (role_name + "shell-execute.sh")),
+        "OUTPUT_ENV_FILE": str(
+            output_dir / "output" / (role_name + "shell-execute.sh")
+        ),
         "LOOPY_RESULT_DIR": str(output_dir / "results"),
         "SHOW_DEBUG_LOG": "false",
         "STOP_WHEN_FAILED": "false",
@@ -59,7 +61,11 @@ def setup_test_env(base_env, role_name):
             json.dump(role_time_data, f)
 
         # Initialize summary.json in the test's result directory
-        summary_data = {"first_component_type": "role", "first_component_name": role_name, "components": []}
+        summary_data = {
+            "first_component_type": "role",
+            "first_component_name": role_name,
+            "components": [],
+        }
         summary_file = Path(base_env["LOOPY_RESULT_DIR"]) / "summary.json"
         with open(summary_file, "w") as f:
             json.dump(summary_data, f)

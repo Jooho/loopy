@@ -14,7 +14,9 @@ def test_shell_execute_single_command(role_dir, base_env, setup_test_env):
     env = setup_test_env(test_env)
 
     # Run the role
-    result = subprocess.run(["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
 
     assert result.returncode == 0, f"Role execution failed: {result.stderr}"
 
@@ -32,12 +34,17 @@ def test_shell_execute_single_command(role_dir, base_env, setup_test_env):
 @pytest.mark.fvt_roles
 def test_shell_execute_multiple_commands(role_dir, base_env, setup_test_env):
     """Test executing multiple commands separated by %%"""
-    test_env = {"COMMANDS": "echo 'First command' %% echo 'Second command'", "SHOW_COMMAND": "true"}
+    test_env = {
+        "COMMANDS": "echo 'First command' %% echo 'Second command'",
+        "SHOW_COMMAND": "true",
+    }
 
     env = setup_test_env(test_env)
 
     # Run the role
-    result = subprocess.run(["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
 
     assert result.returncode == 0, f"Role execution failed: {result.stderr}"
 
@@ -62,7 +69,9 @@ def test_shell_execute_with_error(role_dir, base_env, setup_test_env):
     env = setup_test_env(test_env)
 
     # Run the role
-    result = subprocess.run(["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
 
     # Verify error handling
     output_file = Path(base_env["ROLE_DIR"]) / "0-command.txt"
@@ -76,17 +85,24 @@ def test_shell_execute_with_error(role_dir, base_env, setup_test_env):
 @pytest.mark.fvt_roles
 def test_shell_execute_with_comments(role_dir, base_env, setup_test_env):
     """Test executing commands with comments"""
-    test_env = {"COMMANDS": "# This is a comment %% echo 'Actual command'", "SHOW_COMMAND": "true"}
+    test_env = {
+        "COMMANDS": "# This is a comment %% echo 'Actual command'",
+        "SHOW_COMMAND": "true",
+    }
 
     env = setup_test_env(test_env)
 
     # Run the role
-    result = subprocess.run(["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
 
     assert result.returncode == 0, f"Role execution failed: {result.stderr}"
 
     # Verify only the actual command was executed
-    output_file = Path(base_env["ROLE_DIR"]) / "1-command.txt"  # Note: index is 1 because first command was a comment
+    output_file = (
+        Path(base_env["ROLE_DIR"]) / "1-command.txt"
+    )  # Note: index is 1 because first command was a comment
     assert output_file.exists()
     content = output_file.read_text()
     assert "COMMAND: echo 'Actual command'" in content
@@ -102,7 +118,9 @@ def test_shell_execute_without_show_command(role_dir, base_env, setup_test_env):
     env = setup_test_env(test_env)
 
     # Run the role
-    result = subprocess.run(["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
 
     assert result.returncode == 0, f"Role execution failed: {result.stderr}"
 

@@ -29,7 +29,9 @@ def test_verify_param_in_component_role(tmp_path, ctx):
     config_path.write_text("role:\n  input_env:\n    - name: TEST")
     component_list = [{"name": "role1", "path": str(config_path.parent)}]
     params = {"TEST": "val"}
-    with mock.patch("yaml.safe_load", return_value={"role": {"input_env": [{"name": "TEST"}]}}):
+    with mock.patch(
+        "yaml.safe_load", return_value={"role": {"input_env": [{"name": "TEST"}]}}
+    ):
         utils.verify_param_in_component(ctx, params, "role1", component_list, "role")
 
 
@@ -169,8 +171,13 @@ def test_get_config_data_by_name_role(tmp_path, ctx):
     config_file = tmp_path / "config.yaml"
     config_file.write_text("role:\n  foo: bar")
     ctx.obj.config["role_list"] = [{"name": "r1", "path": str(tmp_path)}]
-    with mock.patch("src.cli.commands.utils.get_config_data_by_config_file_dir", return_value={"role": {"foo": "bar"}}):
-        result = utils.get_config_data_by_name(ctx, "r1", "role", ctx.obj.config["role_list"])
+    with mock.patch(
+        "src.cli.commands.utils.get_config_data_by_config_file_dir",
+        return_value={"role": {"foo": "bar"}},
+    ):
+        result = utils.get_config_data_by_name(
+            ctx, "r1", "role", ctx.obj.config["role_list"]
+        )
         assert result == {"role": {"foo": "bar"}}
 
 
@@ -222,7 +229,10 @@ def test_get_first_role_name_in_unit_by_unit_name():
 @pytest.mark.fvt
 @pytest.mark.cli
 def test_getDescription_role(ctx):
-    with mock.patch("src.cli.commands.utils.get_config_data_by_name", return_value={"role": {"description": "desc"}}):
+    with mock.patch(
+        "src.cli.commands.utils.get_config_data_by_name",
+        return_value={"role": {"description": "desc"}},
+    ):
         desc = utils.getDescription(ctx, "r1", "role")
         assert desc == "desc"
 
@@ -233,7 +243,10 @@ def test_getDescription_role(ctx):
 @pytest.mark.fvt
 @pytest.mark.cli
 def test_getDescription_unit(ctx):
-    with mock.patch("src.cli.commands.utils.get_config_data_by_name", return_value={"unit": {"description": "udesc"}}):
+    with mock.patch(
+        "src.cli.commands.utils.get_config_data_by_name",
+        return_value={"unit": {"description": "udesc"}},
+    ):
         desc = utils.getDescription(ctx, "u1", "unit")
         assert desc == "udesc"
 
@@ -245,7 +258,8 @@ def test_getDescription_unit(ctx):
 @pytest.mark.cli
 def test_getDescription_playbook(ctx):
     with mock.patch(
-        "src.cli.commands.utils.get_config_data_by_name", return_value={"playbook": {"description": "pdesc"}}
+        "src.cli.commands.utils.get_config_data_by_name",
+        return_value={"playbook": {"description": "pdesc"}},
     ):
         desc = utils.getDescription(ctx, "p1", "playbook")
         assert desc == "pdesc"

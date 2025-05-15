@@ -24,7 +24,9 @@ def test_list_units(cli_runner, loopy_context):
 def test_show_unit(cli_runner, loopy_context):
     from src.cli.commands.units import show_unit
 
-    result = cli_runner.invoke(show_unit, ["loopy-roles-test-non-cluster-shell-execute"], obj=loopy_context)
+    result = cli_runner.invoke(
+        show_unit, ["loopy-roles-test-non-cluster-shell-execute"], obj=loopy_context
+    )
     assert result.exit_code == 0
     assert "Name: loopy-roles-test-non-cluster-shell-execute" in result.output
 
@@ -47,6 +49,7 @@ def test_run_unit(cli_runner, loopy_context):
 # TO-DO: Environment variable and Parameter handling missing
 # Environment variable can overwrite the parameter in the component
 # Environment variable must start with LOOPY
+
 
 # @pytest.mark.fvt
 @pytest.mark.cli
@@ -82,6 +85,8 @@ def test_run_unit(cli_runner, loopy_context):
 def test_run_unit_non_exist_unit(cli_runner, loopy_context):
     from src.cli.commands.units import run_unit
 
-    result = cli_runner.invoke(run_unit, ["NOT-EXIST-UNIT", "-l", "-g"], obj=loopy_context)
+    result = cli_runner.invoke(
+        run_unit, ["NOT-EXIST-UNIT", "-l", "-g"], obj=loopy_context
+    )
     assert result.exit_code == 1
     assert "Unit name(NOT-EXIST-UNIT) does not exist" in result.stdout.strip()

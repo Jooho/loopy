@@ -13,7 +13,6 @@ runs:
         apiServerAddress: "127.0.0.1"
       kubeadmConfigPatches:
       - |
-        kind: ClusterConfiguration
         apiServer:
           extraArgs:
             feature-gates: "AllAlpha=true"

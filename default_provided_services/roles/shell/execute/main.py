@@ -75,6 +75,10 @@ def process_commands(raw_commands):
         if line:  # Only add non-empty lines
             processed_lines.append(line)
 
+    # If no valid lines were processed, return empty list
+    if not processed_lines:
+        return []
+
     # Join the processed lines and split by %%
     return " ".join(processed_lines).split("%%")
 
@@ -83,6 +87,9 @@ def process_commands(raw_commands):
 raw_commands = os.environ.get("COMMANDS", "")
 commands_list = process_commands(raw_commands)
 results = []
+
+if len(commands_list) == 0:
+    commands_list.append("echo 'ERROR:No commands provided to execute'")
 
 for index, command in enumerate(commands_list):
     start_time = reportManager.role_time_dict["start_time"]

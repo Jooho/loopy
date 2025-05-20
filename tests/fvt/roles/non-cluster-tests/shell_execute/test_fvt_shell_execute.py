@@ -86,7 +86,7 @@ def test_shell_execute_with_error(role_dir, base_env, setup_test_env):
 def test_shell_execute_with_comments(role_dir, base_env, setup_test_env):
     """Test executing commands with comments"""
     test_env = {
-        "COMMANDS": "# This is a comment %% echo 'Actual command'",
+        "COMMANDS": "echo 'Actual command' %% # This is a comment",
         "SHOW_COMMAND": "true",
     }
 
@@ -101,7 +101,7 @@ def test_shell_execute_with_comments(role_dir, base_env, setup_test_env):
 
     # Verify only the actual command was executed
     output_file = (
-        Path(base_env["ROLE_DIR"]) / "1-command.txt"
+        Path(base_env["ROLE_DIR"]) / "0-command.txt"
     )  # Note: index is 1 because first command was a comment
     assert output_file.exists()
     content = output_file.read_text()

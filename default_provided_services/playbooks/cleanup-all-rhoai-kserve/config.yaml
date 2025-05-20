@@ -7,7 +7,7 @@ playbook:
         name: shell-execute
         input_env:
           COMMANDS: |
-            oc login -u $CLUSTER_ADMIN_ID -p $CLUSTER_ADMIN_PW $CLUSTER_API_URL --insecure-skip-tls-verify=true
+            oc login -u $CLUSTER_ADMIN_ID -p $CLUSTER_ADMIN_PW $CLUSTER_API_URL --insecure-skip-tls-verify=true %%
             # scale down opendatahub-operator|redhat-ods-operator
             #oc scale deploy/opendatahub-operator --replicas=0 -n openshift-operators &&
             #oc scale deploy/rhods-operator --replicas=0 -n openshift-operators &&

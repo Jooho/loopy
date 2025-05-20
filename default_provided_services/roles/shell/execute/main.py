@@ -48,8 +48,48 @@ import time
 index_role_name = os.path.basename(ROLE_DIR)
 role_name = config_data.get("role", {}).get("name", "")
 
-commands_list = os.environ.get("COMMANDS", "").split("%%")
+
+def process_commands(raw_commands):
+    """
+    Process commands by:
+    1. Removing full-line comments (lines starting with #)
+    2. Removing inline comments (everything after #)
+    3. Splitting by %% for separate commands
+
+    Args:
+        raw_commands (str): Raw commands string from environment variable
+
+    Returns:
+        list: List of processed commands
+    """
+    processed_lines = []
+    for line in raw_commands.split("\n"):
+        line = line.strip()
+        if not line:  # Skip empty lines
+            continue
+        if line.startswith("#"):  # Skip comment lines
+            continue
+        # Remove inline comments (everything after #)
+        if "#" in line:
+            line = line[: line.index("#")].strip()
+        if line:  # Only add non-empty lines
+            processed_lines.append(line)
+
+    # If no valid lines were processed, return empty list
+    if not processed_lines:
+        return []
+
+    # Join the processed lines and split by %%
+    return " ".join(processed_lines).split("%%")
+
+
+# Get commands from environment variable and process them
+raw_commands = os.environ.get("COMMANDS", "")
+commands_list = process_commands(raw_commands)
 results = []
+
+if len(commands_list) == 0:
+    commands_list.append("echo 'ERROR:No commands provided to execute'")
 
 for index, command in enumerate(commands_list):
     start_time = reportManager.role_time_dict["start_time"]
@@ -60,7 +100,6 @@ for index, command in enumerate(commands_list):
     rcresult = {"stdout": "", "stderr": "", "returncode": None}
     if command.strip() != "":
         try:
-            command = py_utils.remove_comment_lines(command)
             start_time.append(time.time())
             showCommand = py_utils.is_positive(os.environ["SHOW_COMMAND"])
             if showCommand == 0:
@@ -92,9 +131,7 @@ for index, command in enumerate(commands_list):
             reportManager.update_role_time("start_time", start_time)
             reportManager.update_role_time("end_time", end_time)
 
-            with open(
-                f"{ROLE_DIR}/{index}-command.txt", "w"
-            ) as each_command_output_file:
+            with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
                 temp_result = 0
                 each_command_output_file.write(f"######## {index} command #######\n")
                 each_command_output_file.write(f"COMMAND: {command}\n")
@@ -109,9 +146,7 @@ for index, command in enumerate(commands_list):
                     # each_command_output_file.write(result.stderr)
                     each_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(
-                        temp_result, index_role_name, REPORT_FILE
-                    )
+                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
 
             with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
                 temp_result = 0
@@ -127,9 +162,7 @@ for index, command in enumerate(commands_list):
                         all_command_output_file.write(rcresult["stderr"])
                     all_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(
-                        temp_result, index_role_name, REPORT_FILE
-                    )
+                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
                 results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
 
         except Exception as e:

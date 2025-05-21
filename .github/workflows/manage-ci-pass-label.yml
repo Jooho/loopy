@@ -81,7 +81,8 @@ jobs:
               repo: context.repo.repo,
               ref: sha,
             });
-            core.setOutput('result', 'pass');
+            # core.setOutput('result', 'pass');
+            return { result: 'pass' }
             # if (combined.state === 'success') {
             #   return core.setOutput('result', 'pass');
             # } else if (combined.state === 'failure' || combined.state === 'error') {

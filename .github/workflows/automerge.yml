@@ -33,3 +33,4 @@ jobs:
           MERGE_LABELS: "lgtm,approved,!hold"
           MERGE_METHOD: "squash"
           MERGE_METHOD_LABELS: automerge=merge,autosquash=squash
+

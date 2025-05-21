@@ -7,28 +7,67 @@ from cli.commands import utils
 from pathlib import Path
 from core.report_manager import LoopyReportManager
 from tests.conftest import generate_random_name
+from kubernetes import client, config
+import yaml
 
 
-def ensure_namespace_and_operatorgroup(
-    namespace, operatorgroup_name, operatorgroup_yaml
-):
-    # Ensure namespace exists
-    ns_check = subprocess.run(
-        ["oc", "get", "namespace", namespace], capture_output=True, text=True
-    )
-    if ns_check.returncode != 0:
-        subprocess.run(["oc", "create", "namespace", namespace], check=True)
+def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml):
+    # Load kube config from KUBECONFIG environment variable if available, otherwise use default
+    kubeconfig = os.getenv("KUBECONFIG")
+    if kubeconfig:
+        config.load_kube_config(config_file=kubeconfig)
+    else:
+        config.load_kube_config()
+    v1 = client.CoreV1Api()
+    custom_api = client.CustomObjectsApi()
 
-    # Ensure OperatorGroup exists
-    og_check = subprocess.run(
-        ["oc", "get", "operatorgroup", operatorgroup_name, "-n", namespace],
-        capture_output=True,
-        text=True,
-    )
-    if og_check.returncode != 0:
-        subprocess.run(
-            ["oc", "apply", "-f", "-"], input=operatorgroup_yaml, text=True, check=True
+    # Check if namespace exists
+    try:
+        v1.read_namespace(namespace)
+        print(f"Namespace {namespace} already exists")
+    except client.exceptions.ApiException as e:
+        if e.status == 404:
+            print(f"Creating namespace {namespace}")
+            try:
+                v1.create_namespace(client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace)))
+            except client.exceptions.ApiException as create_e:
+                if create_e.status != 409:  # Ignore 409, raise other errors
+                    print(f"Namespace {namespace} already exists (409)")
+                return
+        elif e.status == 409:
+            print(f"Namespace {namespace} already exists (409)")
+        else:
+            raise
+
+    # Check if OperatorGroup exists
+    try:
+        custom_api.get_namespaced_custom_object(
+            group="operators.coreos.com",
+            version="v1",
+            namespace=namespace,
+            plural="operatorgroups",
+            name=operatorgroup_name,
         )
+        print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace}")
+    except client.exceptions.ApiException as e:
+        if e.status == 404:
+            print(f"Creating OperatorGroup {operatorgroup_name} in namespace {namespace}")
+            operatorgroup = yaml.safe_load(operatorgroup_yaml)
+            try:
+                custom_api.create_namespaced_custom_object(
+                    group="operators.coreos.com",
+                    version="v1",
+                    namespace=namespace,
+                    plural="operatorgroups",
+                    body=operatorgroup,
+                )
+            except client.exceptions.ApiException as create_e:
+                if create_e.status != 409:  # Ignore 409, raise other errors
+                    print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)")
+        elif e.status == 409:
+            print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)")
+        else:
+            raise
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -43,9 +82,7 @@ metadata:
   namespace: openshift-operators
 spec: {}
 """
-    ensure_namespace_and_operatorgroup(
-        namespace, operatorgroup_name, operatorgroup_yaml
-    )
+    ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml)
 
 
 @pytest.fixture(scope="session")

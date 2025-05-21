@@ -14,6 +14,10 @@ push:
 download-cli:
 	./hacks/download-cli.sh
 
+.PHONY: download-cli-for-ci
+download-cli-for-ci:
+	./hacks/download-cli-for-ci.sh
+
 .PHONY: install-lib
 install-lib:
 	pip install --upgrade pip
@@ -27,11 +31,16 @@ init: download-cli install-lib
 fvt:  
 	pytest -c "${PYTEST_CONFIG}" -n 1 -m fvt
 	
-.PHONY: e2e
-e2e:  
-	if [[ "$TEST_ENV" == "local" ]]; then
-		./hacks/setup-kind.sh
-	fi
+
+print-paths:
+	@echo "Current directory (make 실행 위치): $(CURDIR)"
+
+.PHONY: e2e 
+e2e: download-cli-for-ci	
+	export PATH="$(CURDIR)/bin:$(PATH)" ;\
+	echo "TEST_ENV is $(TEST_ENV)" 	;\
+	echo "PATH is $$PATH" ;\
+	TEST_ENV=$(TEST_ENV) ./hacks/setup-kind.sh ;\
 	pytest -c "${PYTEST_CONFIG}" -n 5 --dist worksteal -m e2e
 
 .PHONY: update-test-data

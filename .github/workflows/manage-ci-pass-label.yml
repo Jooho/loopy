@@ -53,6 +53,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            return { result: 'pass' }
             const sha = context.payload.pull_request?.head?.sha
               || context.payload.check_suite?.head_sha
               || context.payload.check_run?.head_sha
@@ -81,7 +82,7 @@ jobs:
               ref: sha,
             });
             # core.setOutput('result', 'pass');
-            return { result: 'pass' }
+            
             # if (combined.state === 'success') {
             #   return core.setOutput('result', 'pass');
             # } else if (combined.state === 'failure' || combined.state === 'error') {

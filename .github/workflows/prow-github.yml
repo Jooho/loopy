@@ -19,7 +19,7 @@ jobs:
         with:
           prow-commands: '/assign 
             /unassign 
-            /approve 
+            /approve: label:approved
             /retitle 
             /area 
             /kind 

@@ -4,11 +4,21 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "**"
-      - "!.github/**"
-      - "!.vscode/**"
+      - "src/**"
+      - "tests/**"
+      - "default_provided_services/**"
+      - "hacks/**"
+      - ".github/**"
+      - "commons/**"
+      - "!sample_manifests/**"
       - "!docs/**"
-      - "!**.md"
+      - "!.vscode/**"
+      - "!LICENSE"
+      - "!.prowlabels.yaml"
+      - "!Dockerfile"
+      - "!requirements.txt"
+      - "!README.md"
+      - "!.gitignore"
 
 env:
   TEST_ENV: ci

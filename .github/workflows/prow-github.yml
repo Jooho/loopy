@@ -35,5 +35,4 @@ jobs:
             /hold
             /cc
             /uncc"          
-          label-commands: "approved=/approve"
 

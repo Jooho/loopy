@@ -131,7 +131,7 @@ class Role:
                 target_main_file = os.path.join(self.role_config_dir_path, "main.py")
                 target_main_file_type = "python"
 
-            if  utils.is_positive(enable_loopy_log) == 0:
+            if utils.is_positive(enable_loopy_log) == 0:
                 logger.info(
                     f"{Fore.LIGHTBLUE_EX}------------------- ROLE Log Start-------------------{Fore.RESET}"
                 )

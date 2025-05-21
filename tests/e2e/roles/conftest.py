@@ -11,7 +11,9 @@ from kubernetes import client, config
 import yaml
 
 
-def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgroup_yaml):
+def ensure_namespace_and_operatorgroup(
+    namespace, operatorgroup_name, operatorgroup_yaml
+):
     # Load kube config from KUBECONFIG environment variable if available, otherwise use default
     kubeconfig = os.getenv("KUBECONFIG")
     if kubeconfig:
@@ -29,7 +31,9 @@ def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgr
         if e.status == 404:
             print(f"Creating namespace {namespace}")
             try:
-                v1.create_namespace(client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace)))
+                v1.create_namespace(
+                    client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
+                )
             except client.exceptions.ApiException as create_e:
                 if create_e.status != 409:  # Ignore 409, raise other errors
                     print(f"Namespace {namespace} already exists (409)")
@@ -48,10 +52,14 @@ def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgr
             plural="operatorgroups",
             name=operatorgroup_name,
         )
-        print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace}")
+        print(
+            f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace}"
+        )
     except client.exceptions.ApiException as e:
         if e.status == 404:
-            print(f"Creating OperatorGroup {operatorgroup_name} in namespace {namespace}")
+            print(
+                f"Creating OperatorGroup {operatorgroup_name} in namespace {namespace}"
+            )
             operatorgroup = yaml.safe_load(operatorgroup_yaml)
             try:
                 custom_api.create_namespaced_custom_object(
@@ -63,9 +71,13 @@ def ensure_namespace_and_operatorgroup(namespace, operatorgroup_name, operatorgr
                 )
             except client.exceptions.ApiException as create_e:
                 if create_e.status != 409:  # Ignore 409, raise other errors
-                    print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)")
+                    print(
+                        f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)"
+                    )
         elif e.status == 409:
-            print(f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)")
+            print(
+                f"OperatorGroup {operatorgroup_name} already exists in namespace {namespace} (409)"
+            )
         else:
             raise
 

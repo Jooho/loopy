@@ -1,0 +1,39 @@
+name: 'Create Cluster'
+description: 'Creates a KIND Kubernetes cluster'
+runs:
+  using: 'composite'
+  steps:
+  - name: Write kind config file
+    shell: bash
+    run: |
+      cat <<EOF > kind-config.yaml
+      kind: Cluster
+      apiVersion: kind.x-k8s.io/v1alpha4
+      networking:
+        apiServerAddress: "127.0.0.1"
+      kubeadmConfigPatches:
+      - |
+        apiServer:
+          extraArgs:
+            feature-gates: "AllAlpha=true"
+            enable-http2: "true"
+      EOF
+
+  - name: Create k8s Kind Cluster
+    uses: helm/kind-action@v1
+    with:
+      name: kind-cluster
+      nodes: 3
+      wait-for-ready: 10s
+      wait-for-ready-timeout: 10m
+      wait-for-ready-interval: 10s
+      config: kind-config.yaml
+      kubeconfig: "${{ github.workspace }}/kubeconfig"
+
+  - name: Setup ingress, OLM, and wait for minio packagemanifest
+    run: |
+      bash hacks/setup-kind.sh
+    shell: bash
+    env:
+      TEST_ENV: "ci"
+      KUBECONFIG: ${{ github.workspace }}/kubeconfig

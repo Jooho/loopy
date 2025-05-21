@@ -1,4 +1,4 @@
-name: Automerge
+name: Automerge(Tide)
 
 on:
   pull_request:

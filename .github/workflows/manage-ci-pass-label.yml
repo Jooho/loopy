@@ -53,7 +53,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            return { result: 'pass' }
+            return { "result": 'pass' }
             const sha = context.payload.pull_request?.head?.sha
               || context.payload.check_suite?.head_sha
               || context.payload.check_run?.head_sha

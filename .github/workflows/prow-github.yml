@@ -34,7 +34,6 @@ jobs:
             /milestone
             /hold
             /cc
-            /uncc"
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+            /uncc"          
           label-commands: "approved=/approve"
 

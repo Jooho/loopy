@@ -30,23 +30,9 @@ jobs:
         uses: "pascalgn/automerge-action@v0.16.4"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_LABELS: "lgtm,approved,!hold"
+          MERGE_LABELS: "lgtm,approved,ci-passed,!hold"
           MERGE_METHOD: "squash"
           MERGE_METHOD_LABELS: automerge=merge,autosquash=squash
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-          MERGE_REQUIRED_STATUSES: "success"
+          MERGE_REQUIRED_STATUSES: "E2E Tests / cluster-test,E2E Tests / non-cluster-test"
           MERGE_ERROR_FAIL: "true"
           MERGE_WAIT_FOR_STATUSES: "true"
-=======
-
->>>>>>> refs/remotes/origin/main
-=======
-
->>>>>>> 91a7382 (Test prow (#33))
-=======
-          MERGE_REQUIRED_STATUSES: "success"
-          MERGE_ERROR_FAIL: "true"
-          MERGE_WAIT_FOR_STATUSES: "true"
->>>>>>> refs/remotes/origin/main

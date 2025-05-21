@@ -13,7 +13,7 @@ jobs:
         with:
           prow-commands: '/assign 
             /unassign 
-            /approved 
+            /approve
             /retitle 
             /area 
             /kind 

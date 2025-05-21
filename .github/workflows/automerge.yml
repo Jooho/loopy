@@ -25,9 +25,12 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: pascalgn/automerge-action@v0.16.4
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          merge-method: squash
-          labels: "approved"
-          blocking-labels: "hold"
+      - id: automerge
+        name: automerge
+        uses: "pascalgn/automerge-action@v0.16.4"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          MERGE_LABELS: "lgtm,approved,!hold"
+          MERGE_METHOD: "squash"
+          MERGE_METHOD_LABELS: automerge=merge,autosquash=squash
+

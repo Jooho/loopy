@@ -59,7 +59,7 @@ jobs:
               || context.payload.sha;
 
             if (!sha) {
-              core.setOutput('result', 'no-sha');
+              await core.setOutput('result', 'no-sha');
               return;
             }
 
@@ -70,26 +70,18 @@ jobs:
             });
 
             if (!prs.data || prs.data.length === 0) {
-              core.setOutput('result', 'no-pr');
+              await core.setOutput('result', 'no-pr');
               return;
             }
 
-            const pr = prs.data[0];
             const { data: combined } = await github.rest.repos.getCombinedStatusForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: sha,
             });
 
-            core.setOutput('result', 'pass');            
-            if (combined.state === 'success') {
-              core.setOutput('result', 'pass');
-            } else if (combined.state === 'failure' || combined.state === 'error') {
-              core.setOutput('result', 'fail');
-            } else {
-              core.setOutput('result', 'pending');
-            }
-            core.setOutput('result', 'pass');
+            await core.setOutput('result', combined.state === 'success' ? 'pass' : combined.state === 'failure' || combined.state === 'error' ? 'fail' : 'pending');
+
       - name: Add ci-pass label if all checks pass
         if: steps.check-status.outputs.result == 'pass'
         uses: actions-ecosystem/action-add-labels@v1

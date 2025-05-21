@@ -1,73 +1,90 @@
-name: Manage ci-passed label
+name: CI Pass Label
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   check_suite:
     types: [completed]
-  pull_request:
-    types:
-      - synchronize
+  check_run:
+    types: [completed]
 
 jobs:
-  add-label-on-ci-success:
-    if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+  manage-ci-pass-label:
     runs-on: ubuntu-latest
+    if: github.event.pull_request != null || github.event.check_suite != null
     permissions:
-      issues: write
+      contents: read
+      pull-requests: write
+      statuses: read
+
     steps:
-      - name: Add ci-passed label if all checks passed
-        uses: actions/github-script@v6
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove ci-pass label on new commit
+        if: github.event_name == 'pull_request' && (github.event.action == 'synchronize' || github.event.action == 'reopened')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: ci-pass
+
+      - name: Check all required status checks
+        id: check-status
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = github.event.check_suite.pull_requests[0];
-            if (!pr) {
-              console.log("No PR associated");
+            const sha = context.payload.pull_request?.head?.sha
+              || context.payload.check_suite?.head_sha
+              || context.payload.check_run?.head_sha
+              || context.payload.sha;
+
+            if (!sha) {
+              core.setOutput('result', 'no-sha');
               return;
             }
-            const labels = (await github.rest.issues.listLabelsOnIssue({
+
+            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr.number,
-            })).data.map(label => label.name);
+              commit_sha: sha
+            });
 
-            if (!labels.includes('ci-passed')) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                labels: ['ci-passed'],
-              });
-              console.log("Added ci-passed label");
-            } else {
-              console.log("ci-passed label already exists");
+            if (!prs.data || prs.data.length === 0) {
+              core.setOutput('result', 'no-pr');
+              return;
             }
 
-  remove-label-on-new-commit:
-    if: github.event_name == 'pull_request' && github.event.action == 'synchronize'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Remove ci-passed label on new commit
-        uses: actions/github-script@v6
+            const pr = prs.data[0]; 
+            const { data: combined } = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+            });
+            core.exportVariable('CHECKS_RESULT', 'pass');
+            console.log('CHECKS_RESULT set to pass');
+            core.setOutput('result', 'pass');
+            return;
+            # if (combined.state === 'success') {
+            #   return core.setOutput('result', 'pass');
+            # } else if (combined.state === 'failure' || combined.state === 'error') {
+            #   return core.setOutput('result', 'fail');
+            # } else {
+            #   return core.setOutput('result', 'pending');
+            # }
+
+      - name: Add ci-pass label if all checks pass
+        if: steps.check-status.outputs.result == 'pass'
+        uses: actions-ecosystem/action-add-labels@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = github.event.pull_request.number;
-            const labels = (await github.rest.issues.listLabelsOnIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-            })).data.map(label => label.name);
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: ci-pass
+        env:
+          MY_RESULT: ${{ env.CHECKS_RESULT }}          
 
-            if (labels.includes('ci-passed')) {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                name: 'ci-passed',
-              });
-              console.log("Removed ci-passed label due to new commit");
-            } else {
-              console.log("ci-passed label not found, nothing to remove");
-            }
+      - name: Remove ci-pass label if checks fail
+        if: steps.check-status.outputs.result == 'fail'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: ci-pass

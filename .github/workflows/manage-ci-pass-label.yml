@@ -47,40 +47,35 @@ jobs:
               console.log(`Label "${labelToRemove}" does not exist. Skipping removal.`);
             }
 
-      - name: Check all required status checks
+      - name: Wait for all checks to complete
+        uses: peter-evans/wait-for-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          check-name: ".*"
+          ref: ${{ github.event.pull_request.head.sha }}
+          wait-interval: 10
+          timeout: 600
+
+      - name: Check if all checks passed
         id: check-status
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const sha = context.payload.pull_request?.head?.sha
-              || context.payload.check_suite?.head_sha
-              || context.payload.check_run?.head_sha
-              || context.payload.sha;
+            const sha = context.payload.pull_request.head.sha;
 
-            if (!sha) {
-              await core.setOutput('result', 'no-sha');
-              return;
-            }
-
-            const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: sha
-            });
-
-            if (!prs.data || prs.data.length === 0) {
-              await core.setOutput('result', 'no-pr');
-              return;
-            }
-
-            const { data: combined } = await github.rest.repos.getCombinedStatusForRef({
+            const { data: checks } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: sha,
             });
 
-            await core.setOutput('result', combined.state === 'success' ? 'pass' : combined.state === 'failure' || combined.state === 'error' ? 'fail' : 'pending');
+            const failed = checks.check_runs.filter(c => c.conclusion !== 'success');
+            if (failed.length > 0) {
+              core.setFailed(`Some checks failed: ${failed.map(c => c.name).join(', ')}`);
+            } else {
+              core.setOutput('result', 'pass');
+            }
 
       - name: Add ci-pass label if all checks pass
         if: steps.check-status.outputs.result == 'pass'

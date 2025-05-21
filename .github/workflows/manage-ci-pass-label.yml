@@ -61,17 +61,14 @@ jobs:
               repo: context.repo.repo,
               ref: sha,
             });
-            core.exportVariable('CHECKS_RESULT', 'pass');
-            console.log('CHECKS_RESULT set to pass');
-            core.setOutput('result', 'pass');
-            return;
-            # if (combined.state === 'success') {
-            #   return core.setOutput('result', 'pass');
-            # } else if (combined.state === 'failure' || combined.state === 'error') {
-            #   return core.setOutput('result', 'fail');
-            # } else {
-            #   return core.setOutput('result', 'pending');
-            # }
+
+            if (combined.state === 'success') {
+              return core.setOutput('result', 'pass');
+            } else if (combined.state === 'failure' || combined.state === 'error') {
+              return core.setOutput('result', 'fail');
+            } else {
+              return core.setOutput('result', 'pending');
+            }
 
       - name: Add ci-pass label if all checks pass
         if: steps.check-status.outputs.result == 'pass'
@@ -79,8 +76,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: ci-pass
-        env:
-          MY_RESULT: ${{ env.CHECKS_RESULT }}          
 
       - name: Remove ci-pass label if checks fail
         if: steps.check-status.outputs.result == 'fail'

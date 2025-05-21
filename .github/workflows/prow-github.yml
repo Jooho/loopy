@@ -9,6 +9,8 @@ on:
 permissions:
   # Allow labeling issues
   issues: write
+  # Allow adding a review to a pull request
+  pull-requests: write
 
 jobs:
   prow-execute:

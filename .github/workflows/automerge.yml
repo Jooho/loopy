@@ -36,3 +36,4 @@ jobs:
           MERGE_REQUIRED_STATUSES: "E2E Tests / cluster-test,E2E Tests / non-cluster-test"
           MERGE_ERROR_FAIL: "true"
           MERGE_WAIT_FOR_STATUSES: "true"
+          MERGE_REQUIRED_APPROVALS: "1"

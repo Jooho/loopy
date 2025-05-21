@@ -29,5 +29,5 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           merge-method: squash
-          labels: "automerge"
+          labels: "approved"
           blocking-labels: "hold"

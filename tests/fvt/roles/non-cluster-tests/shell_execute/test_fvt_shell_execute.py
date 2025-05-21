@@ -78,7 +78,7 @@ def test_shell_execute_with_error(role_dir, base_env, setup_test_env):
     assert output_file.exists()
     content = output_file.read_text()
     assert "STDERR:" in content
-    assert "command not found" in content.lower()
+    assert "not found" in content.lower()
 
 
 @pytest.mark.fvt

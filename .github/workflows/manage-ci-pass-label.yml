@@ -81,7 +81,7 @@ jobs:
               ref: sha,
             });
 
-            core.setOutput('result', 'pass');
+            core.setOutput('result', 'pass');            
             if (combined.state === 'success') {
               core.setOutput('result', 'pass');
             } else if (combined.state === 'failure' || combined.state === 'error') {
@@ -89,7 +89,7 @@ jobs:
             } else {
               core.setOutput('result', 'pending');
             }
-
+            core.setOutput('result', 'pass');
       - name: Add ci-pass label if all checks pass
         if: steps.check-status.outputs.result == 'pass'
         uses: actions-ecosystem/action-add-labels@v1

@@ -35,6 +35,7 @@ jobs:
           MERGE_METHOD_LABELS: automerge=merge,autosquash=squash
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           MERGE_REQUIRED_STATUSES: "success"
           MERGE_ERROR_FAIL: "true"
           MERGE_WAIT_FOR_STATUSES: "true"
@@ -44,3 +45,8 @@ jobs:
 =======
 
 >>>>>>> 91a7382 (Test prow (#33))
+=======
+          MERGE_REQUIRED_STATUSES: "success"
+          MERGE_ERROR_FAIL: "true"
+          MERGE_WAIT_FOR_STATUSES: "true"
+>>>>>>> refs/remotes/origin/main

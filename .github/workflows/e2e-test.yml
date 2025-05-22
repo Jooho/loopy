@@ -2,24 +2,6 @@ name: E2E Tests(cluster/non-cluster)
 
 on:
   pull_request:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "default_provided_services/**"
-      - "hacks/**"
-      - ".github/**"
-      - "commons/**"
-      - "!sample_manifests/**"
-      - "!docs/**"
-      - "!.vscode/**"
-      - "!LICENSE"
-      - "!.prowlabels.yaml"
-      - "!Dockerfile"
-      - "!requirements.txt"
-      - "!README.md"
-      - "!.gitignore"
-
 env:
   TEST_ENV: ci
   KUBECONFIG: ${{ github.workspace }}/kubeconfig
@@ -34,6 +16,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Check changed files for cluster-test
+        run: |
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          if ! echo "$CHANGED_FILES" | grep -qE '^(src/|tests/|default_provided_services/|hacks/|.github/|commons/)'; then
+            echo "No relevant files changed for cluster-test. Skipping tests but marking success."
+            exit 0
+          fi
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -71,6 +65,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Check changed files for non-cluster-test
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...origin/${{ github.event.pull_request.head.ref }})
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          if ! echo "$CHANGED_FILES" | grep -qE '^(src/|tests/|default_provided_services/|hacks/|.github/|commons/)'; then
+            echo "No relevant files changed for cluster-test. Skipping tests but marking success."
+            exit 0
+          fi
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5

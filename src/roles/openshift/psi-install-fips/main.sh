@@ -38,7 +38,7 @@ result=?
 if [[ $result != "0" ]]; then
   error "Failed to install FIPS cluster"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE true
+  stop_when_error_happened $result $index_role_name $REPORT_FILE true
 fi
 
 # Read the file - it is downloaded by the install script
@@ -72,7 +72,7 @@ if [[ $result == 0 ]]; then
 else
   error "Openshift cluster login failed"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# OUTPUT #############

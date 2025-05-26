@@ -30,9 +30,23 @@ sys.path.append(src_dir)
 import commons.python.py_utils as py_utils
 from core.report_manager import LoopyReportManager
 
-ROLE_DIR = os.environ["ROLE_DIR"]
-REPORT_FILE = os.environ["REPORT_FILE"]
-LOOPY_RESULT_DIR = os.environ["LOOPY_RESULT_DIR"]
+ROLE_DIR = os.environ.get("ROLE_DIR")
+REPORT_FILE = os.environ.get("REPORT_FILE")
+LOOPY_RESULT_DIR = os.environ.get("LOOPY_RESULT_DIR")
+
+if not all([ROLE_DIR, REPORT_FILE, LOOPY_RESULT_DIR]):
+    missing = [
+        var
+        for var, val in [
+            ("ROLE_DIR", ROLE_DIR),
+            ("REPORT_FILE", REPORT_FILE),
+            ("LOOPY_RESULT_DIR", LOOPY_RESULT_DIR),
+        ]
+        if not val
+    ]
+    py_utils.error(f"Missing required environment variables: {missing}")
+    raise EnvironmentError(f"Missing required environment variables: {missing}")
+
 
 reportManager = LoopyReportManager(LOOPY_RESULT_DIR)
 reportManager.load_role_time()
@@ -145,7 +159,7 @@ for index, command in enumerate(commands_list):
                     # each_command_output_file.write(result.stderr)
                     each_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(
+                    py_utils.stop_when_error_happened(
                         temp_result, index_role_name, REPORT_FILE
                     )
 
@@ -163,7 +177,7 @@ for index, command in enumerate(commands_list):
                         all_command_output_file.write(rcresult["stderr"])
                     all_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(
+                    py_utils.stop_when_error_happened(
                         temp_result, index_role_name, REPORT_FILE
                     )
                 results.append(f"{index_role_name}::command::{index+1}::{temp_result}")

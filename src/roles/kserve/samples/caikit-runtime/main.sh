@@ -102,7 +102,7 @@ result=$?
 if [[ $result != "0" ]]; then
   result=1
   error "Fail to create the ServingRuntime"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 oc apply -f ${ROLE_DIR}/$(basename $inferenceservice_manifests) -n ${TEST_NAMESPACE}
@@ -110,7 +110,7 @@ result=$?
 if [[ $result != "0" ]]; then
   result=1
   error "Fail to create the InferenceService"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# VERIFY #############
@@ -130,7 +130,7 @@ if [[ $result == 0 ]]; then
   else
     result=1
     error "Caikit runtime is NOT running"
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 
   if [[ $result == "0" ]]; then
@@ -200,13 +200,13 @@ if [[ $result == 0 ]]; then
     else
       result=1
       error "Caikit runtime DID NOT return correct data"
-      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
     fi
   fi
 else
   result=1
   error "Skip api call test because Caikit runtime is NOT running"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# OUTPUT #############

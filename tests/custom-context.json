@@ -8,7 +8,7 @@
             "catalogsource_displayname": "custom catalogsource",
             "catalogsource_publisher": "custom catalogsource",
             "operator_version": "latest",
-            "operattor_group_create": "true",
+            "operator_group_create": "true",
             "config_env": "",
             "csv_delete": "true",
             "catalogsource_delete": "false"
@@ -101,7 +101,7 @@
         "default_roles_dir": "/home/jooho/temp/test-debug/loopy/src/roles",
         "default_units_dir": "/home/jooho/temp/test-debug/loopy/unofficial_components/units",
         "default_playbooks_dir": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks",
-        "default_vars_file": "commons/default-variables.yaml",
+        "default_vars_file": "src/commons/default-variables.yaml",
         "output_target_dir": "",
         "output_root_dir": "/tmp/ms_cli",
         "output_env_dir": "output",
@@ -192,10 +192,10 @@
         "cli_dir": "/home/jooho/temp/test-debug/loopy/src/cli",
         "logics_dir": "/home/jooho/temp/test-debug/loopy/src/cli/logics",
         "py_utils_dir": "/home/jooho/temp/test-debug/loopy/commons/python",
-        "loopy_result_dir": "/tmp/ms_cli/20250526_1303",
-        "output_dir": "/tmp/ms_cli/20250526_1303/output",
-        "artifacts_dir": "/tmp/ms_cli/20250526_1303/artifacts",
-        "report_file": "/tmp/ms_cli/20250526_1303/report",
+        "loopy_result_dir": "/tmp/ms_cli/20250526_1702",
+        "output_dir": "/tmp/ms_cli/20250526_1702/output",
+        "artifacts_dir": "/tmp/ms_cli/20250526_1702/artifacts",
+        "report_file": "/tmp/ms_cli/20250526_1702/report",
         "role_list": [
             {
                 "name": "cert-generate",

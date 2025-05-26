@@ -48,7 +48,7 @@ pvcSCExist=$?
 if [[ $pvcSCExist != 0 ]]; then
   result=1
   error "StorageClass(${PVC_STORAGECLASS_NAME} does not exist)"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE true
+  stop_when_error_happened $result $index_role_name $REPORT_FILE true
 fi
 pass "Checked the PVC StorageClass(${PVC_STORAGECLASS_NAME}) exist"
 
@@ -59,7 +59,7 @@ if [[ $nfsSCExsit == 0 ]]; then
   result=1
   error "[WARNING] StorageClass(${NFS_STORAGECLASS_NAME}) exist. Please remove this sc for proper installation"
   info "oc delete sc ${NFS_STORAGECLASS_NAME} --force --grace-period=0 --wait=true"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE true
+  stop_when_error_happened $result $index_role_name $REPORT_FILE true
 fi
 pass "Checked the nfs StorageClass does not exist"
 
@@ -94,7 +94,7 @@ else
   if [[ $csvNotInstalled == 1 ]]; then
     result=1
     error "CSV is NOT installed"
-    stop_when_error_happended $result $index_role_name $REPORT_FILE true
+    stop_when_error_happened $result $index_role_name $REPORT_FILE true
   fi
 fi
 

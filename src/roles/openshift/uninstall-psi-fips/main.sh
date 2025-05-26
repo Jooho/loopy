@@ -30,7 +30,7 @@ if [ ${CLUSTER_TYPE} = "FIPS" ]; then
   if [ "${EXTRA_PARAMS}" = "-h" ]; then
     ${current_dir}/scripts/uninstall.sh -h
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE true
+    stop_when_error_happened $result $index_role_name $REPORT_FILE true
 
   fi
 fi
@@ -46,7 +46,7 @@ if [[ $result_text == "SUCCESS" ]]; then
 else
   error "Failed to delete FIPS cluster(s): ${CLUSTER_NAME}"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# VERIFY #############

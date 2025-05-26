@@ -6,7 +6,7 @@ operator:
   catalogsource_displayname: custom catalogsource
   catalogsource_publisher: custom catalogsource
   operator_version: latest
-  operattor_group_create: "true"
+  operator_group_create: "true"
   config_env: ""
   csv_delete: "true"
   catalogsource_delete: "false"
@@ -56,7 +56,7 @@ minio:
   enable_console: "false"
   minio_region: "us-east-1"
   default_bucket_name: example-models
-  
+
 kserve:
   # caikit tgis runtime
   caikit_arch_type: caikit-tgis
@@ -88,9 +88,8 @@ cert:
   root_ca_key: ""
   cert_name: custom.crt
   key_name: custom.key
-  csr_name:  custom.csr
+  csr_name: custom.csr
   cn: custom
 
 modelmesh:
   test_namespace: "mm-test"
-

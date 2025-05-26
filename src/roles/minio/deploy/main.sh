@@ -54,7 +54,7 @@ if [[ ${enable_ssl} == "0" ]]; then
   if [[ ! -n ${ROOT_CA_CERT_FILE_PATH} || ! -n ${CERT_FILE_PATH} || ! -n ${KEY_FILE_PATH} ]]; then
     fail "Required values(ROOT_CA_CERT_FILE_PATH,CERT_FILE_PATH,KEY_FILE_PATH) are NOT provided."
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE true
+    stop_when_error_happened $result $index_role_name $REPORT_FILE true
   fi
   cp ${ROOT_CA_CERT_FILE_PATH} ${ROLE_DIR}/root.crt
   cp ${CERT_FILE_PATH} ${ROLE_DIR}/minio.crt
@@ -69,7 +69,7 @@ if [[ ${enable_ssl} == "0" ]]; then
 else
   error "We set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
   oc expose service minio --name=minio --port=minio-client-port
   oc expose service minio --name=minio-ui  --port=minio-ui-port 
 fi
@@ -88,7 +88,7 @@ if [[ $result == 0 ]]; then
 else
   error "MINIO is NOT running"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# OUTPUT #############

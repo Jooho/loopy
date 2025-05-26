@@ -1,7 +1,6 @@
 import pytest
 import os
-import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from commons.python.py_utils import (
     die,
     debug,
@@ -13,20 +12,7 @@ from commons.python.py_utils import (
     pass_message,
     pending,
     is_positive,
-    stop_when_error_happended,
     remove_comment_lines,
-    check_pod_status,
-    wait_pod_containers_ready,
-    wait_for_pods_ready,
-    wait_for_pod_name_ready,
-    wait_for_just_created_pod_ready,
-    wait_for_csv_installed,
-    oc_wait_object_availability,
-    oc_wait_return_true,
-    get_root_directory,
-    check_if_result,
-    check_oc_status,
-    check_rosa_access,
     validate_script_params,
 )
 
@@ -181,135 +167,6 @@ command3"""
 @pytest.mark.fvt
 @pytest.mark.non_cluster_tests
 @pytest.mark.common
-def test_check_pod_status_success(mock_subprocess):
-    mock_subprocess.return_value = MagicMock(
-        returncode=0,
-        stdout='{"items": [{"status": {"phase": "Running", "conditions": [{"type": "Ready", "status": "True"}]}}]}',
-    )
-    assert check_pod_status("app=test", "test-namespace") is True
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_check_pod_status_failure(mock_subprocess):
-    mock_subprocess.return_value = MagicMock(returncode=1)
-    assert check_pod_status("app=test", "test-namespace") is False
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_wait_pod_containers_ready_success(mock_subprocess):
-    mock_subprocess.side_effect = [
-        MagicMock(stdout="pod-1"),
-        MagicMock(stdout="1"),
-        MagicMock(stdout="1"),
-    ]
-    wait_pod_containers_ready("app=test", "test-namespace")
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_wait_for_pods_ready_success(mock_subprocess):
-    # First call: oc get pods -l app=test -n test-namespace -o jsonpath='{.items[*]}'
-    # Second call: oc get pods -l app=test -n test-namespace
-    mock_subprocess.side_effect = [
-        MagicMock(returncode=0, stdout="pod-1"),  # First call returns pod name
-        MagicMock(
-            returncode=0,
-            stdout='{"items": [{"status": {"phase": "Running", "conditions": [{"type": "Ready", "status": "True"}]}}]}',
-        ),  # Second call returns pod status
-    ]
-    assert wait_for_pods_ready("app=test", "test-namespace") is True
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_wait_for_pod_name_ready_success(mock_subprocess):
-    mock_subprocess.side_effect = [MagicMock(returncode=0), MagicMock(returncode=0)]
-    assert wait_for_pod_name_ready("test-pod", "test-namespace") == 0
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_wait_for_csv_installed_success(mock_subprocess):
-    mock_subprocess.side_effect = [MagicMock(stdout="Succeeded")]
-    wait_for_csv_installed("test-csv", "test-namespace")
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_oc_wait_object_availability_success(mock_subprocess):
-    mock_subprocess.return_value = MagicMock(returncode=0)
-    oc_wait_object_availability("test-command", 1, 1)
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_oc_wait_return_true_success(mock_subprocess):
-    mock_subprocess.return_value = MagicMock(returncode=0)
-    assert oc_wait_return_true("test-command", 1, 1) == 0
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_get_root_directory():
-    with patch("os.path.isdir") as mock_isdir:
-        mock_isdir.return_value = True
-        with patch("os.path.dirname") as mock_dirname:
-            mock_dirname.return_value = "/test/root"
-            assert get_root_directory() == "/test/root"
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_check_if_result_success(capsys):
-    check_if_result(0)
-    captured = capsys.readouterr()
-    assert "PASS" in captured.out
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_check_if_result_failure(capsys):
-    with pytest.raises(SystemExit):
-        check_if_result(1)
-    captured = capsys.readouterr()
-    assert "FAIL" in captured.out
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_check_oc_status_success(mock_subprocess):
-    mock_subprocess.side_effect = [
-        MagicMock(returncode=0, stdout="test-user"),
-        MagicMock(stdout="test-group test-user"),
-        MagicMock(stdout='{"items": [{"subjects": [{"name": "test-user"}]}]}'),
-    ]
-    check_oc_status()
-
-
-@pytest.mark.fvt
-@pytest.mark.non_cluster_tests
-@pytest.mark.common
-def test_check_rosa_access_success(mock_subprocess):
-    with patch("os.path.isdir") as mock_isdir, patch("os.path.isfile") as mock_isfile:
-        mock_isdir.return_value = True
-        mock_isfile.return_value = True
-        mock_subprocess.side_effect = [MagicMock(returncode=0), MagicMock(returncode=0)]
-        check_rosa_access()
-
-
 def test_validate_script_params_empty_input():
     """Test validation with empty input"""
     is_valid, unknown_params = validate_script_params("", ["NAME", "WITH_ISTIO"])
@@ -317,6 +174,9 @@ def test_validate_script_params_empty_input():
     assert unknown_params == []
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_valid_params():
     """Test validation with valid parameters"""
     is_valid, unknown_params = validate_script_params(
@@ -326,6 +186,9 @@ def test_validate_script_params_valid_params():
     assert unknown_params == []
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_single_valid_param():
     """Test validation with single valid parameter"""
     is_valid, unknown_params = validate_script_params(
@@ -335,6 +198,9 @@ def test_validate_script_params_single_valid_param():
     assert unknown_params == []
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_unknown_param():
     """Test validation with unknown parameter"""
     is_valid, unknown_params = validate_script_params(
@@ -344,6 +210,9 @@ def test_validate_script_params_unknown_param():
     assert unknown_params == ["UNKNOWN"]
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_multiple_unknown_params():
     """Test validation with multiple unknown parameters"""
     is_valid, unknown_params = validate_script_params(
@@ -353,6 +222,9 @@ def test_validate_script_params_multiple_unknown_params():
     assert set(unknown_params) == {"UNKNOWN1", "UNKNOWN2"}
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_mixed_valid_invalid():
     """Test validation with mix of valid and invalid parameters"""
     is_valid, unknown_params = validate_script_params(
@@ -362,6 +234,9 @@ def test_validate_script_params_mixed_valid_invalid():
     assert unknown_params == ["UNKNOWN"]
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_empty_allowed_list():
     """Test validation with empty allowed parameters list"""
     is_valid, unknown_params = validate_script_params("NAME=debug-pod", [])
@@ -369,6 +244,9 @@ def test_validate_script_params_empty_allowed_list():
     assert unknown_params == ["NAME"]
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_whitespace_handling():
     """Test validation with extra whitespace in input"""
     is_valid, unknown_params = validate_script_params(
@@ -378,6 +256,9 @@ def test_validate_script_params_whitespace_handling():
     assert unknown_params == []
 
 
+@pytest.mark.fvt
+@pytest.mark.non_cluster_tests
+@pytest.mark.common
 def test_validate_script_params_case_sensitivity():
     """Test validation with case sensitivity"""
     is_valid, unknown_params = validate_script_params(

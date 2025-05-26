@@ -4,7 +4,6 @@ import os
 import subprocess
 import json
 import time
-from typing import Dict, Tuple
 
 # Define colors using ANSI escape codes
 colors = {
@@ -108,7 +107,7 @@ def is_positive(input_string):
         )
 
 
-def stop_when_error_happended(
+def stop_when_error_happened(
     result, index_role_name, report_file, input_should_stop=False
 ):
     if result != "0":
@@ -271,28 +270,69 @@ def wait_for_pods_ready(pod_selector, pod_namespace):
             return False
 
 
-def wait_for_pod_name_ready(pod_name, pod_namespace):
-    """Wait for specific pod to be ready"""
+def wait_for_pod_name_ready(pod_name: str, pod_namespace: str) -> int:
+    """
+    Wait for specific pod to be ready using Kubernetes API
+
+    Args:
+        pod_name (str): Name of the pod to wait for
+        pod_namespace (str): Namespace where the pod is located
+
+    Returns:
+        int: 0 if pod is ready, 1 if there was an error or timeout
+    """
     try:
-        result = subprocess.run("oc status", shell=True, capture_output=True)
-        if result.returncode != 0:
-            error("Cluster is not accessible")
+        from kubernetes import client, config
+        from kubernetes.client.rest import ApiException
+        import time
+
+        # Load kube config
+        try:
+            config.load_kube_config()
+        except Exception as e:
+            error(f"Failed to load kube config: {e}")
             return 1
+
+        # Create API client
+        v1 = client.CoreV1Api()
 
         info(f"Waiting for pod {pod_name}")
-        result = subprocess.run(
-            f"oc wait --for=condition=ready pod/{pod_name} -n {pod_namespace} --timeout=300s",
-            shell=True,
-        )
+        start_time = time.time()
+        timeout = 300  # 5 minutes timeout
 
-        if result.returncode == 0:
-            pass_message(
-                f"The pod({pod_name}) in '{pod_namespace}' namespace are running and ready."
-            )
-            return 0
-        else:
-            error(f"Timed out after 300s waiting for pod({pod_name})")
-            return 1
+        while time.time() - start_time < timeout:
+            try:
+                # Get pod status
+                pod = v1.read_namespaced_pod(pod_name, pod_namespace)
+
+                # Check if pod is ready
+                if pod.status.phase == "Running":
+                    # Check all container statuses
+                    all_ready = True
+                    for container in pod.status.container_statuses:
+                        if not container.ready:
+                            all_ready = False
+                            break
+
+                    if all_ready:
+                        pass_message(
+                            f"The pod({pod_name}) in '{pod_namespace}' namespace is running and ready."
+                        )
+                        return 0
+
+                time.sleep(1)  # Wait 1 second before next check
+
+            except ApiException as e:
+                if e.status == 404:
+                    # Pod not found yet, continue waiting
+                    time.sleep(1)
+                    continue
+                else:
+                    error(f"Error checking pod status: {e}")
+                    return 1
+
+        error(f"Timed out after {timeout}s waiting for pod({pod_name})")
+        return 1
 
     except Exception as e:
         error(f"Error waiting for pod: {e}")

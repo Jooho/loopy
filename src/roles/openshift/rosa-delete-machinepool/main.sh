@@ -37,7 +37,7 @@ rosa delete machinepool --cluster=$CLUSTER_NAME $MACHINE_POOL_NAME -y
 result=$?
 if [[ $result != "0" ]]; then
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
   error "ROSA failed to delete the machinepool($MACHINE_POOL_NAME)"
 fi
 
@@ -60,7 +60,7 @@ while true; do
   # Check if the retry count has exceeded the maximum limit
   if ((RETRY_COUNT >= MAX_RETRIES)); then
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
     break
   fi
 

@@ -56,13 +56,13 @@ else
   if [[ ${ROOT_CA_KEY} == "" ]]; then
     result=1
     error "ROOT_CA_CERT is set but ROOT_CA_KEY is NOT set."
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
   if [[ ! -f ${ROOT_CA_CERT} ]] || [[ ! -f ${ROOT_CA_KEY} ]]; then
     result=1
     error "ROOT_CA_CERT or ROOT_CA_KEY file does not exist"
     error "ROOT_CA_CERT: ${ROOT_CA_CERT}, ROOT_CA_KEY: ${ROOT_CA_KEY}"
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 
   cp ${ROOT_CA_CERT} ${ROLE_DIR}/${ROOT_CA_CERT_NAME}
@@ -78,7 +78,7 @@ result=$?
 if [[ $result != "0" ]]; then
   result=1
   error "openssl verify failed"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 info "Create server certificate($CERT_NAME)"
@@ -89,7 +89,7 @@ result=$?
 if [[ $result != "0" ]]; then
   result=1
   error "Failed to create server certificate($CERT_NAME)"
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# VERIFY #############
@@ -104,7 +104,7 @@ result=$?
 
 if [[ $result != "0" ]]; then
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
   error "openssl verify failed"
 fi
 

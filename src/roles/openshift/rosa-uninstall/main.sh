@@ -51,7 +51,7 @@ if [[ $result != "0" ]]; then
   else
     error "ROSA failed to delete a cluster"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 
@@ -81,7 +81,7 @@ if [[ $already_deleted != 0 ]]; then
       error "Cluster status: $STATUS."
       result=1
       rosa describe cluster -c "$CLUSTER_NAME" --output json
-      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
       break # Exit the loop as the cluster log show error
       ;;
     "")
@@ -126,7 +126,7 @@ while true; do
   if ((RETRY_COUNT >= MAX_RETRIES)); then
     error "Cluster($CLUSTER_NAME) is still in the cluster list."
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
     break
   fi
 

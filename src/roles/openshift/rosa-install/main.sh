@@ -40,7 +40,7 @@ if [[ $result != "0" ]]; then
   error "ROSA failed to create a cluster"
   result=1
   failed_to_create_cluster=0
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 else
   info "The ROSA cluster has been created. Please wait until it's ready!"
 fi
@@ -74,7 +74,7 @@ if [[ $failed_to_create_cluster != 0 ]]; then
       error "Cluster status: $STATUS."
       rosa describe cluster -c "$CLUSTER_NAME" --output json
       result=1
-      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
       ;;
     *)
       info "Cluster status: $STATUS. Waiting for it to become ready..."
@@ -84,7 +84,7 @@ if [[ $failed_to_create_cluster != 0 ]]; then
     if ((RETRY_COUNT >= MAX_RETRIES)); then
       error "Cluster failed to be created after $MAX_RETRIES attempts."
       result=1
-      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
     fi
 
     sleep $RETRY_INTERVAL
@@ -95,7 +95,7 @@ if [[ $failed_to_create_cluster != 0 ]]; then
   if [[ $? != 0 ]]; then
     error "Failed to create a default user"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 
   info "add cluster-admin role to the user($OCP_ADMIN_ID)"
@@ -103,7 +103,7 @@ if [[ $failed_to_create_cluster != 0 ]]; then
   if [[ $? != 0 ]]; then
     error "Failed to grant cluster-admin role to the default user"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
   sleep 10
   IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
@@ -112,7 +112,7 @@ if [[ $failed_to_create_cluster != 0 ]]; then
     error "Openshift cluster user failed to be added"
     rosa list users --cluster=$CLUSTER_NAME
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   else
     success "The OpenShift cluster-admin user has been successfully added."
   fi

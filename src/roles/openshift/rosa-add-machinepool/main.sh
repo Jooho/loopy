@@ -38,7 +38,7 @@ result=$?
 if [[ $result != "0" ]]; then
   fail "ROSA failed to add a new machinepool"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE true
+  stop_when_error_happened $result $index_role_name $REPORT_FILE true
 fi
 
 ############# VERIFY #############
@@ -64,7 +64,7 @@ if [[ $result == "0" ]]; then
     if ((RETRY_COUNT >= MAX_RETRIES)); then
       error "The new machinepool($MACHINE_POOL_NAME) is added but it did NOT become READY within the given time."
       result=1
-      stop_when_error_happended $result $index_role_name $REPORT_FILE
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
       break
     fi
 

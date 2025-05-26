@@ -1,7 +1,7 @@
 import pytest
 import subprocess
 import os
-import time
+import commons.python.py_utils as py_utils
 
 
 @pytest.mark.e2e
@@ -65,7 +65,7 @@ def test_debug_pod_with_istio():
     assert result.returncode == 0
 
     # Wait for pod to be ready
-    time.sleep(5)
+    assert py_utils.wait_for_pod_name_ready("debug-pod-istio", "default") == 0
 
     # Verify pod was created with istio sidecar
     pod_check = subprocess.run(

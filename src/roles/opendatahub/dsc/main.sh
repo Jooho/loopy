@@ -170,7 +170,7 @@ if [[ ${ENABLE_KSERVE_KNATIVE} == "Managed" ]] && [[ ${ENABLE_KSERVE} == "Manage
   else
     error "Failed to deploy KNative pods"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 
@@ -189,7 +189,7 @@ if [[ ${ENABLE_KSERVE} == "Managed" ]]; then
     error "KServe: ${kserve_result}/ odh-model-controller: ${odh_model_controller_result}"
     error "Failed to deploy KServe operator!"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 
@@ -208,7 +208,7 @@ if [[ ${ENABLE_MODELMESH} == "Managed" ]]; then
     error "KServe: ${kserve_result}/ odh-model-controller: ${odh_model_controller_result}"
     error "Failed to deploy ModelMesh operator!"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 
@@ -227,7 +227,7 @@ if [[ ${ENABLE_DASHBOARD} == "Managed" ]]; then
   else
     error "Failed to deploy Dashboard!"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 

@@ -32,20 +32,20 @@ cleanup() {
 execute() {
     local pod_name=$1
     local with_istio=$2
-    # Build the base kubectl run command
-    local base_cmd="kubectl run ${pod_name} --image=registry.access.redhat.com/rhel7/rhel-tools"
-    local cmd="${base_cmd}"
-
-    # Add istio sidecar if requested
+    
+    # Build command as array
+    local cmd_args=("kubectl" "run" "${pod_name}" "--image=registry.access.redhat.com/rhel7/rhel-tools")
+    
+    # Add Istio annotation if requested
     if [ "${with_istio}" = "true" ]; then
-        cmd="${cmd} --annotations=sidecar.istio.io/inject=\"true\""
+        cmd_args+=("--annotations=sidecar.istio.io/inject=true")
     fi
-
-    # Add the command to keep container running
-    cmd="${cmd} -- tail -f /dev/null"
-
+    
+    # Add command to keep container running
+    cmd_args+=("--" "tail" "-f" "/dev/null")
+    
     # Execute the command
-    eval ${cmd}
+    "${cmd_args[@]}"
 }
 
 # Main execution

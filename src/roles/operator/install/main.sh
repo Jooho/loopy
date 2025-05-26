@@ -48,7 +48,7 @@ if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] && [[ z${USE_KIND} == z ]]
   if [[ $result != 0 ]]; then
     error "Failed to create the project($OPERATOR_NAMESPACE)"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
   oc project $OPERATOR_NAMESPACE
   
@@ -100,7 +100,7 @@ else
   if [[ -z ${CATALOGSOURCE_IMAGE} ]]; then
     error "catalogsource image is required. please provide it"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 
   sed -e \
@@ -116,7 +116,7 @@ else
   if [[ $result != 0 ]]; then
     error "It failed to apply the catalogsource(${ROLE_DIR}/$(basename $catalogsource_manifests_path) "
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 
@@ -127,7 +127,7 @@ result=$?
 if [[ $result != 0 ]]; then
   error "Failed to create the subscription(${ROLE_DIR}/$(basename $subs_manifests_path)"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 if [[ $INSTALL_APPROVAL == "Manual" ]]; then
@@ -141,7 +141,7 @@ if [[ $INSTALL_APPROVAL == "Manual" ]]; then
   if [[ $result != "0" ]]; then
     error "Failed to patch installplan"
     result=1
-    stop_when_error_happended $result $index_role_name $REPORT_FILE
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
   fi
 fi
 

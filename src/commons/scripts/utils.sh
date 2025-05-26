@@ -440,7 +440,7 @@ function check_rosa_access() {
   success "All checks passed!"
 }
 
-function stop_when_error_happended {
+function stop_when_error_happened {
   local result=$1
   local index_role_name=$2
   local report_file=$3

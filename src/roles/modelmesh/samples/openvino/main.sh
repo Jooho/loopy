@@ -66,7 +66,7 @@ result=?
 if [[ $result != "0" ]]; then
   error "Failed to create ServingRuntime"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 debug "oc apply -f ${ROLE_DIR}/$(basename $data_connection_secret_manifests_path) -n ${TEST_NAMESPACE}"
@@ -75,7 +75,7 @@ result=?
 if [[ $result != "0" ]]; then
   error "Failed to create a DataConnection"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 debug "oc apply -f ${ROLE_DIR}/$(basename $onnx_mnist_isvc_manifests_path) -n ${TEST_NAMESPACE}"
@@ -84,7 +84,7 @@ result=?
 if [[ $result != "0" ]]; then
   error "Failed to create InferenceService"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 ############# VERIFY #############
@@ -100,7 +100,7 @@ if [[ $temp_result == "0" ]]; then
 else
   error "ModelMesh Openvino runtime is NOT running"
   result=1
-  stop_when_error_happended $result $index_role_name $REPORT_FILE
+  stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
 
 if [[ $result == "0" ]]; then

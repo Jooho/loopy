@@ -29,7 +29,7 @@ with open(target_common_file_path, "r") as common_file:
 common_content = "\n".join([line for line in common_content.split("\n") if line.strip() != ""])
 
 # Set role directory
-target_directory = f"{root_directory}/default_provided_services/roles"
+target_directory = f"{root_directory}/src/roles"
 
 def update_script(file_path):
     with open(file_path, "r") as script_file:

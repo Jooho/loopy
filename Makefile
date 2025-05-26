@@ -32,9 +32,6 @@ fvt:
 	pytest -c "${PYTEST_CONFIG}" -n 1 -m fvt
 	
 
-print-paths:
-	@echo "Current directory (make 실행 위치): $(CURDIR)"
-
 .PHONY: e2e 
 e2e: download-cli-for-ci	
 	export PATH="$(CURDIR)/bin:$(PATH)" ;\
@@ -49,7 +46,7 @@ update-test-data:
 
 .PHONY: py-lint
 py-lint:
-	black ./src ./tests ./default_provided_services/roles/shell
+	black ./src ./tests 
 
 .PHONY: precommit
 precommit: py-lint fvt 

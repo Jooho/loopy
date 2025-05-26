@@ -200,7 +200,11 @@ def test_check_pod_status_failure(mock_subprocess):
 @pytest.mark.non_cluster_tests
 @pytest.mark.common
 def test_wait_pod_containers_ready_success(mock_subprocess):
-    mock_subprocess.side_effect = [MagicMock(stdout="pod-1"), MagicMock(stdout="1"), MagicMock(stdout="1")]
+    mock_subprocess.side_effect = [
+        MagicMock(stdout="pod-1"),
+        MagicMock(stdout="1"),
+        MagicMock(stdout="1"),
+    ]
     wait_pod_containers_ready("app=test", "test-namespace")
 
 

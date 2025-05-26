@@ -2,7 +2,7 @@ import os
 from colorama import Fore, Style
 from core.report_manager import LoopyReportManager
 from prettytable import PrettyTable
-from cli.commands import constants
+from src import constants
 
 
 def summary(ctx):

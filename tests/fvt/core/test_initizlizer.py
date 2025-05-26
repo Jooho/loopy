@@ -88,7 +88,7 @@ def test_initialize_list_role(mock_env_and_config):
     # Test Data
     env_list, config_data, default_vars = mock_env_and_config
     config_data["default_roles_dir"] = os.path.join(
-        env_list["loopy_root_path"], "default_provided_services", "roles"
+        env_list["loopy_root_path"], "src", "roles"
     )
     config_data["default_units_dir"] = os.path.join(
         env_list["loopy_root_path"], "default_provided_services", "units"
@@ -118,12 +118,12 @@ def test_initialize_list_role(mock_env_and_config):
 
         # It is double because it checks additional role dir as well.
         expected_list = [
-            {"name": "test", "path": "/mock/loopy/default_provided_services/roles/foo"},
-            {"name": "test", "path": "/mock/loopy/default_provided_services/roles/bar"},
+            {"name": "test", "path": "/mock/loopy/src/roles/foo"},
+            {"name": "test", "path": "/mock/loopy/src/roles/bar"},
             {"name": "test", "path": "/mock/custom/role_dir/foo_2"},
             {"name": "test", "path": "/mock/custom/role_dir/bar_2"},
-            {"name": "test", "path": "/mock/loopy/default_provided_services/roles/foo"},
-            {"name": "test", "path": "/mock/loopy/default_provided_services/roles/bar"},
+            {"name": "test", "path": "/mock/loopy/src/roles/foo"},
+            {"name": "test", "path": "/mock/loopy/src/roles/bar"},
             {"name": "test", "path": "/mock/custom/role_dir/foo_2"},
             {"name": "test", "path": "/mock/custom/role_dir/bar_2"},
         ]

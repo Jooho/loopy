@@ -14,4 +14,4 @@ def role_name():
 @pytest.fixture()
 def role_dir():
     """Fixture providing the path to the shell/execute role directory"""
-    return Path("default_provided_services/roles/shell/execute")
+    return Path("src/roles/shell/execute")

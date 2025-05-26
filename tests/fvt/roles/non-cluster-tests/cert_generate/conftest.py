@@ -12,7 +12,7 @@ def role_name():
 @pytest.fixture()
 def role_dir():
     """Fixture providing the path to the cert/generate role directory"""
-    return Path("default_provided_services/roles/cert/generate")
+    return Path("src/roles/cert/generate")
 
 
 @pytest.fixture()

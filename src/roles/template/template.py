@@ -4,6 +4,7 @@ import os
 import sys
 import yaml
 
+
 def find_root_directory(cur_dir):
     while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
         cur_dir = os.path.dirname(cur_dir)
@@ -47,7 +48,7 @@ role_name = config_data.get("role", {}).get("name", "")
 ############# Update role time ##############
 start_time = reportManager.role_time_dict["start_time"]
 end_time = reportManager.role_time_dict["end_time"]
-    
+
 start_time.append(time.time())
 end_time.append(time.time())
 reportManager.update_role_time("start_time", start_time)
@@ -56,7 +57,7 @@ reportManager.update_role_time("end_time", end_time)
 ############# Update command output ##############
 with open(f"{ROLE_DIR}/artifacts.txt", "w") as each_command_output_file:
     temp_result = 0
-    each_command_output_file.write(f"######## YOUR ROLE #######\n")    
+    each_command_output_file.write(f"######## YOUR ROLE #######\n")
 
 
 ############# VERIFY #############
@@ -64,7 +65,9 @@ with open(f"{ROLE_DIR}/artifacts.txt", "w") as each_command_output_file:
 
 ############# OUTPUT #############
 with open(os.environ["OUTPUT_ENV_FILE"], "a") as output_file:
-    output_file.write(f"MINIO_S3_SVC_URL=http://minio.{os.environ['MINIO_NAMESPACE']}.svc.cluster.local:9000\n")
+    output_file.write(
+        f"MINIO_S3_SVC_URL=http://minio.{os.environ['MINIO_NAMESPACE']}.svc.cluster.local:9000\n"
+    )
 
 
 ############# REPORT #############

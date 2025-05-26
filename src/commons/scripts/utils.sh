@@ -466,3 +466,48 @@ function stop_when_error_happended {
     fi
   fi
 }
+
+# Function to validate parameters
+validate_script_params() {
+    # Get parameters from LOOPY_DEV_PARAMS environment variable
+    local params_str=${LOOPY_DEV_PARAMS:-""}
+    local allowed_params=("$@")
+    
+    # Parse params_str into array
+    local params=()
+    if [[ -n "$params_str" ]]; then
+        IFS=' ' read -ra param_pairs <<< "$params_str"
+        for param_pair in "${param_pairs[@]}"; do
+            if [[ -n "$param_pair" ]]; then
+                param_name="${param_pair%%=*}"
+                params+=("$param_name")
+            fi
+        done
+    fi
+
+    # Check for unknown parameters
+    local unknown_params=()
+    for param in "${params[@]}"; do
+        local is_allowed=false
+        for allowed in "${allowed_params[@]}"; do
+            if [ "$param" = "$allowed" ]; then
+                is_allowed=true
+                break
+            fi
+        done
+        
+        if [ "$is_allowed" = "false" ]; then
+            unknown_params+=("$param")
+        fi
+    done
+
+    # If there are unknown parameters, show error and exit
+    if [ ${#unknown_params[@]} -gt 0 ]; then
+        echo "Error: Unknown parameters detected: ${unknown_params[*]}"
+        echo "Available parameters:"
+        printf "  %s\n" "${allowed_params[@]}"
+        return 1
+    fi
+    
+    return 0
+} 

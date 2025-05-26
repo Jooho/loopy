@@ -4,6 +4,7 @@ import os
 import sys
 import yaml
 
+
 def find_root_directory(cur_dir):
     while not os.path.isdir(os.path.join(cur_dir, ".git")) and cur_dir != "/":
         cur_dir = os.path.dirname(cur_dir)
@@ -127,7 +128,9 @@ for index, command in enumerate(commands_list):
             reportManager.update_role_time("start_time", start_time)
             reportManager.update_role_time("end_time", end_time)
 
-            with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
+            with open(
+                f"{ROLE_DIR}/{index}-command.txt", "w"
+            ) as each_command_output_file:
                 temp_result = 0
                 each_command_output_file.write(f"######## {index} command #######\n")
                 each_command_output_file.write(f"COMMAND: {command}\n")
@@ -142,7 +145,9 @@ for index, command in enumerate(commands_list):
                     # each_command_output_file.write(result.stderr)
                     each_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
+                    py_utils.stop_when_error_happended(
+                        temp_result, index_role_name, REPORT_FILE
+                    )
 
             with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
                 temp_result = 0
@@ -158,7 +163,9 @@ for index, command in enumerate(commands_list):
                         all_command_output_file.write(rcresult["stderr"])
                     all_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happended(temp_result, index_role_name, REPORT_FILE)
+                    py_utils.stop_when_error_happended(
+                        temp_result, index_role_name, REPORT_FILE
+                    )
                 results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
 
         except Exception as e:

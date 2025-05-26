@@ -27,6 +27,7 @@ from commons.python.py_utils import (
     check_if_result,
     check_oc_status,
     check_rosa_access,
+    validate_script_params,
 )
 
 
@@ -307,3 +308,80 @@ def test_check_rosa_access_success(mock_subprocess):
         mock_isfile.return_value = True
         mock_subprocess.side_effect = [MagicMock(returncode=0), MagicMock(returncode=0)]
         check_rosa_access()
+
+
+def test_validate_script_params_empty_input():
+    """Test validation with empty input"""
+    is_valid, unknown_params = validate_script_params("", ["NAME", "WITH_ISTIO"])
+    assert is_valid is True
+    assert unknown_params == []
+
+
+def test_validate_script_params_valid_params():
+    """Test validation with valid parameters"""
+    is_valid, unknown_params = validate_script_params(
+        "NAME=debug-pod WITH_ISTIO=true", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is True
+    assert unknown_params == []
+
+
+def test_validate_script_params_single_valid_param():
+    """Test validation with single valid parameter"""
+    is_valid, unknown_params = validate_script_params(
+        "NAME=debug-pod", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is True
+    assert unknown_params == []
+
+
+def test_validate_script_params_unknown_param():
+    """Test validation with unknown parameter"""
+    is_valid, unknown_params = validate_script_params(
+        "NAME=debug-pod UNKNOWN=value", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is False
+    assert unknown_params == ["UNKNOWN"]
+
+
+def test_validate_script_params_multiple_unknown_params():
+    """Test validation with multiple unknown parameters"""
+    is_valid, unknown_params = validate_script_params(
+        "NAME=debug-pod UNKNOWN1=value UNKNOWN2=value", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is False
+    assert set(unknown_params) == {"UNKNOWN1", "UNKNOWN2"}
+
+
+def test_validate_script_params_mixed_valid_invalid():
+    """Test validation with mix of valid and invalid parameters"""
+    is_valid, unknown_params = validate_script_params(
+        "NAME=debug-pod WITH_ISTIO=true UNKNOWN=value", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is False
+    assert unknown_params == ["UNKNOWN"]
+
+
+def test_validate_script_params_empty_allowed_list():
+    """Test validation with empty allowed parameters list"""
+    is_valid, unknown_params = validate_script_params("NAME=debug-pod", [])
+    assert is_valid is False
+    assert unknown_params == ["NAME"]
+
+
+def test_validate_script_params_whitespace_handling():
+    """Test validation with extra whitespace in input"""
+    is_valid, unknown_params = validate_script_params(
+        "  NAME=debug-pod   WITH_ISTIO=true  ", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is True
+    assert unknown_params == []
+
+
+def test_validate_script_params_case_sensitivity():
+    """Test validation with case sensitivity"""
+    is_valid, unknown_params = validate_script_params(
+        "name=debug-pod", ["NAME", "WITH_ISTIO"]
+    )
+    assert is_valid is False
+    assert unknown_params == ["name"]

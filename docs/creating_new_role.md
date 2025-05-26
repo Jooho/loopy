@@ -77,9 +77,9 @@ src/roles/
 ## Testing Requirements
 
 Every role must include pytest-based unit tests
-  
 
 1. **If it needs cluster**
+
    - If your role requires a cluster environment for testing:
      - Use `tests/e2e/roles/cluster-tests` for cluster-based tests
      - Reference the `minio-deploy` folder structure as a template
@@ -90,7 +90,6 @@ Every role must include pytest-based unit tests
      - Use `tests/e2e/roles/non-cluster-tests` for non-cluster-based tests
      - Reference the `cert_generate` folder structure as a template
      - Ensure tests can run in a cluster environment
-
 
 ## Example
 

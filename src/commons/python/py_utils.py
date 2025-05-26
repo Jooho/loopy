@@ -4,6 +4,7 @@ import os
 import subprocess
 import json
 import time
+from typing import Dict, Tuple
 
 # Define colors using ANSI escape codes
 colors = {
@@ -314,7 +315,9 @@ def wait_for_just_created_pod_ready(namespace):
             created_pod_name = result.stdout.strip()
 
             if wait_counter >= 12:
-                subprocess.run(f"oc get pods {pod_name} -n {namespace}", shell=True)
+                subprocess.run(
+                    f"oc get pods {created_pod_name} -n {namespace}", shell=True
+                )
                 sys.exit(1)
 
             pending(f"No pods created in {namespace}. Pods may not be up yet.")
@@ -531,3 +534,38 @@ def check_rosa_access():
     except Exception as e:
         error(f"Error checking ROSA access: {e}")
         sys.exit(1)
+
+
+def validate_script_params(
+    params_str: str, allowed_params: list[str]
+) -> tuple[bool, list[str]]:
+    """
+    Validate script parameters against a list of allowed parameters.
+
+    Args:
+        params_str (str): Space-separated string of parameter pairs (e.g., "NAME=value WITH_ISTIO=true")
+        allowed_params (list[str]): List of allowed parameter names
+
+    Returns:
+        tuple[bool, list[str]]: (is_valid, unknown_params)
+            - is_valid: True if all parameters are allowed, False otherwise
+            - unknown_params: List of unknown parameters found
+    """
+    # Parse params_str into list of parameter names
+    params = []
+    if params_str:
+        param_pairs = params_str.split()
+        for param_pair in param_pairs:
+            if param_pair:
+                param_name = param_pair.split("=")[0]
+                params.append(param_name)
+
+    # Check for unknown parameters
+    unknown_params = []
+    for param in params:
+        if param not in allowed_params:
+            unknown_params.append(param)
+
+    # Return validation result
+    is_valid = len(unknown_params) == 0
+    return is_valid, unknown_params

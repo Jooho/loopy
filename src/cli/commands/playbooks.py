@@ -3,7 +3,7 @@ import click
 import yaml
 import logging
 from cli.commands import utils
-from src import constants
+import constants
 from cli.commands import loopy_report
 from cli.logics.component import (
     Role,

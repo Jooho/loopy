@@ -6,5 +6,5 @@ schema:
 
 # Add default components paths
 default_roles_dir: src/roles
-default_units_dir: ${DEFAULT_PROVIDED_SERVICES}/units
-default_playbooks_dir: ${DEFAULT_PROVIDED_SERVICES}/playbooks
+default_units_dir: ${UNOFFICIAL_COMPONENTS}/units
+default_playbooks_dir: ${UNOFFICIAL_COMPONENTS}/playbooks

@@ -3,7 +3,7 @@ import os
 import click
 import logging
 from cli.commands import utils
-from src import constants
+import constants
 from cli.commands import loopy_report
 from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys
 from colorama import Fore, Style

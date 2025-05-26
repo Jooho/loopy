@@ -9,6 +9,7 @@ from jsonschema import Draft7Validator
 from cli.commands import utils
 import logging
 from core.report_manager import LoopyReportManager
+import constants
 
 # from core.context import LoopyContextBuilder
 from colorama import Fore, Style
@@ -114,14 +115,12 @@ class Initializer:
         }
 
         # Add default components paths
-        self.config_data["default_roles_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/roles"
-        )
+        self.config_data["default_roles_dir"] = f"{self.loopy_root_path}/src/roles"
         self.config_data["default_units_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/units"
+            f"{self.loopy_root_path}/{constants.UNOFFICIAL_COMPONENTS}/units"
         )
         self.config_data["default_playbooks_dir"] = (
-            f"{self.loopy_root_path}/default_provided_services/playbooks"
+            f"{self.loopy_root_path}/{constants.UNOFFICIAL_COMPONENTS}/playbooks"
         )
 
         # Initialize the list of components

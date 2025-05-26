@@ -32,7 +32,7 @@ def copied_config_files():
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
             updated_default_vars_path = os.path.join(
-                tmpdir, "commons", "default-variables.yaml"
+                tmpdir, "src", "commons", "default-variables.yaml"
             )
 
             # Ensure the 'commons' directory exists in the temp directory

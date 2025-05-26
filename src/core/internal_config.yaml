@@ -4,9 +4,7 @@ schema:
   unit: src/schema/unit.yaml
   playbook: src/schema/playbook.yaml
 
-
 # Add default components paths
-default_roles_dir: default_provided_services/roles
-default_units_dir: default_provided_services/units
-default_playbooks_dir: default_provided_services/playbooks
-    
+default_roles_dir: src/roles
+default_units_dir: ${UNOFFICIAL_COMPONENTS}/units
+default_playbooks_dir: ${UNOFFICIAL_COMPONENTS}/playbooks

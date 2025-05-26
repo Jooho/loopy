@@ -3,5 +3,5 @@
 ROOT_PATH="${LOOPY_ROOT_PATH:-$(pwd)}"
 
 pushd "$ROOT_PATH" > /dev/null
-PYTHONPATH=src python loopy.py "$@"
+PYTHONPATH=.:src python ./cmd/loopy.py "$@"
 popd > /dev/null

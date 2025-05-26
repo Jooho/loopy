@@ -24,7 +24,9 @@ def custom_context():
 def copied_config_files():
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # loopy/
     config_path = os.path.join(base_dir, "config.yaml")
-    default_vars_path = os.path.join(base_dir, "commons", "default-variables.yaml")
+    default_vars_path = os.path.join(
+        base_dir, "src", "commons", "default-variables.yaml"
+    )
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_config_path = os.path.join(tmpdir, "config.yaml")
@@ -39,7 +41,7 @@ def copied_config_files():
         if default_vars_file:
             # Update the path of the default_vars_file to the temporary directory
             updated_default_vars_path = os.path.join(
-                tmpdir, "commons", "default-variables.yaml"
+                tmpdir, "src", "commons", "default-variables.yaml"
             )
 
             # Ensure the 'commons' directory exists in the temp directory

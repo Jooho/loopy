@@ -1,0 +1,95 @@
+operator:
+  channel: stable
+  install_approval: Automatic
+  catalogsource_name: community-operators
+  catalogsource_namespace: openshift-marketplace
+  catalogsource_displayname: custom catalogsource
+  catalogsource_publisher: custom catalogsource
+  operator_version: latest
+  operator_group_create: "true"
+  config_env: ""
+  csv_delete: "true"
+  catalogsource_delete: "false"
+
+openshift:
+  # install
+  cluster_type: psi
+  cluster_name: serving-fips
+  machine_pool_type: m5.2xlarge
+  product_type: ODH
+
+opendatahub:
+  opendatahub_type: rhoai
+  datasciencecluster_name: rhoai
+  enable_codeflare: Removed
+  enable_dashboard: Removed
+  custom_dashboard_manifiests: ""
+  enable_datasciencepipelines: Removed
+  enable_kserve: Managed
+  custom_kserve_manifiests: ""
+  custom_odh_model_controller_manifiests: ""
+  enable_kserve_knative: Managed
+  enable_modelmesh: Removed
+  enable_ray: Removed
+  enable_trustyai: Removed
+  enable_workbenches: Removed
+  enable_trainingoperator: Removed
+  enable_kueue: Removed
+  enable_modelregistry: Removed
+  custom_modelmesh_manifiests: ""
+
+  dsci_name: default-dsci
+  istio_namespace: istio-system
+  monitoring_namespace: redhat-ods-monitoring
+  application_namespace: redhat-ods-applications
+  enable_trustedCAbundle: Managed
+  enable_monitoring: Managed
+  enable_servicemesh: Managed
+  default_deploymentmode: Serverless
+
+minio:
+  minio_namespace: minio
+  access_key_id: admin
+  secret_access_key: password
+  minio_image: quay.io/jooholee/model-minio:latest
+  enable_ssl: "false"
+  enable_console: "false"
+  minio_region: "us-east-1"
+  default_bucket_name: example-models
+
+kserve:
+  # caikit tgis runtime
+  caikit_arch_type: caikit-tgis
+  protocol: rest
+  isvc_storage_path_type: storage
+  isvc_deployment_mode: Serverless
+  test_namespace: kserve-demo
+  storage_config_type: json
+  default_bucket_name: example-models
+  minio_region: "us-east-1"
+  use_data_connection: "true"
+  # pipeline
+  git_url: https://github.com/JooHo/loopy.git
+  git_revision: main
+  working_namespace: pipeline-test
+  python_image: registry.redhat.io/ubi9/python-39:latest
+  oc_image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+  isvc_deployment_verbose: "true"
+  keep_namespace: "true"
+  minio_access_key_id: admin
+  minio_secret_access_key: password
+  # notebook
+  use_minio: "false"
+
+cert:
+  root_ca_cert_name: root.crt
+  root_ca_key_name: root.key
+  root_ca_cert: ""
+  root_ca_key: ""
+  cert_name: custom.crt
+  key_name: custom.key
+  csr_name: custom.csr
+  cn: custom
+
+modelmesh:
+  test_namespace: "mm-test"

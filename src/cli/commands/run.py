@@ -67,7 +67,6 @@ class RunCommand:
                     f"There is no '{command_name}' command in {self.scripts_dir}."
                 )
                 die(user_msg)
-                return 1
         except Exception as e:
             logger.error(f"Error showing script info: {str(e)}")
             error(f"Error showing script info: {str(e)}")

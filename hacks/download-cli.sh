@@ -130,8 +130,8 @@ fi
 if ! check_binary_exists "${root_directory}/bin/rosa"; then
     echo "⬇️ Downloading ROSA CLI..."
     wget --progress=bar:force:noscroll "https://github.com/openshift/rosa/releases/latest/download/rosa_Linux_x86_64.tar.gz"
-    tar xf rosa_Linux_x86_64.tar.gz
-    rm "${root_directory}/bin/rosa"
+    tar xf rosa_Linux_x86_64.tar.gz    
+    delete_if_exists "${root_directory}/bin/rosa"
     mv rosa "${root_directory}/bin/rosa"
     chmod +x "${root_directory}/bin/rosa"
     echo "✅ ROSA CLI installed successfully!"
@@ -142,7 +142,7 @@ if ! check_binary_exists "${root_directory}/bin/ocm"; then
     echo "⬇️ Downloading OCM CLI..."
     wget --progress=bar:force:noscroll "https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-amd64" -O ocm
     chmod +x ocm
-    rm "${root_directory}/bin/ocm"
+    delete_if_exists "${root_directory}/bin/ocm"
     mv ocm "${root_directory}/bin/ocm"
     echo "✅ OCM CLI installed successfully!"
 fi

@@ -45,6 +45,13 @@ log_levels = {
 # Log functions with different severity levels
 
 
+def custom_log(message, color_name=None):
+    if color_name:
+        print(f"{colors[color_name]}{message}{colors['color_reset']}")
+    else:
+        print(f"{log_levels['info']}{message}{colors['color_reset']}")
+
+
 def die(message):
     print(f"{log_levels['die']}[FATAL]: {message}{colors['color_reset']}")
     sys.exit(1)
@@ -55,8 +62,11 @@ def debug(message, show_debug_log=True):
         print(f"{log_levels['debug']}[DEBUG] {message}{colors['color_reset']}")
 
 
-def info(message):
-    print(f"{log_levels['info']}[INFO] {message}{colors['color_reset']}")
+def info(message, color_name=None):
+    if color_name:
+        print(f"{colors[color_name]}[INFO] {message}{colors['color_reset']}")
+    else:
+        print(f"{log_levels['info']}[INFO] {message}{colors['color_reset']}")
 
 
 def warn(message):

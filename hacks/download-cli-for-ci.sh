@@ -46,54 +46,72 @@ delete_if_exists() {
     fi
 }
 
+check_binary_exists() {
+    binary_path=$1
+    if [[ -f "$binary_path" ]]; then
+        echo "✅ Binary already exists: $binary_path"
+        return 0
+    fi
+    return 1
+}
+
 echo "📂 Installing tools in ${root_directory}/bin"
 
 # Install YQ
 YQ_VERSION=$(get_latest_release "mikefarah/yq" | sed 's/v//')
-echo "⬇️ Downloading YQ (v${YQ_VERSION})..."
-wget --progress=bar:force:noscroll "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64" -O yq
-chmod +x yq
-delete_if_exists "${root_directory}/bin/yq"
-mv yq "${root_directory}/bin/yq"
-echo "✅ YQ installed successfully!"
+if ! check_binary_exists "${root_directory}/bin/yq"; then
+    echo "⬇️ Downloading YQ (v${YQ_VERSION})..."
+    wget --progress=bar:force:noscroll "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64" -O yq
+    chmod +x yq
+    delete_if_exists "${root_directory}/bin/yq"
+    mv yq "${root_directory}/bin/yq"
+    echo "✅ YQ installed successfully!"
+fi
 
 # Install JQ
 JQ_VERSION=$(get_latest_release "jqlang/jq" | sed 's/jq-//')
-echo "⬇️ Downloading JQ (v${JQ_VERSION})..."
-wget --progress=bar:force:noscroll "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64" -O jq
-chmod +x jq
-delete_if_exists "${root_directory}/bin/jq"
-mv jq "${root_directory}/bin/jq"
-echo "✅ JQ installed successfully!"
+if ! check_binary_exists "${root_directory}/bin/jq"; then
+    echo "⬇️ Downloading JQ (v${JQ_VERSION})..."
+    wget --progress=bar:force:noscroll "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64" -O jq
+    chmod +x jq
+    delete_if_exists "${root_directory}/bin/jq"
+    mv jq "${root_directory}/bin/jq"
+    echo "✅ JQ installed successfully!"
+fi
 
 # Install GRPCURL
 GRPC_CURL_VERSION=$(get_latest_release "fullstorydev/grpcurl" | sed 's/v//')
-echo "⬇️ Downloading GRPCURL (v${GRPC_CURL_VERSION})..."
-wget --progress=bar:force:noscroll "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPC_CURL_VERSION}/grpcurl_${GRPC_CURL_VERSION}_linux_x86_64.tar.gz"
-tar xf "grpcurl_${GRPC_CURL_VERSION}_linux_x86_64.tar.gz"
-delete_if_exists "${root_directory}/bin/grpcurl"
-mv grpcurl "${root_directory}/bin/grpcurl"
-chmod +x "${root_directory}/bin/grpcurl"
-echo "✅ GRPCURL installed successfully!"
+if ! check_binary_exists "${root_directory}/bin/grpcurl"; then
+    echo "⬇️ Downloading GRPCURL (v${GRPC_CURL_VERSION})..."
+    wget --progress=bar:force:noscroll "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPC_CURL_VERSION}/grpcurl_${GRPC_CURL_VERSION}_linux_x86_64.tar.gz"
+    tar xf "grpcurl_${GRPC_CURL_VERSION}_linux_x86_64.tar.gz"
+    delete_if_exists "${root_directory}/bin/grpcurl"
+    mv grpcurl "${root_directory}/bin/grpcurl"
+    chmod +x "${root_directory}/bin/grpcurl"
+    echo "✅ GRPCURL installed successfully!"
+fi
 
 # Install OC and KUBECTL
-echo "⬇️ Downloading OpenShift CLI (OC & Kubectl)..."
-wget --progress=bar:force:noscroll "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz"
-tar xf openshift-client-linux.tar.gz
-delete_if_exists "${root_directory}/bin/oc"
-delete_if_exists "${root_directory}/bin/kubectl"
-mv oc kubectl "${root_directory}/bin/"
-echo "✅ OpenShift CLI (OC & Kubectl) installed successfully!"
+if ! check_binary_exists "${root_directory}/bin/oc" || ! check_binary_exists "${root_directory}/bin/kubectl"; then
+    echo "⬇️ Downloading OpenShift CLI (OC & Kubectl)..."
+    wget --progress=bar:force:noscroll "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz"
+    tar xf openshift-client-linux.tar.gz
+    delete_if_exists "${root_directory}/bin/oc"
+    delete_if_exists "${root_directory}/bin/kubectl"
+    mv oc kubectl "${root_directory}/bin/"
+    echo "✅ OpenShift CLI (OC & Kubectl) installed successfully!"
+fi
 
 # Install KUSTOMIZE
 KUSTOMIZE_VERSION=$(get_latest_release "kubernetes-sigs/kustomize" | sed 's/kustomize\///')
-echo "⬇️ Downloading Kustomize (v${KUSTOMIZE_VERSION})..."
-wget --progress=bar:force:noscroll "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
-tar xf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
-delete_if_exists "${root_directory}/bin/kustomize"
-mv kustomize "${root_directory}/bin/kustomize"
-chmod +x "${root_directory}/bin/kustomize"
-
+if ! check_binary_exists "${root_directory}/bin/kustomize"; then
+    echo "⬇️ Downloading Kustomize (v${KUSTOMIZE_VERSION})..."
+    wget --progress=bar:force:noscroll "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+    tar xf "kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+    delete_if_exists "${root_directory}/bin/kustomize"
+    mv kustomize "${root_directory}/bin/kustomize"
+    chmod +x "${root_directory}/bin/kustomize"
+fi
 
 # Check and install OpenSSL if not installed
 echo "🔍 Checking for OpenSSL..."

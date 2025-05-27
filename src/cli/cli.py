@@ -3,7 +3,7 @@ from core.context import LoopyContext
 from .commands.roles import list_roles, show_role, test_role, run_role
 from .commands.units import list_units, show_unit, run_unit
 from .commands.playbooks import list_playbooks, show_playbook, run_playbook
-from .commands.run import run_command
+from .commands.run import run
 
 
 @click.group()
@@ -51,4 +51,4 @@ def cli(ctx):
 cli.add_command(roles)
 cli.add_command(units)
 cli.add_command(playbooks)
-cli.add_command(run_command, name="run")
+cli.add_command(run, name="run")

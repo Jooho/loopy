@@ -32,6 +32,18 @@ fi
 mkdir /tmp/loopy_temp
 cd /tmp/loopy_temp
 
+
+# Install JQ (mandatory)
+if ! check_binary_exists "${root_directory}/bin/jq"; then
+    echo "⬇️ Downloading JQ (Latest)..."
+    wget --progress=bar:force:noscroll "https://github.com/jqlang/jq/releases/latest/download/jq-linux64" -O jq
+    chmod +x jq
+    delete_if_exists "${root_directory}/bin/jq"
+    mv jq "${root_directory}/bin/jq"
+    echo "✅ JQ installed successfully!"
+fi
+
+
 # Function to get the latest release version from GitHub API
 get_latest_release() {
     repo=$1  
@@ -68,16 +80,6 @@ if ! check_binary_exists "${root_directory}/bin/yq"; then
     echo "✅ YQ installed successfully!"
 fi
 
-# Install JQ
-JQ_VERSION=$(get_latest_release "jqlang/jq" | sed 's/jq-//')
-if ! check_binary_exists "${root_directory}/bin/jq"; then
-    echo "⬇️ Downloading JQ (v${JQ_VERSION})..."
-    wget --progress=bar:force:noscroll "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64" -O jq
-    chmod +x jq
-    delete_if_exists "${root_directory}/bin/jq"
-    mv jq "${root_directory}/bin/jq"
-    echo "✅ JQ installed successfully!"
-fi
 
 # Install GRPCURL
 GRPC_CURL_VERSION=$(get_latest_release "fullstorydev/grpcurl" | sed 's/v//')

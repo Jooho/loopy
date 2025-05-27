@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="800" height="600" fill="#f8f9fa" rx="10" ry="10"/>
+    
+    <!-- Title -->
+    <text x="400" y="40" font-family="Arial" font-size="24" text-anchor="middle" fill="#2c3e50">Loopy Project Structure</text>
+    
+    <!-- Main Box -->
+    <rect x="50" y="80" width="700" height="480" fill="#ffffff" stroke="#2c3e50" stroke-width="2" rx="5" ry="5"/>
+    
+    <!-- Root Directory -->
+    <g transform="translate(100, 120)">
+        <rect width="600" height="60" fill="#3498db" rx="5" ry="5"/>
+        <text x="20" y="35" font-family="Arial" font-size="18" fill="#ffffff">loopy/</text>
+    </g>
+    
+    <!-- src Directory -->
+    <g transform="translate(150, 200)">
+        <rect width="500" height="50" fill="#2ecc71" rx="5" ry="5"/>
+        <text x="20" y="30" font-family="Arial" font-size="16" fill="#ffffff">src/</text>
+    </g>
+    
+    <!-- src Subdirectories -->
+    <g transform="translate(200, 270)">
+        <rect width="450" height="120" fill="#f1f1f1" rx="5" ry="5"/>
+        <text x="20" y="25" font-family="Arial" font-size="14" fill="#2c3e50">├── cli/          # CLI implementation</text>
+        <text x="20" y="55" font-family="Arial" font-size="14" fill="#2c3e50">├── core/         # Core functionality</text>
+        <text x="20" y="85" font-family="Arial" font-size="14" fill="#2c3e50">├── dev/          # Development tools</text>
+        <text x="20" y="115" font-family="Arial" font-size="14" fill="#2c3e50">└── commons/      # Common utilities</text>
+    </g>
+    
+    <!-- Other Directories -->
+    <g transform="translate(150, 410)">
+        <rect width="500" height="120" fill="#f1f1f1" rx="5" ry="5"/>
+        <text x="20" y="25" font-family="Arial" font-size="14" fill="#2c3e50">├── tests/        # Test files</text>
+        <text x="20" y="55" font-family="Arial" font-size="14" fill="#2c3e50">├── docs/         # Documentation</text>
+        <text x="20" y="85" font-family="Arial" font-size="14" fill="#2c3e50">└── hacks/        # Development scripts</text>
+    </g>
+    
+    <!-- Icons -->
+    <g transform="translate(50, 50)">
+        <!-- CLI Icon -->
+        <circle cx="20" cy="20" r="15" fill="#3498db"/>
+        <text x="20" y="25" font-family="Arial" font-size="14" text-anchor="middle" fill="#ffffff">CLI</text>
+        
+        <!-- Core Icon -->
+        <circle cx="60" cy="20" r="15" fill="#2ecc71"/>
+        <text x="60" y="25" font-family="Arial" font-size="14" text-anchor="middle" fill="#ffffff">Core</text>
+        
+        <!-- Dev Icon -->
+        <circle cx="100" cy="20" r="15" fill="#e74c3c"/>
+        <text x="100" y="25" font-family="Arial" font-size="14" text-anchor="middle" fill="#ffffff">Dev</text>
+    </g>
+    
+    <!-- Legend -->
+    <g transform="translate(50, 550)">
+        <rect width="700" height="30" fill="#f1f1f1" rx="5" ry="5"/>
+        <text x="20" y="20" font-family="Arial" font-size="12" fill="#2c3e50">Legend: </text>
+        <text x="100" y="20" font-family="Arial" font-size="12" fill="#3498db">● CLI </text>
+        <text x="180" y="20" font-family="Arial" font-size="12" fill="#2ecc71">● Core </text>
+        <text x="260" y="20" font-family="Arial" font-size="12" fill="#e74c3c">● Development </text>
+    </g>
+</svg> 

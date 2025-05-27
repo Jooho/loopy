@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Description: Creates a debug pod in the Kubernetes cluster for troubleshooting purposes.
+# The pod runs a RHEL tools container that can be used for debugging and testing.
+#
+# Available Parameters:
+#   NAME: Name of the debug pod (default: debug-pod)
+#   WITH_ISTIO: Enable Istio sidecar injection (default: false)
+#   CLEAN: Set to true to clean up the pod (default: false)
+
 # Source utility functions
 source "$(dirname "$0")/../../commons/scripts/utils.sh"
 
@@ -21,7 +29,7 @@ fi
 cleanup() {
     local pod_name=$1
     echo "Cleaning up pod ${pod_name}..."
-    kubectl delete pod ${pod_name} --ignore-not-found=true
+    kubectl delete pod ${pod_name}  2>/dev/null
     # Wait for pod to be fully deleted
     while kubectl get pod ${pod_name} 2>/dev/null; do
         sleep 1

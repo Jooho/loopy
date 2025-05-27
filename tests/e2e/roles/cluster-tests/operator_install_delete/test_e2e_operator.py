@@ -116,7 +116,6 @@ def test_operator_delete(role_env):
             role_env["OPERATOR_LABEL"],
             "-n",
             role_env["OPERATOR_NAMESPACE"],
-            "--ignore-not-found",
         ],
         capture_output=True,
         text=True,

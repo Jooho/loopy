@@ -14,7 +14,7 @@ from core.initializer import Initializer
 from core.env import EnvManager
 from core.config_loader import ConfigLoader
 
-timeout = 120
+timeout = 60
 
 
 def generate_random_name(length=5):

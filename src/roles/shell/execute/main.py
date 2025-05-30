@@ -66,6 +66,7 @@ def process_commands(raw_commands):
     1. Removing full-line comments (lines starting with #)
     2. Removing inline comments (everything after #)
     3. Splitting by %% for separate commands
+    4. Preserving newlines within each command block
 
     Args:
         raw_commands (str): Raw commands string from environment variable
@@ -73,25 +74,28 @@ def process_commands(raw_commands):
     Returns:
         list: List of processed commands
     """
-    processed_lines = []
-    for line in raw_commands.split("\n"):
-        line = line.strip()
-        if not line:  # Skip empty lines
-            continue
-        if line.startswith("#"):  # Skip comment lines
-            continue
-        # Remove inline comments (everything after #)
-        if "#" in line:
-            line = line[: line.index("#")].strip()
-        if line:  # Only add non-empty lines
-            processed_lines.append(line)
+    # First split by %% to separate different command blocks
+    command_blocks = raw_commands.split("%%")
+    processed_blocks = []
 
-    # If no valid lines were processed, return empty list
-    if not processed_lines:
-        return []
+    for block in command_blocks:
+        processed_lines = []
+        for line in block.split("\n"):
+            line = line.strip()
+            if not line:  # Skip empty lines
+                continue
+            if line.startswith("#"):  # Skip comment lines
+                continue
+            # Remove inline comments (everything after #)
+            if "#" in line:
+                line = line[: line.index("#")].strip()
+            if line:  # Only add non-empty lines
+                processed_lines.append(line)
 
-    # Join the processed lines and split by %%
-    return " ".join(processed_lines).split("%%")
+        if processed_lines:  # Only add non-empty blocks
+            processed_blocks.append("\n".join(processed_lines))
+
+    return processed_blocks
 
 
 # Get commands from environment variable and process them
@@ -142,13 +146,11 @@ for index, command in enumerate(commands_list):
             reportManager.update_role_time("start_time", start_time)
             reportManager.update_role_time("end_time", end_time)
 
-            with open(
-                f"{ROLE_DIR}/{index}-command.txt", "w"
-            ) as each_command_output_file:
+            with open(f"{ROLE_DIR}/{index}-command.txt", "w") as each_command_output_file:
                 temp_result = 0
                 each_command_output_file.write(f"######## {index} command #######\n")
                 each_command_output_file.write(f"COMMAND: {command}\n")
-                each_command_output_file.write("STDOUT: ")
+                each_command_output_file.write("STDOUT:\n")
                 if isinstance(rcresult["stdout"], str):
                     each_command_output_file.write(rcresult["stdout"])
                 each_command_output_file.write("\n\n")
@@ -159,15 +161,13 @@ for index, command in enumerate(commands_list):
                     # each_command_output_file.write(result.stderr)
                     each_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happened(
-                        temp_result, index_role_name, REPORT_FILE
-                    )
+                    py_utils.stop_when_error_happened(temp_result, index_role_name, REPORT_FILE)
 
             with open(f"{ROLE_DIR}/commands.txt", "a") as all_command_output_file:
                 temp_result = 0
                 all_command_output_file.write(f"######## {index} command #######\n")
                 all_command_output_file.write(f"COMMAND: {command}\n")
-                all_command_output_file.write("STDOUT: ")
+                all_command_output_file.write("STDOUT:\n")
                 if isinstance(rcresult["stdout"], str):
                     all_command_output_file.write(rcresult["stdout"])
                 all_command_output_file.write("\n\n")
@@ -177,9 +177,7 @@ for index, command in enumerate(commands_list):
                         all_command_output_file.write(rcresult["stderr"])
                     all_command_output_file.write("\n")
                     temp_result = 1
-                    py_utils.stop_when_error_happened(
-                        temp_result, index_role_name, REPORT_FILE
-                    )
+                    py_utils.stop_when_error_happened(temp_result, index_role_name, REPORT_FILE)
                 results.append(f"{index_role_name}::command::{index+1}::{temp_result}")
 
         except Exception as e:

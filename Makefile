@@ -12,11 +12,8 @@ push:
 
 .PHONY: download-cli
 download-cli:
-	./hacks/download-cli.sh
+	./hacks/download-cli.sh $${TEST_ENV}
 
-.PHONY: download-cli-for-ci
-download-cli-for-ci:
-	./hacks/download-cli-for-ci.sh
 
 .PHONY: install-lib
 install-lib:
@@ -33,7 +30,7 @@ fvt:
 	
 
 .PHONY: e2e 
-e2e: download-cli-for-ci	
+e2e: download-cli	
 	export PATH="$(CURDIR)/bin:$(PATH)" ;\
 	echo "TEST_ENV is $(TEST_ENV)" 	;\
 	echo "PATH is $$PATH" ;\

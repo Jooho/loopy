@@ -3,6 +3,11 @@ if [[ $DEBUG == "0" ]]; then
   set -x
 fi
 
+TEST_ENV="local"
+if [[ $1 == "ci" ]]; then
+  TEST_ENV="ci"
+fi
+
 ## INIT START ##
 # Get the directory where this script is located
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,6 +25,11 @@ if [ -d "$github_dir/.git" ]; then
 else
   echo "Error: Unable to find .github folder."
 fi
+
+if [[ -z root_directory ]]; then
+  die "Error: Unable to find .github folder."
+fi
+
 ## INIT END ##
 #############################################################
 if [[ ! -d ${root_directory}/bin ]]; then
@@ -38,7 +48,7 @@ if ! check_binary_exists "${root_directory}/bin/jq"; then
     echo "⬇️ Downloading JQ (Latest)..."
     wget --progress=bar:force:noscroll "https://github.com/jqlang/jq/releases/latest/download/jq-linux64" -O jq
     chmod +x jq
-    delete_if_exists "${root_directory}/bin/jq"
+    rm -rf "${root_directory}/bin/jq"
     mv jq "${root_directory}/bin/jq"
     echo "✅ JQ installed successfully!"
 fi
@@ -116,6 +126,16 @@ if ! check_binary_exists "${root_directory}/bin/kustomize"; then
     echo "✅ Kustomize installed successfully!"
 fi
 
+# Check and install OpenSSL if not installed
+echo "🔍 Checking for OpenSSL..."
+if ! openssl version &>/dev/null; then
+  echo "⚠️ OpenSSL not found! Installing..."
+  sudo dnf -y install openssl
+  echo "✅ OpenSSL installed successfully!"
+else
+  echo "✅ OpenSSL is already installed!"
+fi
+
 # Install TKN
 TKN_VERSION=$(get_latest_release "tektoncd/cli" | sed 's/v//')
 if ! check_binary_exists "${root_directory}/bin/tkn"; then
@@ -128,35 +148,29 @@ if ! check_binary_exists "${root_directory}/bin/tkn"; then
     echo "✅ Tekton CLI installed successfully!"
 fi
 
-# Install ROSA
-if ! check_binary_exists "${root_directory}/bin/rosa"; then
-    echo "⬇️ Downloading ROSA CLI..."
-    wget --progress=bar:force:noscroll "https://github.com/openshift/rosa/releases/latest/download/rosa_Linux_x86_64.tar.gz"
-    tar xf rosa_Linux_x86_64.tar.gz    
-    delete_if_exists "${root_directory}/bin/rosa"
-    mv rosa "${root_directory}/bin/rosa"
-    chmod +x "${root_directory}/bin/rosa"
-    echo "✅ ROSA CLI installed successfully!"
+if [[ $TEST_ENV == "local" ]]; then
+  # Install ROSA
+  if ! check_binary_exists "${root_directory}/bin/rosa"; then
+      echo "⬇️ Downloading ROSA CLI..."
+      wget --progress=bar:force:noscroll "https://github.com/openshift/rosa/releases/latest/download/rosa_Linux_x86_64.tar.gz"
+      tar xf rosa_Linux_x86_64.tar.gz    
+      delete_if_exists "${root_directory}/bin/rosa"
+      mv rosa "${root_directory}/bin/rosa"
+      chmod +x "${root_directory}/bin/rosa"
+      echo "✅ ROSA CLI installed successfully!"
+  fi
+
+  # Install OCM
+  if ! check_binary_exists "${root_directory}/bin/ocm"; then
+      echo "⬇️ Downloading OCM CLI..."
+      wget --progress=bar:force:noscroll "https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-amd64" -O ocm
+      chmod +x ocm
+      delete_if_exists "${root_directory}/bin/ocm"
+      mv ocm "${root_directory}/bin/ocm"
+      echo "✅ OCM CLI installed successfully!"
+  fi
 fi
 
-# Install OCM
-if ! check_binary_exists "${root_directory}/bin/ocm"; then
-    echo "⬇️ Downloading OCM CLI..."
-    wget --progress=bar:force:noscroll "https://github.com/openshift-online/ocm-cli/releases/latest/download/ocm-linux-amd64" -O ocm
-    chmod +x ocm
-    delete_if_exists "${root_directory}/bin/ocm"
-    mv ocm "${root_directory}/bin/ocm"
-    echo "✅ OCM CLI installed successfully!"
-fi
 
-# Check and install OpenSSL if not installed
-echo "🔍 Checking for OpenSSL..."
-if ! openssl version &>/dev/null; then
-  echo "⚠️ OpenSSL not found! Installing..."
-  sudo dnf -y install openssl
-  echo "✅ OpenSSL installed successfully!"
-else
-  echo "✅ OpenSSL is already installed!"
-fi
-
+chmod -R 777 ${root_directory}/bin
 echo "🎉 All tools have been successfully installed with the latest versions!"

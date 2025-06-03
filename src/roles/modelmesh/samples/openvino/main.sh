@@ -17,10 +17,10 @@ if [ -d "$github_dir/.git" ]; then
 else
   echo "Error: Unable to find .github folder."
 fi
+source $root_directory/src/commons/scripts/utils.sh
 ## INIT END ##
 
 #################################################################
-source $root_directory/src/commons/scripts/utils.sh
 index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 openvino_serving_runtime_manifests=$(yq e '.role.manifests.openvino_serving_runtime' $current_dir/config.yaml)

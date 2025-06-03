@@ -21,10 +21,10 @@ if [ -d "$github_dir/.git" ]; then
 else
   echo "Error: Unable to find .github folder."
 fi
+source $root_directory/src/commons/scripts/utils.sh
 ## INIT END ##
 
 #################################################################
-source $root_directory/src/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 subs_manifests=$(yq e '.role.manifests.subscription' $current_dir/config.yaml)
 subs_manifests_path=$root_directory/$subs_manifests

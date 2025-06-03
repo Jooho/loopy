@@ -1,0 +1,22 @@
+role:
+  created_date: "20250602"
+  name: kind-uninstall
+  description: |
+    This role helps to uninstall a kind cluster and clean up related resources.
+
+    pre-requirements:
+      - kind CLI installed
+      - Docker/Podman installed
+
+    Input Environment:
+      The parameters include:
+      - KIND_CLUSTER_NAME: Name of the kind cluster to delete (default: kind)
+
+    To run it:
+    ./loopy roles run kind-uninstall \
+    -p KIND_CLUSTER_NAME=my-cluster
+
+  input_env:
+  - name: KIND_CLUSTER_NAME
+    description: Name of the kind cluster to delete
+    default: kind

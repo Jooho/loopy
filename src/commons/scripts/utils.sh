@@ -511,3 +511,25 @@ validate_script_params() {
     
     return 0
 } 
+
+# retry function
+# Usage: retry <max_attempts> <sleep_seconds> <command> <message>
+# Example: retry 120 5 "! kind get clusters | grep -q '^${KIND_CLUSTER_NAME}$'" "Waiting for cluster ${KIND_CLUSTER_NAME} to be fully deleted"
+retry() {
+    local max_attempts=$1
+    local sleep_seconds=$2
+    local command=$3
+    local message=$4
+    local attempt=1
+
+    until eval "$command"; do
+        if ((attempt == max_attempts)); then
+            echo "Failed after $max_attempts attempts: $message"
+            return 1
+        fi
+        echo "Attempt $attempt/$max_attempts: $message"
+        sleep "$sleep_seconds"
+        ((attempt++))
+    done
+    return 0
+} 

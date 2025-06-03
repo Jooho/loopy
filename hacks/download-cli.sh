@@ -169,6 +169,15 @@ if [[ $TEST_ENV == "local" ]]; then
       mv ocm "${root_directory}/bin/ocm"
       echo "✅ OCM CLI installed successfully!"
   fi
+  # Install kind
+  if ! check_binary_exists "${root_directory}/bin/kind"; then
+      echo "⬇️ Downloading kind (Latest)..."
+      wget --progress=bar:force:noscroll "https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64" -O kind
+      chmod +x kind
+      rm -rf "${root_directory}/bin/kind"
+      mv kind "${root_directory}/bin/kind"
+      echo "✅ kind installed successfully!"
+  fi
 fi
 
 

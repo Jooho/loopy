@@ -1,0 +1,61 @@
+role:
+  created_date: "20250602"
+  name: kind-install
+  files:
+    kind-ingress-config: ./files/kind-ingress-config.yaml
+  description: |
+    This role help to create a kind cluster with a nginx ingress controller/olm operator.
+
+    pre-requirements:
+      Docker/Podman installed   
+
+    Input Environment:
+      The parameters include:
+      - NGINX_INGRESS_VERSION: Set NGINX_INGRESS_VERSION (default: v1.10.1)
+      - CONTAINER_RUNTIME: Set CONTAINER_RUNTIME (docker/podman) (default: docker)
+
+    To run it:
+    ./loopy roles run kind-install  \
+    -p CONTAINER_RUNTIME=docker \
+    -p NGINX_INGRESS_VERSION=v1.10.1 \
+    -p ENABLE_INGRESS="true" \
+    -p ENABLE_OLM="true" \
+    -p OLM_VERSION=v0.18.3 \
+    -p KUBECONFIG_PATH=~/.kube/config \
+    -p KIND_CLUSTER_NAME=kind
+
+
+  input_env:
+  - name: KUBECONFIG_PATH
+    description: |
+      Set KUBECONFIG_PATH (default: ~/.kube/config)
+    default: ~/.kube/config
+  - name: KIND_CLUSTER_NAME
+    description: |
+      Set KIND_CLUSTER_NAME (default: kind)
+    default: kind
+  - name: ENABLE_INGRESS
+    description: |
+      Set ENABLE_INGRESS (true/false)
+    default: "true"
+  - name: NGINX_INGRESS_VERSION
+    description: |
+      Set NGINX_INGRESS_VERSION (default: 1.10.1)
+    default: 1.10.1
+  - name: ENABLE_OLM
+    description: |
+      Set ENABLE_OLM (true/false)
+    default: "true"
+  - name: OLM_VERSION
+    description: |
+      Set OLM_VERSION (default: 0.18.3)
+    default: 0.18.3
+  - name: CONTAINER_RUNTIME
+    description: |
+      Set CONTAINER_RUNTIME (docker/podman)
+    default: docker
+
+  output_env:
+  - name: KUBECONFIG_PATH
+    description: This shows the path where the kubeconfig file will be saved
+    required: true

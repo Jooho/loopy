@@ -20,6 +20,7 @@ if [ -d "$github_dir/.git" ]; then
 else
   echo "Unable to find .github folder"
 fi
+
 source $root_directory/src/commons/scripts/utils.sh
 ## INIT END ##
 
@@ -62,7 +63,7 @@ fi
 # Install OLM
 if [[ $(is_positive ${ENABLE_OLM}) == "0" ]]; then
   info "Installing OLM"
-  curl -sL https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/refs/heads/master/deploy/upstream/quickstart/install.sh | bash -s $OLM_VERSION
+  curl -sL https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/refs/heads/master/deploy/upstream/quickstart/install.sh | bash -s v$OLM_VERSION
 fi
 
 

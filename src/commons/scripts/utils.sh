@@ -524,10 +524,10 @@ retry() {
 
     until eval "$command"; do
         if ((attempt == max_attempts)); then
-            echo "Failed after $max_attempts attempts: $message"
+            info "Failed after $max_attempts attempts: $message"
             return 1
         fi
-        echo "Attempt $attempt/$max_attempts: $message"
+        info "Attempt $attempt/$max_attempts: $message"
         sleep "$sleep_seconds"
         ((attempt++))
     done

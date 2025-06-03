@@ -4,8 +4,9 @@ import os
 import subprocess
 import pytest
 
+
 @pytest.mark.cluster_life_cycle_tests
-@pytest.mark.order(1)
+@pytest.mark.dependency(name="create_kind_cluster")
 def test_kind_cluster_creation(role_env):
     """Test kind cluster creation with ingress enabled."""
     # Create a copy of the environment with PATH
@@ -50,14 +51,12 @@ def test_kind_cluster_creation(role_env):
 
     # Verify OLM if enabled
     if role_env["ENABLE_OLM"] == "0":
-        pods = subprocess.check_output(
-            ["kubectl", "get", "pods", "-n", "olm", "-l", "app=olm-operator"]
-        ).decode()
+        pods = subprocess.check_output(["kubectl", "get", "pods", "-n", "olm", "-l", "app=olm-operator"]).decode()
         assert "Running" in pods, "OLM operator is not running"
 
 
 @pytest.mark.cluster_life_cycle_tests
-@pytest.mark.order(1)
+@pytest.mark.dependency(depends=["create_kind_cluster"])
 def test_kind_cluster_deletion(role_env):
     """Test kind cluster deletion."""
     # Create a copy of the environment with PATH

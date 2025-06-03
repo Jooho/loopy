@@ -80,7 +80,7 @@ fi
 
 # Verify ingress if enabled
 if [[ $(is_positive ${ENABLE_INGRESS}) == "0" ]]; then
-    if ! retry 60 5 "kubectl get pods -n ingress-nginx -l app.kubernetes.io/component=controller &>/dev/null" "Waiting for ingress controller to be ready"; then
+    if ! retry 60 5 "kubectl wait --namespace ingress-nginx --for=condition=Ready pod -l app.kubernetes.io/component=controller &>/dev/null" "Waiting for ingress controller to be ready"; then
         fail "Ingress controller is not running properly after 5 minutes"
         result=1
     else
@@ -90,7 +90,7 @@ fi
 
 # Verify OLM if enabled
 if [[ $(is_positive ${ENABLE_OLM}) == "0" ]]; then
-    if ! retry 60 5 "kubectl get pods -n olm -l app=olm-operator &>/dev/null" "Waiting for OLM operator to be ready"; then
+    if ! retry 60 5 "kubectl wait --for=condition=Ready  pods -n olm -l app=olm-operator &>/dev/null" "Waiting for OLM operator to be ready"; then
         fail "OLM operator is not running properly after 5 minutes"
         result=1
     else

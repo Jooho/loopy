@@ -37,6 +37,12 @@ e2e: download-cli
 	TEST_ENV=$(TEST_ENV) ./hacks/setup-kind.sh ;\
 	pytest -c "${PYTEST_CONFIG}" -n 5 --dist worksteal -m e2e
 
+
+.PHONY: e2e-cluster-lifecycle 
+e2e-cluster-lifecycle: download-cli	
+	export PATH="$(CURDIR)/bin:$(PATH)" ;\
+	pytest -c "${PYTEST_CONFIG}" -n 1 --dist worksteal -m cluster_life_cycle_tests
+
 .PHONY: update-test-data
 update-test-data:
 	python hacks/update_test_custom_context_json.py

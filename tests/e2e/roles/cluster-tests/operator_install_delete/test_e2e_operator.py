@@ -7,7 +7,7 @@ from tests.conftest import timeout
 @pytest.mark.e2e
 @pytest.mark.e2e_roles
 @pytest.mark.cluster_tests
-@pytest.mark.order(1)
+@pytest.mark.dependency(name="install_operator")
 def test_operator_install_default(role_env):
     """Test the full command line behavior of operator-install role"""
     # Create a copy of the environment with PATH
@@ -75,7 +75,7 @@ def test_operator_install_default(role_env):
 @pytest.mark.e2e
 @pytest.mark.e2e_roles
 @pytest.mark.cluster_tests
-@pytest.mark.order(2)
+@pytest.mark.dependency(depends=["install_operator"])
 def test_operator_delete(role_env):
     """Test the full command line behavior of operator-install role"""
     # Create a copy of the environment with PATH

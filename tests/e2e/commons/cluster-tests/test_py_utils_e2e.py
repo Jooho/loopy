@@ -12,6 +12,7 @@ from commons.python.py_utils import (
     oc_wait_return_true,
     check_oc_status,
     check_rosa_access,
+    retry,
 )
 
 
@@ -194,3 +195,86 @@ def test_oc_wait_object_availability():
             ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
             check=True,
         )
+
+
+@pytest.mark.e2e
+@pytest.mark.cluster_tests
+@pytest.mark.common
+def test_retry_with_basic_commands():
+    """Test retry function with basic shell commands"""
+    # Test with a command that should succeed
+    assert retry(3, 1, "echo 'test'", "Testing echo command") is True
+
+    # Test with a command that should fail
+    assert retry(3, 1, "false", "Testing false command") is False
+
+    # Test with a command that should fail (non-existent command)
+    assert retry(3, 1, "nonexistent_command_123", "Testing non-existent command") is False
+
+    # Test with a command that should succeed after file creation
+    test_file = "/tmp/test_retry_file"
+    try:
+        # Create a file
+        subprocess.run(f"touch {test_file}", shell=True, check=True)
+
+        # Test retry with file existence check
+        assert retry(3, 1, f"test -f {test_file}", "Testing file existence") is True
+
+    finally:
+        # Cleanup
+        subprocess.run(f"rm -f {test_file}", shell=True, check=True)
+
+
+@pytest.mark.e2e
+@pytest.mark.cluster_tests
+@pytest.mark.common
+def test_retry_with_oc():
+    """Test retry function with actual oc commands"""
+    try:
+        # First verify we can connect to the cluster
+        subprocess.run("oc get nodes", shell=True, check=True, capture_output=True)
+
+        # Test with a command that should succeed
+        assert retry(10, 3, "oc get nodes", "Waiting for nodes to be available") is True
+
+        # Test with a command that should fail (non-existent namespace)
+        assert retry(3, 1, "oc get project nonexistent-namespace", "Waiting for non-existent project") is False
+
+        # Test with a command that should succeed after pod creation
+        pod_name = "test-pod-retry-oc"
+        namespace = "default"
+
+        try:
+            # Create a pod
+            subprocess.run(
+                [
+                    "oc",
+                    "run",
+                    pod_name,
+                    "--image=registry.access.redhat.com/rhel7/rhel-tools",
+                    "--",
+                    "tail",
+                    "-f",
+                    "/dev/null",
+                ],
+                check=True,
+                capture_output=True,
+            )
+
+            # Wait for pod to be created and ready
+            time.sleep(10)
+
+            # Test retry with pod existence check
+            assert retry(10, 3, f"oc get pod {pod_name} -n {namespace}", "Waiting for pod to exist") is True
+
+        finally:
+            # Cleanup
+            subprocess.run(
+                ["oc", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+                check=True,
+                capture_output=True,
+            )
+    except subprocess.CalledProcessError as e:
+        pytest.fail(f"Cluster command failed: {e.stderr.decode() if e.stderr else str(e)}")
+    except Exception as e:
+        pytest.fail(f"Test failed with error: {str(e)}")

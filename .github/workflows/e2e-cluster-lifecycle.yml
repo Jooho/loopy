@@ -1,0 +1,43 @@
+name: E2E Tests(Cluster Lifecycle)
+
+on:
+  pull_request:
+jobs:
+  cluster-lifecycle-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.12]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Check changed files for cluster-lifecycle-test
+        run: |
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          if ! echo "$CHANGED_FILES" | grep -qE '^(src/|tests/|default_provided_services/|hacks/|.github/|commons/)'; then
+            echo "No relevant files changed for cluster-lifecycle-test. Skipping tests but marking success."
+            exit 0
+          fi
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run E2E Tests
+        shell: bash
+        run: |
+          make e2e-cluster-lifecycle
+

@@ -42,6 +42,15 @@ fi
 mkdir /tmp/loopy_temp
 cd /tmp/loopy_temp
 
+check_binary_exists() {
+    binary_path=$1
+    if [[ -f "$binary_path" ]]; then
+        echo "✅ Binary already exists: $binary_path"
+        return 0
+    fi
+    return 1
+}
+
 
 # Install JQ (mandatory)
 if ! check_binary_exists "${root_directory}/bin/jq"; then
@@ -66,15 +75,6 @@ delete_if_exists() {
         echo "🗑️ Removing existing file: $file_path"
         rm -f "$file_path"
     fi
-}
-
-check_binary_exists() {
-    binary_path=$1
-    if [[ -f "$binary_path" ]]; then
-        echo "✅ Binary already exists: $binary_path"
-        return 0
-    fi
-    return 1
 }
 
 echo "📂 Installing tools in ${root_directory}/bin"

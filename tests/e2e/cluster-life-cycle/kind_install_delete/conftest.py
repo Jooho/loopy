@@ -1,6 +1,4 @@
-import os
 import pytest
-import yaml
 from pathlib import Path
 import subprocess
 import uuid

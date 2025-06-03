@@ -63,7 +63,7 @@ fi
 # Install OLM
 if [[ $(is_positive ${ENABLE_OLM}) == "0" ]]; then
   info "Installing OLM"
-  curl -sL https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/refs/heads/master/deploy/upstream/quickstart/install.sh | bash -s $OLM_VERSION
+  curl -sL https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/refs/heads/master/deploy/upstream/quickstart/install.sh | bash -s v$OLM_VERSION
 fi
 
 

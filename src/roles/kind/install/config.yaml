@@ -15,7 +15,7 @@ role:
       - CONTAINER_RUNTIME: Set CONTAINER_RUNTIME (docker/podman) (default: docker)
 
     To run it:
-    ./loopy roles run create-kind-cluster  \
+    ./loopy roles run kind-install  \
     -p CONTAINER_RUNTIME=docker \
     -p NGINX_INGRESS_VERSION=v1.10.1 \
     -p ENABLE_INGRESS="true" \
@@ -48,8 +48,8 @@ role:
     default: "true"
   - name: OLM_VERSION
     description: |
-      Set OLM_VERSION (default: v0.18.3)
-    default: v0.18.3
+      Set OLM_VERSION (default: 0.18.3)
+    default: 0.18.3
   - name: CONTAINER_RUNTIME
     description: |
       Set CONTAINER_RUNTIME (docker/podman)

@@ -1,12 +1,9 @@
-import pytest
-import subprocess
+"""End-to-end test cases for kind cluster lifecycle management."""
+
 import os
+import subprocess
+import pytest
 
-"""Test cases for the kind role."""
-
-
-@pytest.mark.e2e
-@pytest.mark.e2e_roles
 @pytest.mark.cluster_life_cycle_tests
 @pytest.mark.order(1)
 def test_kind_cluster_creation(role_env):
@@ -59,8 +56,6 @@ def test_kind_cluster_creation(role_env):
         assert "Running" in pods, "OLM operator is not running"
 
 
-@pytest.mark.e2e
-@pytest.mark.e2e_roles
 @pytest.mark.cluster_life_cycle_tests
 @pytest.mark.order(1)
 def test_kind_cluster_deletion(role_env):
@@ -88,4 +83,4 @@ def test_kind_cluster_deletion(role_env):
 
     # Verify cluster is deleted
     clusters = subprocess.check_output(["kind", "get", "clusters"]).decode().strip()
-    assert "test-cluster" not in clusters, "Cluster was not deleted"
+    assert f"{role_env['KIND_CLUSTER_NAME']}" not in clusters, "Cluster was not deleted"

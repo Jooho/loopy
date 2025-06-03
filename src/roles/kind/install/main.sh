@@ -20,10 +20,11 @@ if [ -d "$github_dir/.git" ]; then
 else
   echo "Unable to find .github folder"
 fi
+
+source $root_directory/src/commons/scripts/utils.sh
 ## INIT END ##
 
 #################################################################
-source $root_directory/src/commons/scripts/utils.sh
 index_role_name=$(basename $ROLE_DIR)
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 kind_ingress_config=$(yq e '.role.files.kind-ingress-config' $current_dir/config.yaml)

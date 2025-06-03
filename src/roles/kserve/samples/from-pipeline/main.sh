@@ -64,10 +64,10 @@ for env in "${envs[@]}"; do
     PARAMS+="--param ${name}=${value} "
   fi
 done
+source $root_directory/src/commons/scripts/utils.sh
 ## Parameters Preparation End ###################################
 
 #################################################################
-source $root_directory/src/commons/scripts/utils.sh
 role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 index_role_name=$(basename $ROLE_DIR)
 errorHappened=1 # 0 is true, 1 is false

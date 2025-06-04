@@ -142,8 +142,10 @@ def parse_key_value_pairs(ctx, param, value):
 def load_env_file_if_exist(file):
     additional_vars = {}
     if file is not None:
-        if os.path.exists(file):
-            with open(file, "r") as file:
+        original_dir = os.environ.get("ORIGINAL_DIR", os.getcwd())
+        input_path = os.path.normpath(os.path.join(original_dir, file))
+        if os.path.exists(input_path):
+            with open(input_path, "r") as file:
                 for line in file:
                     if not line.strip() or line.startswith("#"):  # Skip # part
                         continue
@@ -153,7 +155,7 @@ def load_env_file_if_exist(file):
                     else:
                         additional_vars[key] = value
         else:
-            logger.error(f"File({file}) does not exist")
+            logger.error(f"File({input_path}) does not exist")
             exit(1)
     return additional_vars
 

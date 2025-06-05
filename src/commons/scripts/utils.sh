@@ -50,7 +50,7 @@ die() {
 
 # Provide debug msg
 debug() {
-  if [[ $SHOW_DEBUG_LOG == "true" ]]; then
+  if [[ $(is_positive $SHOW_DEBUG_LOG) == "0" ]]; then
     printf "${debug}[DEBUG] $*${color_reset}\n"
   fi
 }

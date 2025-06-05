@@ -209,7 +209,9 @@ def test_retry_with_basic_commands():
     assert retry(3, 1, "false", "Testing false command") is False
 
     # Test with a command that should fail (non-existent command)
-    assert retry(3, 1, "nonexistent_command_123", "Testing non-existent command") is False
+    assert (
+        retry(3, 1, "nonexistent_command_123", "Testing non-existent command") is False
+    )
 
     # Test with a command that should succeed after file creation
     test_file = "/tmp/test_retry_file"
@@ -238,7 +240,15 @@ def test_retry_with_oc():
         assert retry(10, 3, "oc get nodes", "Waiting for nodes to be available") is True
 
         # Test with a command that should fail (non-existent namespace)
-        assert retry(3, 1, "oc get project nonexistent-namespace", "Waiting for non-existent project") is False
+        assert (
+            retry(
+                3,
+                1,
+                "oc get project nonexistent-namespace",
+                "Waiting for non-existent project",
+            )
+            is False
+        )
 
         # Test with a command that should succeed after pod creation
         pod_name = "test-pod-retry-oc"
@@ -265,7 +275,15 @@ def test_retry_with_oc():
             time.sleep(10)
 
             # Test retry with pod existence check
-            assert retry(10, 3, f"oc get pod {pod_name} -n {namespace}", "Waiting for pod to exist") is True
+            assert (
+                retry(
+                    10,
+                    3,
+                    f"oc get pod {pod_name} -n {namespace}",
+                    "Waiting for pod to exist",
+                )
+                is True
+            )
 
         finally:
             # Cleanup
@@ -275,6 +293,8 @@ def test_retry_with_oc():
                 capture_output=True,
             )
     except subprocess.CalledProcessError as e:
-        pytest.fail(f"Cluster command failed: {e.stderr.decode() if e.stderr else str(e)}")
+        pytest.fail(
+            f"Cluster command failed: {e.stderr.decode() if e.stderr else str(e)}"
+        )
     except Exception as e:
         pytest.fail(f"Test failed with error: {str(e)}")

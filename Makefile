@@ -41,14 +41,12 @@ e2e: download-cli
 
 .PHONY: e2e-cluster-lifecycle 
 e2e-cluster-lifecycle: download-cli	
-    # @echo "CLUSTER_TYPE: $(CLUSTER_TYPE)"
-    # @echo "PYTEST_ARGS: $(PYTEST_ARGS)"
-	export PATH="$(CURDIR)/bin:$(PATH)" 
+	export PATH="$(CURDIR)/bin:$(PATH)" ;\
 	if [ -n "$(NEW_PYTEST_ARGS)" ]; then \
 		FINAL_PYTEST_ARGS="$(NEW_PYTEST_ARGS)"; \
 	else \
 		FINAL_PYTEST_ARGS="$(PYTEST_ARGS)"; \
-	fi
+	fi ;\
 	pytest -c "${PYTEST_CONFIG}" $$FINAL_PYTEST_ARGS -m "(${CLUSTER_TYPE}) and cluster_lifecycle_tests"
 
 

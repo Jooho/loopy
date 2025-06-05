@@ -1,9 +1,9 @@
 IMG=quay.io/jooholee/loopy
 IMG_TAG=latest
 
-PYTEST_CONFIG ?= "pytest.ini"
-TEST_ENV ?= "local"
-PYTEST_ARGS ?= " -n 3 --dist=loadscope"
+PYTEST_CONFIG ?= pytest.ini
+TEST_ENV ?= local
+PYTEST_ARGS ?= -n 3 --dist=loadscope
 
 .PHONY: build push
 build:

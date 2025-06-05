@@ -1,0 +1,83 @@
+role:
+  created_date: "20250604"
+  name: openshift-local-install
+  description: |
+    This role help to create a crc cluster.
+
+    pre-requirements:
+      - refer openshift local installation guide
+        - https://openshift.guide/getting-started/openshift-local.html
+
+    Input Environment:
+      The parameters include:
+      - MEMORY: Set MEMORY size (default: 40000)
+      - CPU: Set CPU core count (default: 10)
+      - DISK_SIZE: Set DISK size (default: 150)
+      - KUBEADMIN_PASSWORD: Set password for kubeadmin (default: kubeadmin)
+      - ENABLE_MONITORING: Set ENABLE_MONITORING to true if you want to enable cluster monitoring (default: false)
+      - PULL_SECRET_PATH: Set PULL_SECRET_PATH,if you have a pull secret file(default: ~/pull-secret.txt).
+      
+    To run it:
+    ./loopy roles run crc-install  \
+    -p MEMORY=40000 \
+    -p CPU=10 \
+    -p DISK_SIZE=150 \
+    -p KUBEADMIN_PASSWORD=kubeadmin \
+    -p ENABLE_MONITORING=false \
+    -p PULL_SECRET_PATH=~/pull-secret.txt
+
+
+  input_env:
+  - name: MEMORY
+    description: |
+      Set MEMORY size (default: 40000)
+    default: 10752
+  - name: CPU
+    description: |
+      Set CPU core count (default: 10)
+    default: 10
+  - name: DISK_SIZE
+    description: |
+      Set DISK size(GB) (default: 150)
+    default: 150
+  - name: KUBEADMIN_PASSWORD
+    description: |
+      Set password for kubeadmin (default: kubeadmin)
+    default: kubeadmin
+  - name: ENABLE_MONITORING
+    description: |
+      Set ENABLE_MONITORING to true if you want to enable cluster monitoring (default: false)
+    default: false
+  - name: PULL_SECRET_PATH
+    description: |
+      Set PULL_SECRET_PATH,if you have a pull secret file(default: ~/pull-secret.txt). Do not set this with PULL_SECRET.
+    default: ~/pull-secret.txt
+    required: true
+  - name: ADD_CLUSTER_ADMIN_TO_DEVELOPER
+    description: |
+      Set ADD_CLUSTER_ADMIN_TO_DEVELOPER to true if you want to add cluster admin role to developer user (default: false)
+    default: false
+  - name: RESET_CRC_SETUP
+    description: |
+      Set RESET_CRC_SETUP to true if you want to reset crc setup (default: false)
+    default: false
+
+  output_env:
+    - name: CLUSTER_CONSOLE_URL
+      description: openshift console url
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+
+    - name: CLUSTER_TYPE
+      description: openshift cluster type (ROSA)
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token
+

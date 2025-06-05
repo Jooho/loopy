@@ -174,9 +174,21 @@ if [[ $TEST_ENV == "local" ]]; then
       echo "⬇️ Downloading kind (Latest)..."
       wget --progress=bar:force:noscroll "https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64" -O kind
       chmod +x kind
-      rm -rf "${root_directory}/bin/kind"
+      delete_if_exists "${root_directory}/bin/kind"
       mv kind "${root_directory}/bin/kind"
       echo "✅ kind installed successfully!"
+  fi
+
+  # Install crc  
+  if ! check_binary_exists "${root_directory}/bin/crc"; then
+      echo "⬇️ Downloading crc (latest)..."
+      curl -L https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/latest/crc-linux-amd64.tar.xz | tar -xJ
+      
+      chmod +x crc-linux-*/crc
+      delete_if_exists "${root_directory}/bin/crc"
+      mv crc-linux-*/crc "${root_directory}/bin/crc"
+      rm -rf "crc-linux-*"
+      echo "✅ openshift local(crc) installed successfully!"
   fi
 fi
 

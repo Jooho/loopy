@@ -59,3 +59,6 @@ role:
   - name: KUBECONFIG_PATH
     description: This shows the path where the kubeconfig file will be saved
     required: true
+  - name: CLUSTER_TYPE
+    description: This shows the type of the cluster
+    required: true

@@ -86,18 +86,11 @@ class Initializer:
             file.write("# This is a report.\n")
 
         # Set logging and error handling configurations
-        show_debug_log = self.config_data["show_debug_log"]
         stop_when_failed = self.config_data["stop_when_failed"]
         stop_when_error_happened = self.config_data["stop_when_error_happened"]
 
-        # Update config data with paths
-        self.config_data["show_debug_log"] = show_debug_log
-        self.config_data["stop_when_failed"] = stop_when_failed
-        self.config_data["stop_when_error_happened"] = stop_when_error_happened
-
         # Set environment variables
-        os.environ["SHOW_DEBUG_LOG"] = str(show_debug_log)
-        os.environ["STOP_WHEN_FAILED"] = str(stop_when_error_happened)
+        os.environ["STOP_WHEN_FAILED"] = str(stop_when_failed)
         os.environ["STOP_WHEN_ERROR_HAPPENED"] = str(stop_when_error_happened)
 
         # Set binary path

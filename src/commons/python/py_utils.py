@@ -112,16 +112,22 @@ def is_positive(input_string):
         return 1
     else:
         # Return error if the input is something else
-        raise ValueError("Invalid input. Please provide 'yes', 'no', 'true', 'false', or a boolean.")
+        raise ValueError(
+            "Invalid input. Please provide 'yes', 'no', 'true', 'false', or a boolean."
+        )
 
 
-def stop_when_error_happened(result, index_role_name, report_file, input_should_stop=False):
+def stop_when_error_happened(
+    result, index_role_name, report_file, input_should_stop=False
+):
     if result != "0":
         warn(f"There are some errors in the role({index_role_name})")
         should_stop = is_positive(os.environ["STOP_WHEN_FAILED"])
 
         if input_should_stop:
-            warn(f"Only for this role({index_role_name}) set 'STOP_WHEN_ERROR_HAPPENED' to {input_should_stop}")
+            warn(
+                f"Only for this role({index_role_name}) set 'STOP_WHEN_ERROR_HAPPENED' to {input_should_stop}"
+            )
             should_stop = is_positive(input_should_stop)
 
         if should_stop == 0:
@@ -131,7 +137,9 @@ def stop_when_error_happened(result, index_role_name, report_file, input_should_
                 f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is set and there are some errors detected, stopping all processes."
             )
         else:
-            warn(f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is NOT set, so skipping this error.")
+            warn(
+                f"STOP_WHEN_ERROR_HAPPENED({should_stop}) is NOT set, so skipping this error."
+            )
 
 
 def remove_comment_lines(command: str) -> str:
@@ -152,7 +160,9 @@ def check_pod_status(pod_selector, pod_namespace):
 
         pods = json.loads(result.stdout)
         if not pods.get("items"):
-            error(f"No pods found with selector {pod_selector} in {pod_namespace}. Pods may not be up yet.")
+            error(
+                f"No pods found with selector {pod_selector} in {pod_namespace}. Pods may not be up yet."
+            )
             return False
 
         for pod in pods["items"]:
@@ -161,7 +171,10 @@ def check_pod_status(pod_selector, pod_namespace):
                 return False
 
             conditions = pod["status"].get("conditions", [])
-            ready = any(cond["type"] == "Ready" and cond["status"] == "True" for cond in conditions)
+            ready = any(
+                cond["type"] == "Ready" and cond["status"] == "True"
+                for cond in conditions
+            )
             if not ready:
                 return False
 
@@ -189,14 +202,20 @@ def wait_pod_containers_ready(pod_label, namespace):
                 ready_cmd = f"oc get pod -l {pod_label} -n {namespace} --no-headers | head -1 | awk '{{print $2}}' | cut -d/ -f1"
                 desired_cmd = f"oc get pod -l {pod_label} -n {namespace} --no-headers | head -1 | awk '{{print $2}}' | cut -d/ -f2"
 
-                ready = subprocess.run(ready_cmd, shell=True, capture_output=True, text=True).stdout.strip()
-                desired = subprocess.run(desired_cmd, shell=True, capture_output=True, text=True).stdout.strip()
+                ready = subprocess.run(
+                    ready_cmd, shell=True, capture_output=True, text=True
+                ).stdout.strip()
+                desired = subprocess.run(
+                    desired_cmd, shell=True, capture_output=True, text=True
+                ).stdout.strip()
 
                 if ready == desired:
                     success(f"Pod(s) with label '{pod_label}' is(are) Ready!")
                     break
                 else:
-                    pending(f"Pod(s) with label '{pod_label}' is(are) NOT Ready yet: {tempcount} times")
+                    pending(
+                        f"Pod(s) with label '{pod_label}' is(are) NOT Ready yet: {tempcount} times"
+                    )
                     pending("Wait for 10 seconds")
                     time.sleep(10)
             else:
@@ -230,16 +249,26 @@ def wait_for_pods_ready(pod_selector, pod_namespace):
                 print(result.stderr)
                 error("Error running kubectl command.")
             elif not result.stdout.strip():
-                pending(f"No pods found with selector '{pod_selector}' -n '{pod_namespace}'. Pods may not be up yet.")
+                pending(
+                    f"No pods found with selector '{pod_selector}' -n '{pod_namespace}'. Pods may not be up yet."
+                )
             elif check_pod_status(pod_selector, pod_namespace):
-                pass_message(f"All {pod_selector} pods in '{pod_namespace}' namespace are running and ready.")
+                pass_message(
+                    f"All {pod_selector} pods in '{pod_namespace}' namespace are running and ready."
+                )
                 return True
             else:
-                print(f"Pods found with selector '{pod_selector}' in '{pod_namespace}' namespace are not ready yet.")
+                print(
+                    f"Pods found with selector '{pod_selector}' in '{pod_namespace}' namespace are not ready yet."
+                )
 
             if wait_counter >= 30:
-                subprocess.run(f"oc get pods -l {pod_selector} -n {pod_namespace}", shell=True)
-                fail(f"Timed out after {30 * wait_counter // 60} minutes waiting for pod with selector: {pod_selector}")
+                subprocess.run(
+                    f"oc get pods -l {pod_selector} -n {pod_namespace}", shell=True
+                )
+                fail(
+                    f"Timed out after {30 * wait_counter // 60} minutes waiting for pod with selector: {pod_selector}"
+                )
                 return False
 
             wait_counter += 1
@@ -296,7 +325,9 @@ def wait_for_pod_name_ready(pod_name: str, pod_namespace: str) -> int:
                             break
 
                     if all_ready:
-                        pass_message(f"The pod({pod_name}) in '{pod_namespace}' namespace is running and ready.")
+                        pass_message(
+                            f"The pod({pod_name}) in '{pod_namespace}' namespace is running and ready."
+                        )
                         return 0
 
                 time.sleep(1)  # Wait 1 second before next check
@@ -334,7 +365,9 @@ def wait_for_just_created_pod_ready(namespace):
             created_pod_name = result.stdout.strip()
 
             if wait_counter >= 12:
-                subprocess.run(f"oc get pods {created_pod_name} -n {namespace}", shell=True)
+                subprocess.run(
+                    f"oc get pods {created_pod_name} -n {namespace}", shell=True
+                )
                 sys.exit(1)
 
             pending(f"No pods created in {namespace}. Pods may not be up yet.")
@@ -476,8 +509,14 @@ def check_oc_status():
             sys.exit(1)
 
         userName = result.stdout.strip()
-        result = subprocess.run("oc get group", shell=True, capture_output=True, text=True)
-        groupNames = [line.split()[0] for line in result.stdout.splitlines()[1:] if userName in line]
+        result = subprocess.run(
+            "oc get group", shell=True, capture_output=True, text=True
+        )
+        groupNames = [
+            line.split()[0]
+            for line in result.stdout.splitlines()[1:]
+            if userName in line
+        ]
 
         for groupName in groupNames:
             result = subprocess.run(
@@ -520,12 +559,16 @@ def check_rosa_access():
 
     if not os.path.isfile(os.path.expanduser("~/.aws/config")):
         if not os.environ.get("AWS_REGION"):
-            error("Neither config file exists in ~/.aws nor AWS_REGION environment variable is set.")
+            error(
+                "Neither config file exists in ~/.aws nor AWS_REGION environment variable is set."
+            )
             sys.exit(1)
 
     # Check ROSA login
     try:
-        result = subprocess.run(f"rosa login --token={os.environ.get('OCM_TOKEN')}", shell=True)
+        result = subprocess.run(
+            f"rosa login --token={os.environ.get('OCM_TOKEN')}", shell=True
+        )
         if result.returncode != 0:
             error("rosa login failed")
             sys.exit(1)
@@ -543,7 +586,9 @@ def check_rosa_access():
         sys.exit(1)
 
 
-def validate_script_params(params_str: str, allowed_params: list[str]) -> tuple[bool, list[str]]:
+def validate_script_params(
+    params_str: str, allowed_params: list[str]
+) -> tuple[bool, list[str]]:
     """
     Validate script parameters against a list of allowed parameters.
 

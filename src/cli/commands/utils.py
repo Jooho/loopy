@@ -145,8 +145,8 @@ def load_env_file_if_exist(file):
         original_dir = os.environ.get("ORIGINAL_DIR", os.getcwd())
         input_path = os.path.normpath(os.path.join(original_dir, file))
         if os.path.exists(input_path):
-            with open(input_path, "r") as file:
-                for line in file:
+            with open(input_path, "r") as f:
+                for line in f:
                     if not line.strip() or line.startswith("#"):  # Skip # part
                         continue
                     key, value = line.strip().split("=")

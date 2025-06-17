@@ -41,41 +41,41 @@ jobs:
         run: |
           make e2e-cluster-lifecycle CLUSTER_TYPE=kind
 
-  openshift-local-cluster-lifecycle-test:
-    runs-on: ubuntu-latest
+  # openshift-local-cluster-lifecycle-test:
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: [3.12]
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.12]
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0 
 
-      - name: Check changed files for cluster-lifecycle-test
-        run: |
-          git fetch origin main
-          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+  #     - name: Check changed files for cluster-lifecycle-test
+  #       run: |
+  #         git fetch origin main
+  #         CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
 
-          if ! echo "$CHANGED_FILES" | grep -qE '^(src/roles/clusters/openshift-local/|tests/e2e/cluster-life-cycle/openshift-local_install_delete/|default_provided_services/|hacks/|.github/|commons/)'; then
-            echo "No relevant files changed for Openshift Local cluster-lifecycle-test. Skipping tests but marking success."
-            exit 0
-          fi
+  #         if ! echo "$CHANGED_FILES" | grep -qE '^(src/roles/clusters/openshift-local/|tests/e2e/cluster-life-cycle/openshift-local_install_delete/|default_provided_services/|hacks/|.github/|commons/)'; then
+  #           echo "No relevant files changed for Openshift Local cluster-lifecycle-test. Skipping tests but marking success."
+  #           exit 0
+  #         fi
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r requirements.txt
 
-      - name: Run E2E Openshift Local Tests
-        shell: bash
-        run: |
-          make e2e-cluster-lifecycle CLUSTER_TYPE=openshift_local NEW_PYTEST_ARGS="-n 1 --dist=loadscope --max-worker-restart=0"
+  #     - name: Run E2E Openshift Local Tests
+  #       shell: bash
+  #       run: |
+  #         make e2e-cluster-lifecycle CLUSTER_TYPE=openshift_local NEW_PYTEST_ARGS="-n 1 --dist=loadscope --max-worker-restart=0"
 

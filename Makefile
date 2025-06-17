@@ -1,8 +1,9 @@
 IMG=quay.io/jooholee/loopy
 IMG_TAG=latest
 
-PYTEST_CONFIG ?= "pytest.ini"
-TEST_ENV ?= "local"
+PYTEST_CONFIG ?= pytest.ini
+TEST_ENV ?= local
+PYTEST_ARGS ?= -n 3 --dist=loadscope
 
 .PHONY: build push
 build:
@@ -41,7 +42,13 @@ e2e: download-cli
 .PHONY: e2e-cluster-lifecycle 
 e2e-cluster-lifecycle: download-cli	
 	export PATH="$(CURDIR)/bin:$(PATH)" ;\
-	pytest -c "${PYTEST_CONFIG}" -n 1 --dist worksteal -m cluster_life_cycle_tests
+	if [ -n "$(NEW_PYTEST_ARGS)" ]; then \
+		FINAL_PYTEST_ARGS="$(NEW_PYTEST_ARGS)"; \
+	else \
+		FINAL_PYTEST_ARGS="$(PYTEST_ARGS)"; \
+	fi ;\
+	pytest -c "${PYTEST_CONFIG}" $$FINAL_PYTEST_ARGS -m "(${CLUSTER_TYPE}) and cluster_lifecycle_tests"
+
 
 .PHONY: update-test-data
 update-test-data:

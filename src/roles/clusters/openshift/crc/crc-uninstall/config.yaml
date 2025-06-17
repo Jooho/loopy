@@ -1,0 +1,32 @@
+role:
+  created_date: "20250605"
+  name: openshift-local-uninstall
+  description: |
+    This role help to uninstall a crc cluster.
+    If you want to delete crc cluster vm, you need to set DELETE to true.
+    If you want to undo configuration of crc cluster, you need to set CLEANUP to true.
+
+    pre-requirements:
+      - crc CLI installed
+
+    Input Environment:
+      The parameters include:
+      - CLEANUP: Set CLEANUP to true if you want to undo configuration of crc cluster (default: false)
+      - DELETE: Set DELETE to true if you want to delete crc cluster vm (default: false)
+      
+    To run it:
+    ./loopy roles run crc-uninstall  \
+    -p CLEANUP=false
+    -p DELETE=false
+
+  input_env:
+  - name: CLEANUP
+    description: |
+      Set CLEANUP to true if you want to stop/cleanup crc cluster (default: false)
+    default: false
+  - name: DELETE
+    description: |
+      Set DELETE to true if you want to delete crc cluster vm (default: false)
+    default: false
+  
+ 

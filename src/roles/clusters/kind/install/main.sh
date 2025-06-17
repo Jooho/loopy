@@ -33,12 +33,12 @@ kind_ingress_config_path=$current_dir/$kind_ingress_config
 
 # Check if docker/podman is installed
 if ! command -v $CONTAINER_RUNTIME &> /dev/null; then
-  fatal "docker/podman could not be found"
+  die "docker/podman could not be found"
 fi
 
 # Check if kind is installed
 if ! command -v kind &> /dev/null; then
-  fatal "kind could not be found: try make download-cli"  
+  die "kind could not be found: try make download-cli"  
 fi
 
 kind_options=""
@@ -108,6 +108,7 @@ if [[ $result -eq 0 ]]; then
     info "Writing environment variables to output file"    
     echo "KUBECONFIG_PATH=${KUBECONFIG_PATH}" >>${OUTPUT_ENV_FILE}
 fi
+echo "CLUSTER_TYPE=kind" >> ${OUTPUT_ENV_FILE}
 
 ############# REPORT #############
 echo "${index_role_name}::${result}" >>${REPORT_FILE}

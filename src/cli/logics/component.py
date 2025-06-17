@@ -461,7 +461,8 @@ def export_env_variables(ctx, input_variabels):
         os.environ["STOP_WHEN_FAILED"] = str(ctx.obj.config["stop_when_failed"])
 
     for input_var in input_variabels:
-        os.environ[input_var] = input_variabels[input_var]
+        # Convert all values to string
+        os.environ[input_var] = str(input_variabels[input_var])
 
     logger.info(f"{Fore.GREEN} \u21b3 Successfully export input variables {Fore.RESET}")
 

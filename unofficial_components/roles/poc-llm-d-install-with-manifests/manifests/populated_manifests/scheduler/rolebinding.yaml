@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: meta-llama-llama-3-2-3b-instruct-epp-rolebinding
+  namespace: %test_namespace%
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: llm-d-modelservice-endpoint-picker
+subjects:
+- kind: ServiceAccount
+  name: meta-llama-llama-3-2-3b-instruct-epp-sa
+  namespace: %test_namespace%

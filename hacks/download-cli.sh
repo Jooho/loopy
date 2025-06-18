@@ -51,6 +51,14 @@ check_binary_exists() {
     return 1
 }
 
+# Determine OS and architecture
+OS=$(uname | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+case "$ARCH" in
+  arm64|aarch64) ARCH="arm64" ;;
+  x86_64) ARCH="amd64" ;;
+  *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
 
 # Install JQ (mandatory)
 if ! check_binary_exists "${root_directory}/bin/jq"; then
@@ -146,6 +154,20 @@ if ! check_binary_exists "${root_directory}/bin/tkn"; then
     mv tkn "${root_directory}/bin/tkn"
     chmod +x "${root_directory}/bin/tkn"
     echo "✅ Tekton CLI installed successfully!"
+fi
+
+# Install Helm
+HELM_VERSION="v3.17.3"
+HELM_TARBALL="helm-${HELM_VERSION}-${OS}-${ARCH}.tar.gz"
+
+if ! check_binary_exists "${root_directory}/bin/helm"; then
+  echo "⬇️ Downloading HELM (v${HELM_VERSION})..."
+  wget --progress=bar:force:noscroll "https://get.helm.sh/${HELM_TARBALL}"
+  tar -zxvf "${HELM_TARBALL}"
+  delete_if_exists "${root_directory}/bin/helm"
+  mv "${OS}-${ARCH}/helm" "${root_directory}/bin/helm"
+  chmod +x "${root_directory}/bin/helm"
+  rm -rf "${OS}-${ARCH}" "${HELM_TARBALL}"
 fi
 
 if [[ $TEST_ENV == "local" ]]; then

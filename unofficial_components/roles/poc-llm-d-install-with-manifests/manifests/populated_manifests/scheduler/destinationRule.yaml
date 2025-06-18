@@ -1,0 +1,11 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: meta-llama-llama-3-2-3b-instruct-insecure-tls
+  namespace: %test_namespace%
+spec:
+  host: meta-llama-llama-3-2-3b-instruct-epp-service
+  trafficPolicy:
+    tls:
+      insecureSkipVerify: true
+      mode: SIMPLE

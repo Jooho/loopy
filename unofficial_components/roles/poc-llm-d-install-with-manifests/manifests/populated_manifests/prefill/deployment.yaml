@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    llm-d.ai/inferenceServing: "true"
+    llm-d.ai/model: meta-llama-llama-3-2-3b-instruct
+    llm-d.ai/role: prefill
+  name: meta-llama-llama-3-2-3b-instruct-prefill
+  namespace: %test_namespace%
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      llm-d.ai/inferenceServing: "true"
+      llm-d.ai/model: meta-llama-llama-3-2-3b-instruct
+      llm-d.ai/role: prefill
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        llm-d.ai/inferenceServing: "true"
+        llm-d.ai/model: meta-llama-llama-3-2-3b-instruct
+        llm-d.ai/role: prefill
+    spec:
+      affinity: {}
+      containers:
+      - args:
+        - --gpu_memory_utilization=0.9
+        - --max_model_len=65536
+        - --served-model-name
+        - %model_id%
+        - --port
+        - "8000"
+        - --kv-transfer-config
+        - '{"kv_connector":"MultiConnector","kv_role":"kv_both","kv_connector_extra_config":{"connectors":[{"kv_connector":"NixlConnector","kv_role":"kv_both"},{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}]}}'
+        command:
+        - vllm
+        - serve
+        - %model_id%
+        env:
+        - name: HOME
+          value: /home
+        - name: VLLM_LOGGING_LEVEL
+          value: INFO
+        - name: VLLM_NIXL_SIDE_CHANNEL_PORT
+          value: "5557"
+        - name: VLLM_NIXL_SIDE_CHANNEL_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: LMCACHE_DISTRIBUTED_URL
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: UCX_TLS
+          value: ^cuda_ipc
+        - name: LMCACHE_ENABLE_DEBUG
+          value: "True"
+        - name: LMCACHE_LOCAL_CPU
+          value: "True"
+        - name: LMCACHE_MAX_LOCAL_CPU_SIZE
+          value: "5"
+        - name: LMCACHE_MAX_LOCAL_DISK_SIZE
+          value: "10"
+        - name: LMCACHE_CHUNK_SIZE
+          value: "256"
+        - name: LMCACHE_LOOKUP_URL
+          value: llm-d-redis-master.%test_namespace%.svc.cluster.local:8100
+        - name: HF_HUB_CACHE
+          value: /models
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: HF_TOKEN
+              name: llm-d-hf-token
+        image: ghcr.io/llm-d/llm-d:0.0.8
+        imagePullPolicy: IfNotPresent
+        name: vllm
+        ports:
+        - containerPort: 5557
+          protocol: TCP
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        securityContext:
+          allowPrivilegeEscalation: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /home
+          name: home
+        - mountPath: /dev/shm
+          name: dshm
+        - mountPath: /models
+          name: model-cache
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: meta-llama-llama-3-2-3b-instruct-sa
+      serviceAccountName: meta-llama-llama-3-2-3b-instruct-sa
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: nvidia.com/gpu
+        operator: Exists
+      volumes:
+      - emptyDir: {}
+        name: home
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 1Gi
+        name: dshm
+      - emptyDir: {}
+        name: model-cache

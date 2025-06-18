@@ -108,13 +108,25 @@ class Initializer:
         }
 
         # Add default components paths
-        self.config_data["default_roles_dir"] = f"{self.loopy_root_path}/src/roles"
-        self.config_data["default_units_dir"] = (
-            f"{self.loopy_root_path}/{constants.UNOFFICIAL_COMPONENTS}/units"
-        )
-        self.config_data["default_playbooks_dir"] = (
-            f"{self.loopy_root_path}/{constants.UNOFFICIAL_COMPONENTS}/playbooks"
-        )
+        for key in [
+            "default_roles_dirs",
+            "default_units_dirs",
+            "default_playbooks_dirs",
+        ]:
+            if key in self.config_data:
+                # First ensure it's a list
+                if not isinstance(self.config_data[key], list):
+                    self.config_data[key] = [self.config_data[key]]
+
+                # Then replace environment variables in each path
+                self.config_data[key] = [
+                    self.replace_env_vars(path) for path in self.config_data[key]
+                ]
+
+                # Finally add loopy_root_path to each path
+                self.config_data[key] = [
+                    f"{self.loopy_root_path}/{path}" for path in self.config_data[key]
+                ]
 
         # Initialize the list of components
         self.initialize_component_list("role")
@@ -132,28 +144,57 @@ class Initializer:
         for key, value in env.items():
             config[key] = value
 
+    def replace_env_vars(self, value):
+        if isinstance(value, str):
+            pattern = r"\${([^}]+)}"
+
+            def replace_var(match):
+                var_name = match.group(1)
+                # First try environment variable
+                env_value = os.environ.get(var_name)
+                if env_value is not None:
+                    return env_value
+                # If not found in env, try constants
+                if hasattr(constants, var_name):
+                    return getattr(constants, var_name)
+                # If not found in either, return original
+                return match.group(0)
+
+            return re.sub(pattern, replace_var, value)
+        elif isinstance(value, list):
+            return [self.replace_env_vars(item) for item in value]
+        return value
+
     def initialize_component_list(self, list_type):
         if list_type == "role":
-            default_dir = self.config_data["default_roles_dir"]
-            additional_dirs = self.config_data["additional_role_dirs"]
+            default_dirs = self.config_data["default_roles_dirs"]
+            additional_dirs = self.config_data.get("additional_role_dirs", [])
             key = "role_list"
         elif list_type == "unit":
-            default_dir = self.config_data["default_units_dir"]
-            additional_dirs = self.config_data["additional_unit_dirs"]
+            default_dirs = self.config_data["default_units_dirs"]
+            additional_dirs = self.config_data.get("additional_unit_dirs", [])
             key = "unit_list"
         elif list_type == "playbook":
-            default_dir = self.config_data["default_playbooks_dir"]
-            additional_dirs = self.config_data["additional_playbook_dirs"]
+            default_dirs = self.config_data["default_playbooks_dirs"]
+            additional_dirs = self.config_data.get("additional_playbook_dirs", [])
             key = "playbook_list"
         else:
             raise ValueError("Invalid list type")
 
-        # Combine default and additional directories
-        dirs_list = [default_dir] + additional_dirs
+        # Ensure both are lists
+        if not isinstance(default_dirs, list):
+            default_dirs = [default_dirs]
+        if not isinstance(additional_dirs, list):
+            additional_dirs = [additional_dirs]
+
+        # Combine the lists
+        dirs_list = default_dirs + additional_dirs
 
         # initialize the list
         item_list = []
         for directory in dirs_list:
+            if not os.path.exists(directory):
+                continue
             items = self.get_component_list_from_directory(directory, list_type)
             item_list.extend(items)
 

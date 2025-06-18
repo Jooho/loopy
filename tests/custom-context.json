@@ -98,16 +98,22 @@
             "unit": "/home/jooho/temp/test-debug/loopy/src/schema/unit.yaml",
             "playbook": "/home/jooho/temp/test-debug/loopy/src/schema/playbook.yaml"
         },
-        "default_roles_dir": "/home/jooho/temp/test-debug/loopy/src/roles",
-        "default_units_dir": "/home/jooho/temp/test-debug/loopy/unofficial_components/units",
-        "default_playbooks_dir": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks",
+        "default_roles_dirs": [
+            "/home/jooho/temp/test-debug/loopy/src/roles",
+            "/home/jooho/temp/test-debug/loopy/unofficial_components/roles"
+        ],
+        "default_units_dirs": [
+            "/home/jooho/temp/test-debug/loopy/unofficial_components/units"
+        ],
+        "default_playbooks_dirs": [
+            "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks"
+        ],
         "default_vars_file": "src/commons/default-variables.yaml",
         "output_target_dir": "",
         "output_root_dir": "/tmp/ms_cli",
         "output_env_dir": "output",
         "output_artifacts_dir": "artifacts",
         "output_report_file": "report",
-        "show_debug_log": false,
         "stop_when_failed": false,
         "stop_when_error_happened": false,
         "enable_loopy_report": true,
@@ -192,10 +198,10 @@
         "cli_dir": "/home/jooho/temp/test-debug/loopy/src/cli",
         "logics_dir": "/home/jooho/temp/test-debug/loopy/src/cli/logics",
         "py_utils_dir": "/home/jooho/temp/test-debug/loopy/commons/python",
-        "loopy_result_dir": "/tmp/ms_cli/20250526_1702",
-        "output_dir": "/tmp/ms_cli/20250526_1702/output",
-        "artifacts_dir": "/tmp/ms_cli/20250526_1702/artifacts",
-        "report_file": "/tmp/ms_cli/20250526_1702/report",
+        "loopy_result_dir": "/tmp/ms_cli/20250617_1647",
+        "output_dir": "/tmp/ms_cli/20250617_1647/output",
+        "artifacts_dir": "/tmp/ms_cli/20250617_1647/artifacts",
+        "report_file": "/tmp/ms_cli/20250617_1647/report",
         "role_list": [
             {
                 "name": "cert-generate",
@@ -204,22 +210,6 @@
             {
                 "name": "dev-python-virtualenv",
                 "path": "/home/jooho/temp/test-debug/loopy/src/roles/dev/python-virtualenv"
-            },
-            {
-                "name": "kserve-caikit-test",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/caikit-runtime"
-            },
-            {
-                "name": "kserve-inference-test-from-notebook",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-notebook"
-            },
-            {
-                "name": "kserve-caikit-test-using-pipeline",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-pipeline"
-            },
-            {
-                "name": "kserve-sklearn-test",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/sklearn"
             },
             {
                 "name": "minio-deploy",
@@ -242,34 +232,6 @@
                 "path": "/home/jooho/temp/test-debug/loopy/src/roles/opendatahub/dsci"
             },
             {
-                "name": "openshift-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/install_TBD"
-            },
-            {
-                "name": "openshift-rosa-add-machinepool",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/rosa-add-machinepool"
-            },
-            {
-                "name": "openshift-rosa-delete-machinepool",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/rosa-delete-machinepool"
-            },
-            {
-                "name": "openshift-rosa-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/rosa-install"
-            },
-            {
-                "name": "openshift-rosa-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/rosa-uninstall"
-            },
-            {
-                "name": "openshift-fips-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/uninstall-psi-fips"
-            },
-            {
-                "name": "openshift-fips-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/openshift/psi-install-fips"
-            },
-            {
                 "name": "operator-uninstall",
                 "path": "/home/jooho/temp/test-debug/loopy/src/roles/operator/delete"
             },
@@ -280,6 +242,74 @@
             {
                 "name": "shell-execute",
                 "path": "/home/jooho/temp/test-debug/loopy/src/roles/shell/execute"
+            },
+            {
+                "name": "template",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/template"
+            },
+            {
+                "name": "openshift-install",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/install_TBD"
+            },
+            {
+                "name": "openshift-fips-install",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/psi-install-fips"
+            },
+            {
+                "name": "openshift-fips-uninstall",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/uninstall-psi-fips"
+            },
+            {
+                "name": "openshift-rosa-add-machinepool",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-add-machinepool"
+            },
+            {
+                "name": "openshift-rosa-delete-machinepool",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-delete-machinepool"
+            },
+            {
+                "name": "openshift-rosa-install",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-install"
+            },
+            {
+                "name": "openshift-rosa-uninstall",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-uninstall"
+            },
+            {
+                "name": "openshift-local-install",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/crc/crc-install"
+            },
+            {
+                "name": "openshift-local-uninstall",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/crc/crc-uninstall"
+            },
+            {
+                "name": "kind-install",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/kind/install"
+            },
+            {
+                "name": "kind-uninstall",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/kind/uninstall"
+            },
+            {
+                "name": "kserve-caikit-test",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/caikit-runtime"
+            },
+            {
+                "name": "kserve-inference-test-from-notebook",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-notebook"
+            },
+            {
+                "name": "kserve-caikit-test-using-pipeline",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-pipeline"
+            },
+            {
+                "name": "kserve-sklearn-test",
+                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/sklearn"
+            },
+            {
+                "name": "llm-d-install-with-manifests",
+                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/roles/poc-llm-d-install-with-manifests"
             }
         ],
         "unit_list": [
@@ -472,6 +502,14 @@
             {
                 "name": "vllm-multi-node-odh-poc",
                 "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/vllm-multi-node-odh-poc"
+            },
+            {
+                "name": "setup-dev-env-kind-upstream-kserve",
+                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/setup-dev-env-kind-upstream-kserve"
+            },
+            {
+                "name": "llm-d-on-kind",
+                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/llm-d-on-kind"
             },
             {
                 "name": "loopy-test-report-playbook",

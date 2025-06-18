@@ -13,6 +13,9 @@ def mock_env_and_config():
         "loopy_config_path": "/mock/loopy/config.yaml",
     }  # Environment variables will be lowcased
     config_data = {
+        "default_roles_dirs": ["src/roles"],
+        "default_units_dirs": ["default_provided_services/units"],
+        "default_playbooks_dirs": ["default_provided_services/playbooks"],
         "output_root_dir": "/tmp/ms_cli",
         "output_env_dir": "output",
         "output_artifacts_dir": "artifacts",
@@ -36,23 +39,15 @@ def test_initializer_initialization(mock_env_and_config):
     env_list, config_data, default_vars = mock_env_and_config
 
     # Mocking os.makedirs and open calls to avoid file system changes
-    with mock.patch("os.makedirs") as mock_makedirs, mock.patch(
-        "builtins.open", mock.mock_open()
-    ) as mock_open:
+    with mock.patch("os.makedirs") as mock_makedirs, mock.patch("builtins.open", mock.mock_open()) as mock_open:
         # Initialize the Initializer
         initializer = Initializer(env_list, config_data, default_vars)
         initializer.initialize()
 
         # Check if the directories are being created
-        output_dir = os.path.join(
-            config_data["loopy_result_dir"], config_data["output_env_dir"]
-        )
-        artifacts_dir = os.path.join(
-            config_data["loopy_result_dir"], config_data["output_artifacts_dir"]
-        )
-        report_file = os.path.join(
-            config_data["loopy_result_dir"], config_data["output_report_file"]
-        )
+        output_dir = os.path.join(config_data["loopy_result_dir"], config_data["output_env_dir"])
+        artifacts_dir = os.path.join(config_data["loopy_result_dir"], config_data["output_artifacts_dir"])
+        report_file = os.path.join(config_data["loopy_result_dir"], config_data["output_report_file"])
 
         mock_makedirs.assert_any_call(output_dir, exist_ok=True)
         mock_makedirs.assert_any_call(artifacts_dir, exist_ok=True)
@@ -87,28 +82,28 @@ def test_sync_env_to_config(mock_env_and_config):
 def test_initialize_list_role(mock_env_and_config):
     # Test Data
     env_list, config_data, default_vars = mock_env_and_config
-    config_data["default_roles_dir"] = os.path.join(
-        env_list["loopy_root_path"], "src", "roles"
-    )
-    config_data["default_units_dir"] = os.path.join(
-        env_list["loopy_root_path"], "default_provided_services", "units"
-    )
-    config_data["default_playbooks_dir"] = os.path.join(
+    config_data["default_roles_dirs"] = os.path.join(env_list["loopy_root_path"], "src", "roles")
+    config_data["default_units_dirs"] = os.path.join(env_list["loopy_root_path"], "default_provided_services", "units")
+    config_data["default_playbooks_dirs"] = os.path.join(
         env_list["loopy_root_path"], "default_provided_services", "playbooks"
     )
 
     initializer = Initializer(env_list, config_data, default_vars)
 
     mock_walk = [
-        (config_data["default_roles_dir"] + "/foo", [], ["config.yaml"]),
-        (config_data["default_roles_dir"] + "/bar", [], ["config.yaml"]),
+        (config_data["default_roles_dirs"] + "/foo", [], ["config.yaml"]),
+        (config_data["default_roles_dirs"] + "/bar", [], ["config.yaml"]),
         ("/mock/custom/role_dir/foo_2", [], ["config.yaml"]),
         ("/mock/custom/role_dir/bar_2", [], ["config.yaml"]),
     ]
 
     mock_yaml_data = {"role": {"name": "test"}}
 
-    with patch("os.walk", return_value=mock_walk), patch(
+    # Mock os.path.exists to return True for all directories
+    def mock_exists(path):
+        return True
+
+    with patch("os.walk", return_value=mock_walk), patch("os.path.exists", side_effect=mock_exists), patch(
         "builtins.open", mock_open(read_data="fake_yaml_content")
     ), patch("yaml.safe_load", return_value=mock_yaml_data), patch.object(
         initializer, "validate_config_yaml_schema", return_value=[]
@@ -165,10 +160,7 @@ def test_validate_config_yaml_schema(mock_env_and_config, loopy_root_path):
         f"{loopy_root_path}/tests/test-data/schema/fail-unit-config.yaml", "unit"
     )
     assert len(errors) == 1
-    assert (
-        errors[0]["message"]
-        == "Additional properties are not allowed ('description2' was unexpected)"
-    )
+    assert errors[0]["message"] == "Additional properties are not allowed ('description2' was unexpected)"
 
     # Playbook
     errors = initializer.validate_config_yaml_schema(
@@ -182,7 +174,4 @@ def test_validate_config_yaml_schema(mock_env_and_config, loopy_root_path):
         "playbook",
     )
     assert len(errors) == 1
-    assert (
-        errors[0]["message"]
-        == "Additional properties are not allowed ('name2' was unexpected)"
-    )
+    assert errors[0]["message"] == "Additional properties are not allowed ('name2' was unexpected)"

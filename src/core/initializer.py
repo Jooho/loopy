@@ -41,9 +41,15 @@ class Initializer:
 
     def initialize(self):
         # Initialize result directory
-        output_dir = os.path.join(self.loopy_result_dir, self.config_data["output_env_dir"])
-        artifacts_dir = os.path.join(self.loopy_result_dir, self.config_data["output_artifacts_dir"])
-        report_file = os.path.join(self.loopy_result_dir, self.config_data["output_report_file"])
+        output_dir = os.path.join(
+            self.loopy_result_dir, self.config_data["output_env_dir"]
+        )
+        artifacts_dir = os.path.join(
+            self.loopy_result_dir, self.config_data["output_artifacts_dir"]
+        )
+        report_file = os.path.join(
+            self.loopy_result_dir, self.config_data["output_report_file"]
+        )
 
         # Update config data with paths
         self.config_data["output_dir"] = output_dir
@@ -102,17 +108,25 @@ class Initializer:
         }
 
         # Add default components paths
-        for key in ["default_roles_dirs", "default_units_dirs", "default_playbooks_dirs"]:
+        for key in [
+            "default_roles_dirs",
+            "default_units_dirs",
+            "default_playbooks_dirs",
+        ]:
             if key in self.config_data:
                 # First ensure it's a list
                 if not isinstance(self.config_data[key], list):
                     self.config_data[key] = [self.config_data[key]]
 
                 # Then replace environment variables in each path
-                self.config_data[key] = [self.replace_env_vars(path) for path in self.config_data[key]]
+                self.config_data[key] = [
+                    self.replace_env_vars(path) for path in self.config_data[key]
+                ]
 
                 # Finally add loopy_root_path to each path
-                self.config_data[key] = [f"{self.loopy_root_path}/{path}" for path in self.config_data[key]]
+                self.config_data[key] = [
+                    f"{self.loopy_root_path}/{path}" for path in self.config_data[key]
+                ]
 
         # Initialize the list of components
         self.initialize_component_list("role")
@@ -202,7 +216,9 @@ class Initializer:
                         for error in file_errors:
                             print(f"{Fore.RED}YAML Schema Error!{Style.RESET_ALL}")
                             print(f"{Fore.RED}ERROR: {error}{Style.RESET_ALL}")
-                            print(f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}")
+                            print(
+                                f"{Fore.BLUE}YAML Content({config_path}){Style.RESET_ALL}"
+                            )
                             exit(1)
 
                 with open(config_path, "r") as config_file:
@@ -216,10 +232,14 @@ class Initializer:
                             else:
                                 name = self.convert_path_to_component_name(path, type)
                             if "steps" in config_data[type]:
-                                role_name = config_data[type]["steps"][0]["role"]["name"]
+                                role_name = config_data[type]["steps"][0]["role"][
+                                    "name"
+                                ]
                             else:
                                 role_name = config_data[type]["role"]["name"]
-                            item_list.append({"name": name, "path": path, "role_name": role_name})
+                            item_list.append(
+                                {"name": name, "path": path, "role_name": role_name}
+                            )
                         else:
                             path = os.path.abspath(root)
                             if "name" in config_data[type]:

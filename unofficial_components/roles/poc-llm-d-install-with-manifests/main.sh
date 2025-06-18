@@ -54,8 +54,8 @@ PORT=80
 fi
 
 # Install CRDs
-oc apply -k ${GATEWAY_API_CRD_MANIFESTS_URL}
-oc apply -k ${GIE_CRD_MANIFESTS_URL}
+oc apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_CRD_VERSION}/experimental-install.yaml
+oc apply -f https://github.com/kubernetes-sigs/gateway-api-inference-extension/releases/download/${GIE_CRD_VERSION}/manifests.yaml
 
 # Install GATEWAY API Implementation
 case $GIE_BACKEND in

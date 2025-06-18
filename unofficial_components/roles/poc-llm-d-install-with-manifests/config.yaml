@@ -61,12 +61,12 @@ role:
       description: |
         Set this, if you want to use specific ISTIO image hub for helm install(ex "gcr.io/istio-testing")
       default: gcr.io/istio-testing        
-    - name: GIE_CRD_MANIFESTS_URL
-      description: Set this, if you want to use specific GIE CRD (ex "https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gie")
-      default: https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gie
-    - name: GATEWAY_API_CRD_MANIFESTS_URL
-      description: Set this, if you want to use specific GATEWAY API CRD (ex "https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gateway-api")
-      default: https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gateway-api
+    - name: GIE_CRD_VERSION
+      description: Set this, if you want to use specific GIE CRD version (ex "v1.0.0")
+      default: v0.3.0
+    - name: GATEWAY_API_CRD_VERSION
+      description: Set this, if you want to use specific GATEWAY API CRD version (ex "v1.0.0")
+      default: v1.3.0
     - name: MODEL_ID
       description: Set this, if you want to use specific model id (ex "meta-llama/Llama-3.2-3B-Instruct")
       default: meta-llama/Llama-3.2-3B-Instruct

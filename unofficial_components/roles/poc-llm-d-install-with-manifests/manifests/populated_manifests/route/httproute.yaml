@@ -1,0 +1,28 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  labels:
+    app.kubernetes.io/component: sample-application
+    app.kubernetes.io/instance: llm-d
+    app.kubernetes.io/name: llm-d
+  name: meta-llama-llama-3-2-3b-instruct
+  namespace: %test_namespace%
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: llm-d-inference-gateway
+  rules:
+  - backendRefs:
+    - group: inference.networking.x-k8s.io
+      kind: InferencePool
+      name: meta-llama-llama-3-2-3b-instruct-inference-pool
+      port: 8000
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+    timeouts:
+      backendRequest: 0s
+      request: 0s

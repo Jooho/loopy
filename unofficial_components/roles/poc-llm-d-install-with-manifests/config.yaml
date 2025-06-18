@@ -1,0 +1,80 @@
+role:
+  created_date: "20250617"
+  name: llm-d-install-with-manifests
+  files:
+    test_requests_file: files/test-request.sh
+  manifests:
+    route_manifests_dir: manifests/populated_manifests/route
+    kvcache_manifests_dir: manifests/populated_manifests/kvcache
+    scheduler_manifests_dir: manifests/populated_manifests/scheduler
+    prefill_manifests_dir: manifests/populated_manifests/prefill
+    decode_manifests_dir: manifests/populated_manifests/decode
+    simulator_prefill_manifests_dir: manifests/populated_manifests_using_simulator/prefill
+    simulator_decode_manifests_dir: manifests/populated_manifests_using_simulator/decode    
+
+  description: |
+    This role is used to install Prefill/Decode type deployment ofLLM-D using llm-d-simulator.
+    It will create all required resource by manfiests and verify the deployment by sending test request to the LLM-D simulator and wait for the request to be processed.
+    For now, KIND cluster is supported.
+
+    pre-requirements:
+      - Provide Cluster (KIND) if you want to use your own cluster.
+      - Cluster should have GPUs If you don't want to use llm-d-simulator.
+
+
+    Input Environment:
+      The parameters include:
+      - CLUSTER_TYPE: Set CLUSTER_TYPE(ex "KIND") (default: KIND)
+      - KUBECONFIG_PATH: Set KUBECONFIG_PATH if you set KIND(ex "/path/to/kubeconfig") (default: ~/.kube/config)
+
+    To run it:
+    ./loopy roles run poc-llm-d-install-with-manifests  \
+    -p CLUSTER_TYPE=KIND \
+    -p MODEL_ID=meta-llama/Llama-3.2-3B-Instruct \
+    -p TEST_NAMESPACE=llm-d-test \
+    -p USE_SIMULATOR=true \
+    -p GIE_BACKEND=istio \
+    -p ISTIO_HUB_VERSION=1.26-alpha.9befed2f1439d883120f8de70fd70d84ca0ebc3d \
+    -p ISTIO_HUB=gcr.io/istio-testing \
+    -p GIE_CRD_MANIFESTS_URL=https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gie \
+    -p GATEWAY_API_CRD_MANIFESTS_URL=https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gateway-api
+
+  input_env:
+    - name: TEST_NAMESPACE
+      description: |
+        Set this, if you want to use specific namespace for test (ex "llm-d-test")
+      default: llm-d-test
+    - name: USE_SIMULATOR
+      description: |
+        Set this, if you want to use llm-d-simulator (ex "true")
+      default: true
+    - name: GIE_BACKEND
+      description: |
+        Set this, if you want to use specific GIE implementaiton (ex "istio")
+        For now, only istio is supported.
+      default: istio
+    - name: ISTIO_HUB_VERSION
+      description: |
+        Set this, if you want to use specific ISTIO image tag for helm install(ex "1.26")
+      default: 1.26-alpha.9befed2f1439d883120f8de70fd70d84ca0ebc3d
+    - name: ISTIO_HUB
+      description: |
+        Set this, if you want to use specific ISTIO image hub for helm install(ex "gcr.io/istio-testing")
+      default: gcr.io/istio-testing        
+    - name: GIE_CRD_MANIFESTS_URL
+      description: Set this, if you want to use specific GIE CRD (ex "https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gie")
+      default: https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gie
+    - name: GATEWAY_API_CRD_MANIFESTS_URL
+      description: Set this, if you want to use specific GATEWAY API CRD (ex "https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gateway-api")
+      default: https://github.com/llm-d/llm-d-inference-scheduler/deploy/components/crds-gateway-api
+    - name: MODEL_ID
+      description: Set this, if you want to use specific model id (ex "meta-llama/Llama-3.2-3B-Instruct")
+      default: meta-llama/Llama-3.2-3B-Instruct
+
+    
+  
+
+  
+
+
+      

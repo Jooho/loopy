@@ -1,0 +1,22 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  annotations:
+    networking.istio.io/service-type: ClusterIP
+  labels:
+    app.kubernetes.io/component: inference-gateway
+    app.kubernetes.io/gateway: llm-d-inference-gateway
+    app.kubernetes.io/instance: llm-d
+    app.kubernetes.io/name: llm-d
+    istio.io/enable-inference-extproc: "true"
+  name: llm-d-inference-gateway
+  namespace: %test_namespace%
+spec:
+  gatewayClassName: istio
+  listeners:
+  - allowedRoutes:
+      namespaces:
+        from: Same
+    name: default
+    port: 80
+    protocol: HTTP

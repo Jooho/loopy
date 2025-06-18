@@ -1,0 +1,12 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceService
+metadata:
+  name: meta-llama-llama-3-2-3b-instruct
+  namespace: %test_namespace%
+spec:
+  type: 'llm-d'
+  baseRefs:
+  - name: llm-d-config
+  model:
+    uri: "hf://meta-llama/Llama-3.2-3B-Instruct"
+  replicas: 1

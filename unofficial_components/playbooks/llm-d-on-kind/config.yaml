@@ -1,0 +1,11 @@
+playbook:
+  name: llm-d-on-kind
+  description: This playbook is used to install LLM-D on a kind cluster using llm-d-simulator.
+  steps:
+    - role:
+        name: kind-install
+    - role:
+        name: llm-d-install-with-manifests
+        input_env:
+          TEST_NAMESPACE: llm-d-test
+    

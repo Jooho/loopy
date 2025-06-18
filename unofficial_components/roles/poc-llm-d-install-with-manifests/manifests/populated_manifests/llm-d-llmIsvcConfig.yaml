@@ -1,0 +1,366 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: LLMInferenceServiceConfig
+metadata:
+  name: llm-d-config
+  namespace: %test_namespace%
+spec:
+  type: "llm-d"
+
+  # Common model settings
+  model:
+    uri: "hf://meta-llama/Llama-3.2-3B-Instruct"
+    # criticality: "Critical"
+    # storage:
+    #   path: "/models/llama-4"
+    #   parameters:
+    #     storageType: "s3"
+    #     region: "us-west-2"
+    #   storageKey: "localMinIO"
+
+    # Common parallel processing settings
+  parallelism:
+    tensor: 1
+    pipeline: 1
+
+  replicas: 1
+  # Common template settings
+  template:
+    containers:
+    - name: vllm
+      args:
+      - --gpu_memory_utilization=0.9
+      - --max_model_len=65536
+      - --served-model-name
+      - meta-llama/Llama-3.2-3B-Instruct
+      - --port
+      - "8001"
+      - --kv-transfer-config
+      - '{"kv_connector":"MultiConnector","kv_role":"kv_both","kv_connector_extra_config":{"connectors":[{"kv_connector":"NixlConnector","kv_role":"kv_both"},{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}]}}'
+      command:
+      - vllm
+      - serve
+      - meta-llama/Llama-3.2-3B-Instruct
+
+      image: ghcr.io/llm-d/llm-d:0.0.8
+      ports:
+      - containerPort: 5557
+        protocol: TCP
+      - containerPort: 80
+        protocol: TCP
+
+      resources:
+        limits:
+          nvidia.com/gpu: "1"
+          memory: "32Gi"
+        requests:
+          nvidia.com/gpu: "1"
+          memory: "32Gi"
+      env:
+      - name: HOME
+        value: /home
+      - name: VLLM_LOGGING_LEVEL
+        value: INFO
+      - name: VLLM_NIXL_SIDE_CHANNEL_PORT
+        value: "5557"
+      - name: VLLM_NIXL_SIDE_CHANNEL_HOST
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: status.podIP
+      - name: LMCACHE_DISTRIBUTED_URL
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: status.podIP
+      - name: UCX_TLS
+        value: ^cuda_ipc
+      - name: LMCACHE_ENABLE_DEBUG
+        value: "True"
+      - name: LMCACHE_LOCAL_CPU
+        value: "True"
+      - name: LMCACHE_MAX_LOCAL_CPU_SIZE
+        value: "5"
+      - name: LMCACHE_MAX_LOCAL_DISK_SIZE
+        value: "10"
+      - name: LMCACHE_CHUNK_SIZE
+        value: "256"
+      - name: LMCACHE_LOOKUP_URL
+        value: llm-d-redis-master.llmd-test.svc.cluster.local:8100
+      - name: HF_HUB_CACHE
+        value: /models
+      - name: MODEL_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: HF_TOKEN
+            name: llm-d-hf-token
+      - name: LOG_LEVEL
+        value: "info"
+      volumeMounts:
+      - mountPath: /home
+        name: home
+      - mountPath: /dev/shm
+        name: dshm
+      - mountPath: /models
+        name: model-cache
+    volumes:
+    - name: model-cache
+      emptyDir: {}
+    - name: home
+      emptyDir: {}
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 1Gi
+
+  # Common Workload settings
+  # worker:
+  #   replicas: 1
+  #   parallelism:
+  #     tensor: 1
+  #     pipeline: 1
+  #   template:
+  #     containers:
+  #     - name: worker
+  #       image: kserve/llm-worker:latest
+  #       resources:
+  #     limits: 
+  #       nvidia.com/gpu: "2"
+  #       memory: "64Gi"
+  #     requests:
+  #       nvidia.com/gpu: "2"
+  #       memory: "64Gi"
+  #   env:
+  #   - name: WORKER_ID
+  #     valueFrom:
+  #       fieldRef:
+  #         fieldPath: metadata.name
+  #   volumeMounts:
+  #   - name: worker-cache
+  #     mountPath: /cache
+  # volumes:
+  # - name: worker-cache
+  #   emptyDir: {}
+
+
+
+  # Common router settings
+  router:
+    route:
+      http:
+        spec:
+          parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: llm-d-inference-gateway
+          rules:
+          - matches:
+            - path:
+                type: PathPrefix
+                value: /
+            backendRefs:
+            - group: inference.networking.x-k8s.io
+              kind: InferencePool
+              name: meta-llama-llama-3-2-3b-instruct-inference-pool
+              port: 8000
+              weight: 1
+          timeouts:
+            backendRequest: 0s
+            request: 0s
+
+    gateway:
+      refs:
+      - name: kserve-llm-gateway
+        namespace: istio-gateway
+    scheduler:
+      pool:
+        spec:
+          maxConcurrentRequests: 100
+          maxQueueSize: 1000
+          timeoutSeconds: 30
+          retryPolicy:
+            maxRetries: 3
+            initialBackoff: 1s
+            maxBackoff: 10s
+      template:
+        containers:
+        - args:
+          - --poolName
+          - meta-llama-llama-3-2-3b-instruct-inference-pool
+          - --poolNamespace
+          - llmd-test-manual
+          - -v
+          - "4"
+          - --zap-encoder
+          - json
+          - --grpcPort
+          - "9002"
+          - --grpcHealthPort
+          - "9003"
+          env:
+          - name: ENABLE_KVCACHE_AWARE_SCORER
+            value: "true"
+          - name: ENABLE_LOAD_AWARE_SCORER
+            value: "true"
+          - name: ENABLE_PREFIX_AWARE_SCORER
+            value: "true"
+          - name: ENABLE_SESSION_AWARE_SCORER
+            value: "true"
+          - name: KVCACHE_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: KVCACHE_INDEXER_REDIS_ADDR
+            value: llm-d-redis-master.llmd-test.svc.cluster.local:8100
+          - name: LOAD_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: PD_ENABLED
+            value: "true"
+          - name: PD_PROMPT_LEN_THRESHOLD
+            value: "10"
+          - name: PREFILL_ENABLE_KVCACHE_AWARE_SCORER
+            value: "true"
+          - name: PREFILL_ENABLE_LOAD_AWARE_SCORER
+            value: "true"
+          - name: PREFILL_ENABLE_PREFIX_AWARE_SCORER
+            value: "true"
+          - name: PREFILL_ENABLE_SESSION_AWARE_SCORER
+            value: "true"
+          - name: PREFILL_KVCACHE_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: PREFILL_KVCACHE_INDEXER_REDIS_ADDR
+            value: llm-d-redis-master.llmd-test.svc.cluster.local:8100
+          - name: PREFILL_LOAD_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: PREFILL_PREFIX_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: PREFILL_SESSION_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: PREFIX_AWARE_SCORER_WEIGHT
+            value: "2"
+          - name: SESSION_AWARE_SCORER_WEIGHT
+            value: "1"
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: HF_TOKEN
+                name: llm-d-hf-token
+          image: ghcr.io/llm-d/llm-d-inference-scheduler:0.0.4
+          resources:
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            grpc:
+              port: 9003
+              service: envoy.service.ext_proc.v3.ExternalProcessor
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: epp
+          ports:
+          - containerPort: 9002
+            name: grpc
+            protocol: TCP
+          - containerPort: 9003
+            name: grpc-health
+            protocol: TCP
+          - containerPort: 9090
+            name: metrics
+            protocol: TCP
+
+  # Common Prefill settings
+  prefill:
+    replicas: 1
+    parallelism:
+      tensor: 1
+      pipeline: 1
+    template:
+      containers:
+      - args:
+        - --gpu_memory_utilization=0.9
+        - --max_model_len=65536
+        - --served-model-name
+        - meta-llama/Llama-3.2-3B-Instruct
+        - --port
+        - "8000"
+        - --kv-transfer-config
+        - '{"kv_connector":"MultiConnector","kv_role":"kv_both","kv_connector_extra_config":{"connectors":[{"kv_connector":"NixlConnector","kv_role":"kv_both"},{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}]}}'
+        command:
+        - vllm
+        - serve
+        - meta-llama/Llama-3.2-3B-Instruct
+
+        name: vllm
+        image: kserve/llm-prefill:latest
+        ports:
+        - containerPort: 5557
+          protocol: TCP
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        env:
+        - name: HOME
+          value: /home
+        - name: VLLM_LOGGING_LEVEL
+          value: INFO
+        - name: VLLM_NIXL_SIDE_CHANNEL_PORT
+          value: "5557"
+        - name: VLLM_NIXL_SIDE_CHANNEL_HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: LMCACHE_DISTRIBUTED_URL
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: UCX_TLS
+          value: ^cuda_ipc
+        - name: LMCACHE_ENABLE_DEBUG
+          value: "True"
+        - name: LMCACHE_LOCAL_CPU
+          value: "True"
+        - name: LMCACHE_MAX_LOCAL_CPU_SIZE
+          value: "5"
+        - name: LMCACHE_MAX_LOCAL_DISK_SIZE
+          value: "10"
+        - name: LMCACHE_CHUNK_SIZE
+          value: "256"
+        - name: LMCACHE_LOOKUP_URL
+          value: llm-d-redis-master.llmd-test.svc.cluster.local:8100
+        - name: HF_HUB_CACHE
+          value: /models
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: HF_TOKEN
+              name: llm-d-hf-token
+        volumeMounts:
+        - mountPath: /home
+          name: home
+        - mountPath: /dev/shm
+          name: dshm
+        - mountPath: /models
+          name: model-cache
+    volumes:
+    - emptyDir: {}
+      name: home
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 1Gi
+      name: dshm
+    - emptyDir: {}
+      name: model-cache

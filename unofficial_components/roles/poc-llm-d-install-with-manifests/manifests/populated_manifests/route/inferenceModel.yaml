@@ -1,0 +1,14 @@
+apiVersion: inference.networking.x-k8s.io/v1alpha2
+kind: InferenceModel
+metadata:
+  labels:
+    llm-d.ai/inferenceServing: "true"
+    llm-d.ai/model: meta-llama-llama-3-2-3b-instruct
+  name: meta-llama-llama-3-2-3b-instruct
+  namespace: %test_namespace%
+spec:
+  modelName: meta-llama/Llama-3.2-3B-Instruct
+  poolRef:
+    group: inference.networking.x-k8s.io
+    kind: InferencePool
+    name: meta-llama-llama-3-2-3b-instruct-inference-pool

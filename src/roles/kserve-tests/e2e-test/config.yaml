@@ -1,0 +1,69 @@
+role:
+  created_date: "20250620"
+  name: kserve-odh-e2e-test
+  description: |
+    This role help to run kserve e2e test. 
+    The default execution run modelserving test cases.
+
+    pre-requirements:
+      - openshift cluster
+
+    Input Environment:
+      The parameters include:
+      - CLUSTER_TYPE: cluster type
+      - CLUSTER_NAMESPACE: cluster namespace
+      - CLUSTER_API_URL: openshift api url
+      - CLUSTER_ADMIN_ID: openshift cluster user id
+      - CLUSTER_ADMIN_PW: openshift cluster user password
+      - PYTEST_JIRA_TOKEN: pytest jira token
+      - MINIO_S3_SVC_URL: minio s3 service url
+      - MINIO_ACCESS_KEY_ID: minio access key id
+      - MINIO_SECRET_ACCESS_KEY: minio secret access key
+      - PYTEST_PATH: pytest path
+      - PYTEST_MARKER: Set pytest marker, if you want to run specific test cases.
+
+    To run it:
+    ./loopy roles run kserve-odh-e2e-test  \
+    -p CLUSTER_TYPE=OCP \
+    -p CLUSTER_API_URL=https://api.cluster-name.example.com:6443 \
+    -p CLUSTER_ADMIN_ID=admin \
+    -p CLUSTER_ADMIN_PW=password \
+    -p PYTEST_JIRA_TOKEN=pytest-jira-token \
+    -p MINIO_S3_SVC_URL=https://minio.minio.svc.cluster.local:9000 \
+    -p MINIO_ACCESS_KEY_ID=admin \
+    -p MINIO_SECRET_ACCESS_KEY=password \
+    -p PYTEST_PATH=tests/model_serving 
+
+  input_env:
+    - name: CLUSTER_TYPE
+      description: cluster type
+      default: "OCP"      
+    
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+    - name: PYTEST_JIRA_TOKEN
+      description: pytest jira token
+      required: true
+    - name: MINIO_S3_SVC_URL
+      description: Set minio s3 service url,if you want to use your own minio. (HTTPS is required)
+    - name: MINIO_ACCESS_KEY_ID
+      description: minio access key id
+      default: "admin"
+    - name: MINIO_SECRET_ACCESS_KEY
+      description: minio secret access key
+      default: "password"
+    - name: PYTEST_PATH
+      description: Set other path, if you want to run specific test cases
+      default: "tests/model_serving"
+    - name: PYTEST_MARKER
+      description: Set pytest marker, if you want to run specific test cases.
+      default: ""
+    - name: CUSTOM_KSERVE_IMG
+      

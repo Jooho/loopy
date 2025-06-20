@@ -61,22 +61,45 @@ if [[ ${enable_ssl} == "0" ]]; then
   cp ${KEY_FILE_PATH} ${ROLE_DIR}/minio.key
 
   oc create secret generic minio-tls --from-file="${ROLE_DIR}/minio.key" --from-file="${ROLE_DIR}/minio.crt" --from-file="${ROLE_DIR}/root.crt" -n ${MINIO_NAMESPACE}
-
   yq -i eval '.spec.containers[0].volumeMounts += [{"name": "minio-tls", "mountPath": "/home/modelserving/.minio/certs"}] | .spec.volumes += [{"name": "minio-tls", "projected": {"defaultMode": 420, "sources": [{"secret": {"items": [{"key": "minio.crt", "path": "public.crt"}, {"key": "minio.key", "path": "private.key"}, {"key": "root.crt", "path": "CAs/root.crt"}], "name": "minio-tls"}}]}}]' ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
-  
-  oc create route reencrypt minio --service=minio --port=minio-client-port --dest-ca-cert ${ROLE_DIR}/root.crt
-  oc create route reencrypt minio-ui --service=minio --port=minio-ui-port --dest-ca-cert ${ROLE_DIR}/root.crt
 else
-  error "We set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
-  result=1
-  stop_when_error_happened $result $index_role_name $REPORT_FILE
-  oc expose service minio --name=minio --port=minio-client-port
-  oc expose service minio --name=minio-ui  --port=minio-ui-port 
+  info "We set the ENABLE_SSL($ENABLE_SSL) as a FALSE"
+  # result=1
+  # stop_when_error_happened $result $index_role_name $REPORT_FILE
 fi
+
+# Apply minio deployment manifests
 oc apply -f ${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
+can_create_route=0
+if [[ ${edge_enable_ssl} == "0" && ${enable_ssl} == "0" ]]; then
+  fail "EDGE_ENABLE_SSL and ENABLE_SSL cannot be set at the same time"
+  can_create_route=1
+  result=1
+  stop_when_error_happened $result $index_role_name $REPORT_FILE true
+fi
+
+# Create route for minio
+if [[ ${can_create_route} == "0" && (${CLUSTER_TYPE} == "OCP" || ${CLUSTER_TYPE} == "CRC" || ${CLUSTER_TYPE} == "ROSA") ]]; then
+  if [[ ${enable_ssl} == "0" ]]; then
+    oc create route reencrypt minio --service=minio --port=minio-client-port --dest-ca-cert ${ROLE_DIR}/root.crt -n ${MINIO_NAMESPACE}
+    oc create route reencrypt minio-ui --service=minio --port=minio-ui-port --dest-ca-cert ${ROLE_DIR}/root.crt -n ${MINIO_NAMESPACE}
+  elif [[ ${edge_enable_ssl} == "0" ]]; then
+    oc create route edge minio --service=minio --port=minio-client-port -n ${MINIO_NAMESPACE}
+    oc create route edge minio-ui --service=minio --port=minio-ui-port -n ${MINIO_NAMESPACE}
+  else
+    oc expose service minio -n ${MINIO_NAMESPACE} --name=minio --port=minio-client-port
+    oc expose service minio -n ${MINIO_NAMESPACE} --name=minio-ui  --port=minio-ui-port 
+  fi
+fi
+
+
 ############# VERIFY #############
-wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE}
+if [[ -n ${MINIO_IMAGE} ]]; then
+  wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE} 100
+else
+  wait_for_pods_ready "app=minio" ${MINIO_NAMESPACE}
+fi 
 
 debug "oc wait --for=condition=ready pod -l app=minio -n ${MINIO_NAMESPACE} --timeout=10s"
 oc wait --for=condition=ready pod -l app=minio -n ${MINIO_NAMESPACE} --timeout=10s
@@ -92,11 +115,18 @@ else
 fi
 
 ############# OUTPUT #############
+minio_svc_protocol="http"
+minio_svc_url="minio.${MINIO_NAMESPACE}.svc.cluster.local:9000"
+
 if [[ ${enable_ssl} == "0" ]]; then
-  echo "MINIO_S3_SVC_URL=https://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >>${OUTPUT_ENV_FILE}
-else
-  echo "MINIO_S3_SVC_URL=http://minio.${MINIO_NAMESPACE}.svc.cluster.local:9000" >>${OUTPUT_ENV_FILE}
+  minio_svc_protocol="https"
 fi
+
+if [[ ${CLUSTER_TYPE} == "OCP" || ${CLUSTER_TYPE} == "CRC" || ${CLUSTER_TYPE} == "ROSA" ]]; then
+  minio_svc_url=$(oc get route minio -o jsonpath="{.spec.host}")
+fi
+
+echo "MINIO_S3_SVC_URL=${minio_svc_protocol}://${minio_svc_url}" >>${OUTPUT_ENV_FILE}
 echo "MINIO_DEFAULT_BUCKET_NAME=${DEFAULT_BUCKET_NAME}" >>${OUTPUT_ENV_FILE}
 echo "MINIO_ACCESS_KEY_ID=${ACCESS_KEY_ID}" >>${OUTPUT_ENV_FILE}
 echo "MINIO_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}" >>${OUTPUT_ENV_FILE}

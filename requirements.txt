@@ -9,6 +9,8 @@ jsonschema == 4.21.1
 prettytable
 pytest-xdist
 pytest-order
+uv
+pytest_jira
 pytest-dependency
 virtualenv 
 virtualenvwrapper

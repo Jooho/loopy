@@ -33,9 +33,11 @@ role:
       description: Set your own bucket name, if you want to user your own bucket
     - name: MINIO_REGION
       description: Minio does not use region so you don't need to set this. This is to align with the standard protocol of S3
-
     - name: ENABLE_SSL
       description: Set True if you want to deploy ssl minio(You must provide ROOT_CA_CERT_FILE_PATH,CERT_FILE_PATH, KEY_FILE_PATH)
+    - name: EDGE_ENABLE_SSL
+      description: Set True if you want to use router for ssl minio. It is mutual exclusive with ENABLE_SSL.
+      default: "False"
     - name: ROOT_CA_CERT_FILE_PATH
       description: root ca certificate file to apply ssl for minio
     - name: CERT_FILE_PATH
@@ -45,6 +47,9 @@ role:
 
     # - name: ENABLE_CONSOLE
 
+    - name: CLUSTER_TYPE
+      description: cluster type
+      default: "OCP"      
     - name: CLUSTER_API_URL
       description: openshift api url
       required: true

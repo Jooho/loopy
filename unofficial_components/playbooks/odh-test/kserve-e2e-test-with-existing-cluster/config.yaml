@@ -1,0 +1,114 @@
+playbook:
+  name: kserve-execute-e2e-test-with-existing-cluster
+  created_date: "20250620"
+  description: |
+    This playbook configure test cluster that install all required objects for e2e tests and run test.
+
+    By default, it will use the fast channel of kserve/odh-model-controller. If you want to test with custom build, you can set the following cases:
+    
+    Environment variables:
+      - USER_NAME
+      - PR_USER_NAME
+      - REPO_NAME
+      - PR_REPO_URL
+      - PR_BRANCH_NAME
+      - REPO_URL
+      - KO_DOCKER_REPO
+      - TAG
+    
+    Example:
+    * PR case commands:
+      ~~~
+      export USER_NAME=jooholee
+      export REPO_NAME=kserve
+      export PR_USER_NAME=test
+
+      #########################################################
+      export REPO_URL=https://github.com/${USER_NAME}/${REPO_NAME}.git
+      export PR_REPO_URL=https://github.com/${PR_USER_NAME}/${REPO_NAME}.git
+      export KO_DOCKER_REPO=quay.io/${USER_NAME}
+      export TAG=loopy
+      git clone --branch $PR_BRANCH_NAME $REPO_URL
+      cd $REPO_NAME      
+
+      git remote add ${USER_NAME} ${REPO_URL}
+     
+      make docker-build
+      docker tag docker.io/library/kserve-controller:latest ${KO_DOCKER_REPO}/kserve-controller:${TAG}
+      docker push ${KO_DOCKER_REPO}/kserve-controller:${TAG}
+
+      git branch -b e2e-test-devflag
+      sed -i "s+kserve-controller=quay.io/opendatahub/kserve-controller:latest+kserve-controller=${KO_DOCKER_REPO}/kserve-controller:${TAG}+g" config/overlays/odh/params.env
+      git add .
+      git commit -m "Update kserve-controller image"
+      git push -u  ${USER_NAME} e2e-test-devflag -f
+
+      export CUSTOM_KSERVE_MANIFESTS=https://github.com/${USER_NAME}/kserve/tarball/e2e-test-devflag
+      ./loopy playbook run kserve-e2e-test-with-existing-cluster
+      ~~~
+      
+    * Local build:  
+      ~~~
+      export USER_NAME=jooholee
+      export REPO_NAME=kserve
+      export KO_DOCKER_REPO=quay.io/${USER_NAME}
+      export TAG=loopy
+      make docker-build
+      docker tag docker.io/library/kserve-controller:latest ${KO_DOCKER_REPO}/kserve-controller:${TAG}
+      docker push ${KO_DOCKER_REPO}/kserve-controller:${TAG}
+
+      git branch -b e2e-test-devflag
+      sed -i "s+kserve-controller=quay.io/opendatahub/kserve-controller:latest+kserve-controller=${KO_DOCKER_REPO}/kserve-controller:${TAG}+g" config/overlays/odh/params.env
+      git add .
+      git commit -m "Update kserve-controller image"
+      git push -u  ${USER_NAME} e2e-test-devflag -f
+
+      export CUSTOM_KSERVE_MANIFESTS=https://github.com/${USER_NAME}/kserve/tarball/e2e-test-devflag
+      ./loopy playbook run kserve-e2e-test-with-existing-cluster
+      ~~~
+  steps:
+    # - role:
+    #     name: openshift-rosa-install
+    #     description: Install ROSA Openshift Cluster
+
+    - unit:
+        name: install-odh-stable-operator
+        description: Install ODH operator fast channel
+        input_env:
+          CHANNEL: "fast"               
+    - unit:
+        name: install-serverless-stable-operator
+    - unit:
+        name: install-ossm-stable-operator
+    - unit:
+        name: install-authorino-stable-operator
+
+    - role:
+        name: opendatahub-create-dsci
+        description: Create a DSCI
+        input_env:
+          OPENDATAHUB_TYPE: opendatahub
+
+    - role:
+        name: opendatahub-create-dsc
+        description: Create a DSC 
+        input_env:
+          OPENDATAHUB_TYPE: opendatahub
+          ENABLE_KSERVE: Managed
+          ENABLE_KSERVE_KNATIVE: Managed
+          DEFAULT_DEPLOYMENTMODE: Serverless
+
+    - role:
+        name: minio-deploy
+        input_env:
+          MINIO_IMAGE: "quay.io/jooholee/model-minio:e2e-slim"
+          CLUSTER_TYPE: "OCP"
+          EDGE_ENABLE_SSL: "True"
+
+    - role:
+        name: kserve-odh-e2e-test
+        description: Run kserve e2e test
+        input_env:
+          PYTEST_MARKER: "not tls"
+        # input_env:
+        #   PYTEST_PATH: "tests/model_serving/model_server/routes/test_raw_deployment.py::TestRestRawDeploymentRoutes::test_rest_raw_deployment_exposed_route"

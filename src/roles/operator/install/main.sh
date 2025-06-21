@@ -53,7 +53,7 @@ if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] && [[ z${USE_KIND} == z ]]
   oc project $OPERATOR_NAMESPACE
   
   sed -e \
-    "s+%operatorgroup-name%+$SUBSCRIPTION_NAME+g; \
+    "s+%operatorgroup-name%+$OPERATORGROUP_NAME+g; \
    s+%operatorgroup-namespace%+$OPERATOR_NAMESPACE+g" $og_manifests_path >${ROLE_DIR}/$(basename $og_manifests_path)
 
   if [[ z${TARGET_NAMESPACES} != "z" ]]; then

@@ -32,7 +32,7 @@ nfs_provisioner_cr_manifests=$(yq e '.role.manifests.nfs_provisioner_cr' $curren
 nfs_provisioner_cr_manifests_path=$current_dir/$nfs_provisioner_cr_manifests
 
 result=1 # 0 is "succeed", 1 is "fail"
-info "JHOUSE --- TEST"
+
 if [[ z${USE_KIND} == z ]]; then
   if [[ z${CLUSTER_TOKEN} != z ]]; then
     oc login --token=${CLUSTER_TOKEN} --server=${CLUSTER_API_URL}

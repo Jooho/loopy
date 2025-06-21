@@ -123,7 +123,7 @@ if [[ ${enable_ssl} == "0" ]]; then
 fi
 
 if [[ ${CLUSTER_TYPE} == "OCP" || ${CLUSTER_TYPE} == "CRC" || ${CLUSTER_TYPE} == "ROSA" ]]; then
-  minio_svc_url=$(oc get route minio -o jsonpath="{.spec.host}")
+  minio_svc_url=$(oc get route minio -o jsonpath="{.spec.host}" -n ${MINIO_NAMESPACE})
 fi
 
 echo "MINIO_S3_SVC_URL=${minio_svc_protocol}://${minio_svc_url}" >>${OUTPUT_ENV_FILE}

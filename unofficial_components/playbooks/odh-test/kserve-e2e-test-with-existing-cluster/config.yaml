@@ -67,9 +67,9 @@ playbook:
       ./loopy playbook run kserve-e2e-test-with-existing-cluster
       ~~~
   steps:
-    # - role:
-    #     name: openshift-rosa-install
-    #     description: Install ROSA Openshift Cluster
+    - role:
+        name: openshift-rosa-install
+        description: Install ROSA Openshift Cluster
 
     - unit:
         name: install-odh-stable-operator
@@ -99,6 +99,12 @@ playbook:
           DEFAULT_DEPLOYMENTMODE: Serverless
 
     - role:
+        name: nfs-provisioner-deploy
+        description: Deploy NFS Provisioner
+        input_env:
+          PVC_STORAGECLASS_NAME: gp3-csi
+          # PVC_STORAGECLASS_NAME: gp3-csi
+    - role:
         name: minio-deploy
         input_env:
           MINIO_IMAGE: "quay.io/jooholee/model-minio:e2e-slim"
@@ -109,6 +115,6 @@ playbook:
         name: kserve-odh-e2e-test
         description: Run kserve e2e test
         input_env:
-          PYTEST_MARKER: "not tls"
+          PYTEST_MARKER: "not tls and not modelmesh and not Kueue"
         # input_env:
         #   PYTEST_PATH: "tests/model_serving/model_server/routes/test_raw_deployment.py::TestRestRawDeploymentRoutes::test_rest_raw_deployment_exposed_route"

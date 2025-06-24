@@ -6,6 +6,7 @@ colorama == 0.4.6
 colorlog == 6.8.2
 pytest == 8.0.0
 jsonschema == 4.21.1
+marshmallow<4.0.0
 prettytable
 pytest-xdist
 pytest-order

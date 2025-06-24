@@ -66,6 +66,7 @@ def loopy_root_path():
 
 @pytest.fixture(autouse=True)
 def loopy_context(loopy_root_path):
+    os.environ["LOOPY_ROOT_PATH"] = loopy_root_path
     envManager = EnvManager()
     config_path = envManager.get_config_path()
     root_path = envManager.get_root_path()

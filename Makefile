@@ -59,4 +59,4 @@ py-lint:
 	black ./src ./tests 
 
 .PHONY: precommit
-precommit: py-lint fvt 
+precommit: update-test-data py-lint fvt 

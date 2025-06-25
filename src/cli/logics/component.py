@@ -357,15 +357,20 @@ def add_unit_result(ctx, unit_name, uuid, role_result_components):
 
 
 def get_role_result(
-    ctx, reportManager, role_name, uuid, role_index, role_description=""
+    ctx, reportManager, role_name, uuid, role_index, role_description="", first_component_type="role"
 ):
+    if first_component_type != "role":
+        artifacts_dir = os.path.join(
+            ctx.obj.config["artifacts_dir"], f"{role_index}-{role_name}"
+        )
+    else:
+        artifacts_dir = ctx.obj.config["artifacts_dir"]
+        
     role_component = {
         "type": "role",
         "name": role_name,
         "description": utils.getDescription(ctx, role_name, "role", role_description),
-        "artifacts_dir": os.path.join(
-            ctx.obj.config["artifacts_dir"], f"{role_index}-{role_name}"
-        ),
+        "artifacts_dir": f"{artifacts_dir}",
         "uuid": uuid,
         "role_index": role_index,
         "commands": [],

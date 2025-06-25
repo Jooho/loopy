@@ -21,7 +21,7 @@ jobs:
           git fetch origin main
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
 
-          if ! echo "$CHANGED_FILES" | grep -qE '^(src/roles/clusters/kind/|tests/e2e/cluster-life-cycle/kind_install_delete/|default_provided_services/|hacks/|.github/|commons/)'; then
+          if ! echo "$CHANGED_FILES" | grep -qE '^(src/roles/clusters/kind/|tests/e2e/cluster-life-cycle/kind_install_delete/|hacks/|.github/|commons/)'; then
             echo "No relevant files changed for KIND cluster-lifecycle-test. Skipping tests but marking success."
             exit 0
           fi

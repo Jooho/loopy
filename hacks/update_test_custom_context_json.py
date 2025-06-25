@@ -17,6 +17,7 @@ from core.config_loader import ConfigLoader
 from core.context import LoopyContext
 
 def main():
+    os.environ["LOOPY_ROOT_PATH"] = f"{root_dir}"
     envManager = EnvManager()
     config_path = envManager.get_config_path()
     root_path = envManager.get_root_path()

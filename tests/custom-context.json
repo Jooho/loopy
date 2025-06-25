@@ -94,19 +94,19 @@
     },
     "config": {
         "schema": {
-            "role": "/home/jooho/temp/test-debug/loopy/src/schema/role.yaml",
-            "unit": "/home/jooho/temp/test-debug/loopy/src/schema/unit.yaml",
-            "playbook": "/home/jooho/temp/test-debug/loopy/src/schema/playbook.yaml"
+            "role": "/tmp/a/loopy/src/schema/role.yaml",
+            "unit": "/tmp/a/loopy/src/schema/unit.yaml",
+            "playbook": "/tmp/a/loopy/src/schema/playbook.yaml"
         },
         "default_roles_dirs": [
-            "/home/jooho/temp/test-debug/loopy/src/roles",
-            "/home/jooho/temp/test-debug/loopy/unofficial_components/roles"
+            "/tmp/a/loopy/src/roles",
+            "/tmp/a/loopy/unofficial_components/roles"
         ],
         "default_units_dirs": [
-            "/home/jooho/temp/test-debug/loopy/unofficial_components/units"
+            "/tmp/a/loopy/unofficial_components/units"
         ],
         "default_playbooks_dirs": [
-            "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks"
+            "/tmp/a/loopy/unofficial_components/playbooks"
         ],
         "default_vars_file": "src/commons/default-variables.yaml",
         "output_target_dir": "",
@@ -138,13 +138,13 @@
             "HF_TEST_TOKEN"
         ],
         "additional_role_dirs": [
-            "/home/jooho/temp/test-debug/loopy/tests/test-data/roles"
+            "/tmp/a/loopy/tests/test-data/roles"
         ],
         "additional_unit_dirs": [
-            "/home/jooho/temp/test-debug/loopy/tests/test-data/units"
+            "/tmp/a/loopy/tests/test-data/units"
         ],
         "additional_playbook_dirs": [
-            "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks"
+            "/tmp/a/loopy/tests/test-data/playbooks"
         ],
         "logging": {
             "version": 1,
@@ -192,361 +192,357 @@
                 ]
             }
         },
-        "loopy_root_path": "/home/jooho/temp/test-debug/loopy",
+        "loopy_root_path": "/tmp/a/loopy",
         "loopy_config_name": "config.yaml",
-        "commands_dir": "/home/jooho/temp/test-debug/loopy/src/cli/commands",
-        "cli_dir": "/home/jooho/temp/test-debug/loopy/src/cli",
-        "logics_dir": "/home/jooho/temp/test-debug/loopy/src/cli/logics",
-        "py_utils_dir": "/home/jooho/temp/test-debug/loopy/commons/python",
-        "loopy_result_dir": "/tmp/ms_cli/20250617_1647",
-        "output_dir": "/tmp/ms_cli/20250617_1647/output",
-        "artifacts_dir": "/tmp/ms_cli/20250617_1647/artifacts",
-        "report_file": "/tmp/ms_cli/20250617_1647/report",
+        "commands_dir": "/tmp/a/loopy/src/cli/commands",
+        "cli_dir": "/tmp/a/loopy/src/cli",
+        "logics_dir": "/tmp/a/loopy/src/cli/logics",
+        "py_utils_dir": "/tmp/a/loopy/commons/python",
+        "loopy_result_dir": "/tmp/ms_cli/20250624_1822",
+        "output_dir": "/tmp/ms_cli/20250624_1822/output",
+        "artifacts_dir": "/tmp/ms_cli/20250624_1822/artifacts",
+        "report_file": "/tmp/ms_cli/20250624_1822/report",
         "role_list": [
             {
-                "name": "cert-generate",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/cert/generate"
-            },
-            {
-                "name": "dev-python-virtualenv",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/dev/python-virtualenv"
-            },
-            {
-                "name": "minio-deploy",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/minio/deploy"
-            },
-            {
-                "name": "modelmesh-openvino-test",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/modelmesh/samples/openvino"
-            },
-            {
-                "name": "nfs-provisioner-deploy",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/nfs-provisioner"
-            },
-            {
-                "name": "opendatahub-create-dsc",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/opendatahub/dsc"
-            },
-            {
-                "name": "opendatahub-create-dsci",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/opendatahub/dsci"
-            },
-            {
-                "name": "operator-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/operator/delete"
-            },
-            {
-                "name": "operator-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/operator/install"
+                "name": "template",
+                "path": "/tmp/a/loopy/src/roles/template"
             },
             {
                 "name": "shell-execute",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/shell/execute"
+                "path": "/tmp/a/loopy/src/roles/shell/execute"
             },
             {
-                "name": "template",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/template"
+                "name": "operator-install",
+                "path": "/tmp/a/loopy/src/roles/operator/install"
             },
             {
-                "name": "openshift-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/install_TBD"
+                "name": "operator-uninstall",
+                "path": "/tmp/a/loopy/src/roles/operator/delete"
             },
             {
-                "name": "openshift-fips-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/psi-install-fips"
+                "name": "opendatahub-create-dsci",
+                "path": "/tmp/a/loopy/src/roles/opendatahub/dsci"
             },
             {
-                "name": "openshift-fips-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/uninstall-psi-fips"
+                "name": "opendatahub-create-dsc",
+                "path": "/tmp/a/loopy/src/roles/opendatahub/dsc"
             },
             {
-                "name": "openshift-rosa-add-machinepool",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-add-machinepool"
+                "name": "nfs-provisioner-deploy",
+                "path": "/tmp/a/loopy/src/roles/nfs-provisioner"
             },
             {
-                "name": "openshift-rosa-delete-machinepool",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-delete-machinepool"
+                "name": "modelmesh-openvino-test",
+                "path": "/tmp/a/loopy/src/roles/modelmesh/samples/openvino"
             },
             {
-                "name": "openshift-rosa-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-install"
-            },
-            {
-                "name": "openshift-rosa-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/rosa/rosa-uninstall"
-            },
-            {
-                "name": "openshift-local-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/crc/crc-install"
-            },
-            {
-                "name": "openshift-local-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/openshift/crc/crc-uninstall"
-            },
-            {
-                "name": "kind-install",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/kind/install"
-            },
-            {
-                "name": "kind-uninstall",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/clusters/kind/uninstall"
-            },
-            {
-                "name": "kserve-caikit-test",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/caikit-runtime"
-            },
-            {
-                "name": "kserve-inference-test-from-notebook",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-notebook"
-            },
-            {
-                "name": "kserve-caikit-test-using-pipeline",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/from-pipeline"
+                "name": "minio-deploy",
+                "path": "/tmp/a/loopy/src/roles/minio/deploy"
             },
             {
                 "name": "kserve-sklearn-test",
-                "path": "/home/jooho/temp/test-debug/loopy/src/roles/kserve/samples/sklearn"
+                "path": "/tmp/a/loopy/src/roles/kserve/samples/sklearn"
+            },
+            {
+                "name": "kserve-caikit-test-using-pipeline",
+                "path": "/tmp/a/loopy/src/roles/kserve/samples/from-pipeline"
+            },
+            {
+                "name": "kserve-inference-test-from-notebook",
+                "path": "/tmp/a/loopy/src/roles/kserve/samples/from-notebook"
+            },
+            {
+                "name": "kserve-caikit-test",
+                "path": "/tmp/a/loopy/src/roles/kserve/samples/caikit-runtime"
+            },
+            {
+                "name": "dev-python-virtualenv",
+                "path": "/tmp/a/loopy/src/roles/dev/python-virtualenv"
+            },
+            {
+                "name": "openshift-fips-uninstall",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/uninstall-psi-fips"
+            },
+            {
+                "name": "openshift-rosa-uninstall",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/rosa/rosa-uninstall"
+            },
+            {
+                "name": "openshift-rosa-install",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/rosa/rosa-install"
+            },
+            {
+                "name": "openshift-rosa-delete-machinepool",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/rosa/rosa-delete-machinepool"
+            },
+            {
+                "name": "openshift-rosa-add-machinepool",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/rosa/rosa-add-machinepool"
+            },
+            {
+                "name": "openshift-fips-install",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/psi-install-fips"
+            },
+            {
+                "name": "openshift-install",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/install_TBD"
+            },
+            {
+                "name": "openshift-local-uninstall",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/crc/crc-uninstall"
+            },
+            {
+                "name": "openshift-local-install",
+                "path": "/tmp/a/loopy/src/roles/clusters/openshift/crc/crc-install"
+            },
+            {
+                "name": "kind-uninstall",
+                "path": "/tmp/a/loopy/src/roles/clusters/kind/uninstall"
+            },
+            {
+                "name": "kind-install",
+                "path": "/tmp/a/loopy/src/roles/clusters/kind/install"
+            },
+            {
+                "name": "cert-generate",
+                "path": "/tmp/a/loopy/src/roles/cert/generate"
             },
             {
                 "name": "llm-d-install-with-manifests",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/roles/poc-llm-d-install-with-manifests"
+                "path": "/tmp/a/loopy/unofficial_components/roles/poc-llm-d-install-with-manifests"
             }
         ],
         "unit_list": [
             {
-                "name": "deploy-rhoai-kserve",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/deploy-rhoai-kserve",
-                "role_name": "opendatahub-create-dsc"
-            },
-            {
-                "name": "deploy-ssl-minio",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/deploy-ssl-minio",
-                "role_name": "cert-generate"
-            },
-            {
-                "name": "example-deploy-rhoai-kserve-with-custom-manifests",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/example-deploy-rhoai-kserve-with-custom-manifests",
-                "role_name": "opendatahub-create-dsc"
-            },
-            {
-                "name": "install-authorino-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-authorino-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-2.5-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-odh-2.5-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-stable-operator-without-dsci",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-odh-stable-operator-without-dsci",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-odh-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-odh-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-ossm-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-ossm-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-pipelines-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-pipelines-stable-operator",
-                "role_name": "operator-install"
-            },
-            {
-                "name": "install-rhoai-stable-operator-without-dsci",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-rhoai-stable-operator-without-dsci",
+                "name": "install-serverless-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-serverless-stable-operator",
                 "role_name": "operator-install"
             },
             {
                 "name": "install-rhoai-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-rhoai-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-rhoai-stable-operator",
                 "role_name": "operator-install"
             },
             {
-                "name": "install-serverless-stable-operator",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/units/install-serverless-stable-operator",
+                "name": "install-rhoai-stable-operator-without-dsci",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-rhoai-stable-operator-without-dsci",
                 "role_name": "operator-install"
             },
             {
-                "name": "loopy-roles-test-cluster-ops-rosa-install",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/cluster-ops/rosa-install",
-                "role_name": "openshift-rosa-install"
+                "name": "install-pipelines-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-pipelines-stable-operator",
+                "role_name": "operator-install"
             },
             {
-                "name": "loopy-roles-test-non-cluster-cert-generate",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/non-cluster/cert-generate",
+                "name": "install-ossm-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-ossm-stable-operator",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "install-odh-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-odh-stable-operator",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "install-odh-stable-operator-without-dsci",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-odh-stable-operator-without-dsci",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "install-odh-2.5-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-odh-2.5-operator",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "install-authorino-stable-operator",
+                "path": "/tmp/a/loopy/unofficial_components/units/install-authorino-stable-operator",
+                "role_name": "operator-install"
+            },
+            {
+                "name": "example-deploy-rhoai-kserve-with-custom-manifests",
+                "path": "/tmp/a/loopy/unofficial_components/units/example-deploy-rhoai-kserve-with-custom-manifests",
+                "role_name": "opendatahub-create-dsc"
+            },
+            {
+                "name": "deploy-ssl-minio",
+                "path": "/tmp/a/loopy/unofficial_components/units/deploy-ssl-minio",
                 "role_name": "cert-generate"
             },
             {
-                "name": "loopy-roles-test-non-cluster-fail-test-shell-execute",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/non-cluster/fail-test-shell-execute",
+                "name": "deploy-rhoai-kserve",
+                "path": "/tmp/a/loopy/unofficial_components/units/deploy-rhoai-kserve",
+                "role_name": "opendatahub-create-dsc"
+            },
+            {
+                "name": "test-modelmesh-openvino",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-modelmesh-openvino",
+                "role_name": "minio-deploy"
+            },
+            {
+                "name": "test-kserve-using-notebook",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-kserve-using-notebook",
+                "role_name": "kserve-inference-test-from-notebook"
+            },
+            {
+                "name": "test-kserve-sklearn-v2-iris",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
                 "role_name": "shell-execute"
             },
             {
-                "name": "loopy-roles-test-non-cluster-shell-execute",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/non-cluster/shell-execute",
-                "role_name": "shell-execute"
+                "name": "test-kserve-sklearn-v2-iris-role",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
+                "role_name": "minio-deploy"
             },
             {
-                "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-rawDeployment",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/rawDeployment",
+                "name": "test-kserve-caikit-tgis-rest",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
+                "role_name": "minio-deploy"
+            },
+            {
+                "name": "test-kserve-caikit-tgis-rest-using-pipeline",
+                "path": "/tmp/a/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
                 "role_name": "operator-install"
             },
             {
                 "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-serverless",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/serverless",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/serverless",
                 "role_name": "operator-install"
             },
             {
-                "name": "test-kserve-caikit-tgis-rest-using-pipeline",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest-using-pipeline",
+                "name": "loopy-roles-test-on-cluster-kserve-samples-caikit-runtime-rawDeployment",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/on-cluster/kserve-samples-caikit-runtime/rawDeployment",
                 "role_name": "operator-install"
             },
             {
-                "name": "test-kserve-caikit-tgis-rest",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-kserve-caikit-tgis-rest",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris-role",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris-role",
-                "role_name": "minio-deploy"
-            },
-            {
-                "name": "test-kserve-sklearn-v2-iris",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-kserve-sklearn-v2-iris",
+                "name": "loopy-roles-test-non-cluster-shell-execute",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/non-cluster/shell-execute",
                 "role_name": "shell-execute"
             },
             {
-                "name": "test-kserve-using-notebook",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-kserve-using-notebook",
-                "role_name": "kserve-inference-test-from-notebook"
+                "name": "loopy-roles-test-non-cluster-fail-test-shell-execute",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/non-cluster/fail-test-shell-execute",
+                "role_name": "shell-execute"
             },
             {
-                "name": "test-modelmesh-openvino",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/units/test-modelmesh-openvino",
-                "role_name": "minio-deploy"
+                "name": "loopy-roles-test-non-cluster-cert-generate",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/non-cluster/cert-generate",
+                "role_name": "cert-generate"
+            },
+            {
+                "name": "loopy-roles-test-cluster-ops-rosa-install",
+                "path": "/tmp/a/loopy/tests/test-data/units/loopy/roles-test/cluster-ops/rosa-install",
+                "role_name": "openshift-rosa-install"
             }
         ],
         "playbook_list": [
             {
-                "name": "cleanup-all-rhoai-kserve",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/cleanup-all-rhoai-kserve"
-            },
-            {
-                "name": "demo-rhoai-for-global-cert",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/demo-rhoai-for-global-cert"
-            },
-            {
-                "name": "kserve-full-sanity-test-on-new-fips-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/kserve-full-sanity-test-on-new-fips-cluster"
-            },
-            {
-                "name": "loopy-test-report-playbook",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/loopy-test-report-playbook"
-            },
-            {
-                "name": "odh-fast-install-kserve-raw-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/odh/fast/install-kserve-raw-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-install-kserve-serverless-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/odh/fast/install-kserve-serverless-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-raw-simple-sanity-test-caikit-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/odh/fast/kserve-raw-simple-sanity-test-caikit-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-raw-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/odh/fast/kserve-raw-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "odh-fast-kserve-serverless-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/odh/fast/kserve-serverless-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "private-endpoint-poc",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/private-endpoint-poc"
-            },
-            {
-                "name": "rhoai-stable-install-kserve-raw-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/rhoai/stable/install-kserve-raw-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-install-kserve-serverless-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/rhoai/stable/install-kserve-serverless-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-kserve-raw-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/rhoai/stable/kserve-raw-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "rhoai-stable-kserve-serverless-simple-sanity-test-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/rhoai/stable/kserve-serverless-simple-sanity-test-on-existing-cluster"
-            },
-            {
-                "name": "setup-rhoai-for-global-cert",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/setup-rhoai-for-global-cert"
+                "name": "vllm-multi-node-odh-poc",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/vllm-multi-node-odh-poc"
             },
             {
                 "name": "template",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/template"
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/template"
             },
             {
-                "name": "vllm-multi-node-odh-poc",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/vllm-multi-node-odh-poc"
+                "name": "setup-rhoai-for-global-cert",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/setup-rhoai-for-global-cert"
             },
             {
-                "name": "setup-dev-env-kind-upstream-kserve",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/setup-dev-env-kind-upstream-kserve"
+                "name": "rhoai-stable-kserve-serverless-simple-sanity-test-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/rhoai/stable/kserve-serverless-simple-sanity-test-on-existing-cluster"
             },
             {
-                "name": "llm-d-on-kind",
-                "path": "/home/jooho/temp/test-debug/loopy/unofficial_components/playbooks/llm-d-on-kind"
+                "name": "rhoai-stable-kserve-raw-simple-sanity-test-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/rhoai/stable/kserve-raw-simple-sanity-test-on-existing-cluster"
+            },
+            {
+                "name": "rhoai-stable-install-kserve-serverless-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/rhoai/stable/install-kserve-serverless-on-existing-cluster"
+            },
+            {
+                "name": "rhoai-stable-install-kserve-raw-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/rhoai/stable/install-kserve-raw-on-existing-cluster"
+            },
+            {
+                "name": "private-endpoint-poc",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/private-endpoint-poc"
+            },
+            {
+                "name": "odh-fast-kserve-serverless-simple-sanity-test-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/odh/fast/kserve-serverless-simple-sanity-test-on-existing-cluster"
+            },
+            {
+                "name": "odh-fast-kserve-raw-simple-sanity-test-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/odh/fast/kserve-raw-simple-sanity-test-on-existing-cluster"
+            },
+            {
+                "name": "odh-fast-kserve-raw-simple-sanity-test-caikit-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/odh/fast/kserve-raw-simple-sanity-test-caikit-on-existing-cluster"
+            },
+            {
+                "name": "odh-fast-install-kserve-serverless-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/odh/fast/install-kserve-serverless-on-existing-cluster"
+            },
+            {
+                "name": "odh-fast-install-kserve-raw-on-existing-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/odh/fast/install-kserve-raw-on-existing-cluster"
             },
             {
                 "name": "loopy-test-report-playbook",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/loopy-test-report-playbook"
             },
             {
-                "name": "loopy-fail-unit-tests",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
+                "name": "llm-d-on-kind",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/llm-d-on-kind"
             },
             {
-                "name": "loopy-unit-tests-non-cluster-role-unit",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-role-unit"
+                "name": "kserve-full-sanity-test-on-new-fips-cluster",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/kserve-full-sanity-test-on-new-fips-cluster"
             },
             {
-                "name": "loopy-unit-tests-non-cluster-roles",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-roles"
+                "name": "demo-rhoai-for-global-cert",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/demo-rhoai-for-global-cert"
             },
             {
-                "name": "loopy-unit-tests-non-cluster-unit-role",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-unit-role"
-            },
-            {
-                "name": "loopy-unit-tests-non-cluster-units",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-units"
+                "name": "cleanup-all-rhoai-kserve",
+                "path": "/tmp/a/loopy/unofficial_components/playbooks/cleanup-all-rhoai-kserve"
             },
             {
                 "name": "loopy-unit-tests-on-cluster-install-kserve-raw-on-existing-cluster",
-                "path": "/home/jooho/temp/test-debug/loopy/tests/test-data/playbooks/loopy/unit-tests/on-cluster/install-kserve-raw-on-existing-cluster"
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/unit-tests/on-cluster/install-kserve-raw-on-existing-cluster"
+            },
+            {
+                "name": "loopy-unit-tests-non-cluster-units",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-units"
+            },
+            {
+                "name": "loopy-unit-tests-non-cluster-unit-role",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-unit-role"
+            },
+            {
+                "name": "loopy-unit-tests-non-cluster-roles",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-roles"
+            },
+            {
+                "name": "loopy-unit-tests-non-cluster-role-unit",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/unit-tests/non-cluster-role-unit"
+            },
+            {
+                "name": "loopy-fail-unit-tests",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy/fail-unit-tests"
+            },
+            {
+                "name": "loopy-test-report-playbook",
+                "path": "/tmp/a/loopy/tests/test-data/playbooks/loopy-test-report-playbook"
             }
         ]
     },
     "env": {
-        "loopy_root_path": "/home/jooho/temp/test-debug/loopy",
+        "loopy_root_path": "/tmp/a/loopy",
         "loopy_config_name": "config.yaml",
-        "commands_dir": "/home/jooho/temp/test-debug/loopy/src/cli/commands",
-        "cli_dir": "/home/jooho/temp/test-debug/loopy/src/cli",
-        "logics_dir": "/home/jooho/temp/test-debug/loopy/src/cli/logics",
-        "py_utils_dir": "/home/jooho/temp/test-debug/loopy/commons/python"
+        "commands_dir": "/tmp/a/loopy/src/cli/commands",
+        "cli_dir": "/tmp/a/loopy/src/cli",
+        "logics_dir": "/tmp/a/loopy/src/cli/logics",
+        "py_utils_dir": "/tmp/a/loopy/commons/python"
     }
 }

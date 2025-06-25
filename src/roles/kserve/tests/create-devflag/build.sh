@@ -29,7 +29,7 @@ check_and_create_branch() {
     echo "Branch $branch_name already exists, skipping branch creation"
     return 0
   else
-    git branch -b $branch_name
+    git checkout -b $branch_name
     return $?
   fi
 }

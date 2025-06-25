@@ -439,6 +439,8 @@ def update_results_from_report(reportManager, report_lines, components):
                 if components["result"] == 1:
                     playbook_result = 1
                     return True
+                else:
+                    return True
 
         components["result"] = playbook_result
 

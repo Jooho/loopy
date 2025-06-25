@@ -73,7 +73,6 @@ if [[ ${CLUSTER_ADMIN_ID} != "user" ]]; then
 fi
 
 # Run pytest
-info "${PYTEST_MARKER}"
 if [[ ${PYTEST_MARKER} != "" ]]; then
   echo "uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m \"${PYTEST_MARKER}\" -s"
   uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m "${PYTEST_MARKER}" -s

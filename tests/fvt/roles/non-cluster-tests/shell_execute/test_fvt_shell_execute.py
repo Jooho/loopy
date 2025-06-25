@@ -273,7 +273,7 @@ def test_shell_execute_mixed_output(role_dir, base_env, setup_test_env):
 def test_shell_execute_git_clone(role_dir, base_env, setup_test_env):
     """Test executing git clone command and verify the directory is created"""
     test_env = {
-        "COMMANDS": "cd /tmp \n git clone git@github.com:jooho/loopy.git",
+        "COMMANDS": "cd /tmp \n git clone https://github.com/jooho/loopy.git",
         "SHOW_COMMAND": "true",
     }
 

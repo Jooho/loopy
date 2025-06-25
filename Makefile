@@ -47,7 +47,7 @@ e2e-cluster-lifecycle: download-cli
 	else \
 		FINAL_PYTEST_ARGS="$(PYTEST_ARGS)"; \
 	fi ;\
-	pytest -c "${PYTEST_CONFIG}" $$FINAL_PYTEST_ARGS -m "(${CLUSTER_TYPE}) and cluster_lifecycle_tests"
+	pytest -c "$(PYTEST_CONFIG)" $(FINAL_PYTEST_ARGS) -m "$(CLUSTER_TYPE) and cluster_lifecycle_tests"
 
 
 .PHONY: update-test-data
@@ -59,4 +59,4 @@ py-lint:
 	black ./src ./tests 
 
 .PHONY: precommit
-precommit: py-lint fvt 
+precommit: update-test-data py-lint fvt 

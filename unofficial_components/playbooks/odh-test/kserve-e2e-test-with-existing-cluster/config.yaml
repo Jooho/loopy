@@ -67,9 +67,9 @@ playbook:
       ./loopy playbook run kserve-e2e-test-with-existing-cluster
       ~~~
   steps:
-    - role:
-        name: openshift-rosa-install
-        description: Install ROSA Openshift Cluster
+    # - role:
+    #     name: openshift-rosa-install
+    #     description: Install ROSA Openshift Cluster
 
     - unit:
         name: install-odh-stable-operator

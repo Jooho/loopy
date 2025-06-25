@@ -10,6 +10,8 @@ marshmallow<4.0.0
 prettytable
 pytest-xdist
 pytest-order
+uv
+pytest_jira
 pytest-dependency
 virtualenv 
 virtualenvwrapper

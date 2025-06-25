@@ -77,6 +77,10 @@ role:
     - name: OPERATORGROUP_CREATE
       description: Set false, the namespace already have operator group. Automatically it will set to false if OPERATOR_NAMESPACE is `openshift-operators`
 
+    - name: OPERATORGROUP_NAME
+      description: Set the operator group name. If not set, it will be the same as the subscription name.
+      default: "global-operators"
+
     - name: CONFIG_ENV
       description: Set this, if you want to add config.env.(ex "name=DISABLE_DSC_CONFIG")
       

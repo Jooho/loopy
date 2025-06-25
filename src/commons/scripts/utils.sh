@@ -190,7 +190,7 @@ wait_for_pods_ready() {
 
     if [[ $wait_counter -ge 30 ]]; then
       oc get pods -l $pod_selector -n $pod_namespace
-      fail "Timed out after $((30 * wait_counter / 60)) minutes waiting for pod with selector: $pod_selector"
+      fail "Timed out after $((wait_counter * 10 / 60)) minutes waiting for pod with selector: $pod_selector"
       return 1
     fi
 
@@ -532,4 +532,32 @@ retry() {
         ((attempt++))
     done
     return 0
+}
+
+# wait_for_zero_count function
+# Usage: wait_for_zero_count <max_attempts> <sleep_seconds> <command> <message>
+# Example: wait_for_zero_count 30 10 "oc get po -A | grep -E -v 'Running|Completed' | wc -l" "Waiting for all pods to be Running or Completed"
+wait_for_zero_count() {
+    local max_attempts=$1
+    local sleep_seconds=$2
+    local command=$3
+    local message=$4
+    local attempt=1
+
+    while true; do
+        local count=$(eval "$command")
+        if [[ $count -eq 0 ]]; then
+            success "$message - Count is now $count"
+            return 0
+        fi
+        
+        if ((attempt >= max_attempts)); then
+            info "Failed after $max_attempts attempts: $message - Final count: $count"
+            return 1
+        fi
+        
+        info "Attempt $attempt/$max_attempts: $message - Current count: $count"
+        sleep "$sleep_seconds"
+        ((attempt++))
+    done
 } 

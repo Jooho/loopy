@@ -136,7 +136,8 @@ for index, command in enumerate(commands_list):
                         rcresult["stdout"] += line  # store stdout to result
                     for line in process.stderr:
                         print(line, end="", file=sys.stderr)  # Print in real time
-                        rcresult["stderr"] += line  # store stderr to result
+                        if not "Cloning" in line:
+                            rcresult["stderr"] += line  # store stderr to result
                 except Exception as e:
                     print(f"Error occurred: {e}")
                 process.wait()

@@ -266,3 +266,31 @@ def test_shell_execute_mixed_output(role_dir, base_env, setup_test_env):
     output_content = output_file.read_text()
     assert "STDOUT:\nThis is stdout" in output_content
     assert "STDERR:\nThis is stderr" in output_content
+
+
+@pytest.mark.fvt
+@pytest.mark.fvt_roles
+def test_shell_execute_git_clone(role_dir, base_env, setup_test_env):
+    """Test executing git clone command and verify the directory is created"""
+    test_env = {
+        "COMMANDS": "cd /tmp \n git clone https://github.com/jooho/loopy.git",
+        "SHOW_COMMAND": "true",
+    }
+
+    env = setup_test_env(test_env)
+
+    # Run the role
+    result = subprocess.run(
+        ["python3", str(role_dir / "main.py")], env=env, capture_output=True, text=True
+    )
+
+    assert result.returncode == 0, f"Role execution failed: {result.stderr}"
+
+    # Verify command output file exists
+    output_file = Path(base_env["ROLE_DIR"]) / "0-command.txt"
+    assert output_file.exists()
+
+    # Verify that /tmp/loopy directory was created
+    loopy_dir = Path("/tmp/loopy")
+    assert loopy_dir.exists(), f"Expected directory /tmp/loopy was not created"
+    assert loopy_dir.is_dir(), f"/tmp/loopy exists but is not a directory"

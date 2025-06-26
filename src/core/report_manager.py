@@ -50,5 +50,3 @@ class LoopyReportManager:
 
     def load_role_time(self):
         self.role_time_dict = self._load_from_file(self.role_time_file_path)
-
-

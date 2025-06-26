@@ -359,7 +359,14 @@ def add_unit_result(ctx, unit_name, uuid, role_result_components):
 
 
 def get_role_result(
-    ctx, reportManager, role_name, uuid, role_index, role_description="", role_dir_path="", first_component_type="Role"
+    ctx,
+    reportManager,
+    role_name,
+    uuid,
+    role_index,
+    role_description="",
+    role_dir_path="",
+    first_component_type="Role",
 ):
     # if first_component_type != "Role":
     #     artifacts_dir = os.path.join(
@@ -367,7 +374,7 @@ def get_role_result(
     #     )
     # else:
     # artifacts_dir = ctx.obj.config["role_dir_path"]
-        
+
     role_component = {
         "type": "role",
         "name": role_name,

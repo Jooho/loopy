@@ -55,7 +55,7 @@ setup_git_repo() {
 
   if [[ "${use_case}" != "LOCAL_SOURCE" ]]; then
     cd $target_parent_directory
-
+    
     # Clone repository
     if [[ -d ${COMPONENT_NAME} ]]; then
       info "Repository ${COMPONENT_NAME} already exists, skipping clone"

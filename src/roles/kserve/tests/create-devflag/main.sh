@@ -50,7 +50,6 @@ if ! validate_env_vars ${root_directory}; then
   exit 1
 fi
 
-
 # Determine use case
 use_case=""
 if [[ -n "${PR_URL}" ]]; then
@@ -79,7 +78,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Define required variables based on component
-if [[ $component == "kserve" ]]; then
+if [[ $COMPONENT_NAME == "kserve" ]]; then
   IMAGE_NAME="kserve-controller"
   ORIGINAL_IMAGE_FULL_URL="docker.io/library/${IMAGE_NAME}:latest"
   TARGET_IMAGE_FULL_URL="${REGISTRY_URL}/${IMAGE_NAME}:${CTRL_IMG_TAG}"

@@ -60,19 +60,19 @@ validate_env_vars() {
   case $use_case in
     "REMOTE_SOURCE")
       # Case 1: Remote source
-      local required_vars=("USER_NAME" "TARGET_USER_NAME" "COMPONENT_NAME" "TARGET_BRANCH_NAME" "CTRL_IMG_TAG" "REGISTRY_URL")
+      local required_vars=("USER_NAME" "TARGET_USER_NAME" "COMPONENT_NAME" "TARGET_BRANCH_NAME" "REGISTRY_URL")
       ;;
     "PR_SOURCE")
       # Case 2: PR source 
-      local required_vars=("USER_NAME" "PR_URL" "CTRL_IMG_TAG" "REGISTRY_URL")
+      local required_vars=("USER_NAME" "PR_URL" "REGISTRY_URL")
       ;;
     "LOCAL_SOURCE")
       # Case 3: Local source 
-      local required_vars=("USER_NAME" "CTRL_IMG_TAG" "REGISTRY_URL")
+      local required_vars=("USER_NAME" "REGISTRY_URL")
       ;;
     "CUSTOM_IMAGE")
       # Case 4: Custom image
-      local required_vars=("USER_NAME" "COMPONENT_NAME" "CUSTOM_IMAGE" "CTRL_IMG_TAG" "REGISTRY_URL")
+      local required_vars=("USER_NAME" "COMPONENT_NAME" "CUSTOM_IMAGE" "REGISTRY_URL")
       ;;
   esac
   
@@ -99,20 +99,17 @@ validate_env_vars() {
     echo "     -p TARGET_USER_NAME=test \\"
     echo "     -p COMPONENT_NAME=kserve \\"
     echo "     -p TARGET_BRANCH_NAME=pr_branch \\"
-    echo "     -p CTRL_IMG_TAG=loopy \\"
     echo "     -p REGISTRY_URL=quay.io/jooholee"
     echo ""
     echo "2. PR source:"
     echo "   ./loopy roles run create-devflag \\"
     echo "     -p USER_NAME=jooho \\"
     echo "     -p PR_URL=https://github.com/opendatahub-io/kserve/pulls/684 \\"
-    echo "     -p CTRL_IMG_TAG=loopy \\"
     echo "     -p REGISTRY_URL=quay.io/jooholee"
     echo ""
     echo "3. Local source:"
     echo "   ./loopy roles run create-devflag \\"
     echo "     -p USER_NAME=jooho \\"
-    echo "     -p CTRL_IMG_TAG=loopy \\"
     echo "     -p REGISTRY_URL=quay.io/jooholee"
     echo ""
     echo "4. Custom image:"
@@ -120,7 +117,6 @@ validate_env_vars() {
     echo "     -p USER_NAME=jooho \\"
     echo "     -p COMPONENT_NAME=kserve \\"
     echo "     -p CUSTOM_IMAGE=quay.io/jooholee/kserve-controller:loopy \\"
-    echo "     -p CTRL_IMG_TAG=loopy \\"
     echo "     -p REGISTRY_URL=quay.io/jooholee"
     echo ""
     
@@ -156,17 +152,9 @@ validate_env_vars() {
       fi
       ;;
     "LOCAL_SOURCE")
-      # For local source, try to determine component name from current directory or default to kserve
-      if [[ -z "$COMPONENT_NAME" ]]; then
-        if [[ -f "Makefile" ]] && grep -q "kserve" Makefile; then
-          COMPONENT_NAME="kserve"
-        elif [[ -f "Makefile" ]] && grep -q "odh-model-controller" Makefile; then
-          COMPONENT_NAME="odh-model-controller"
-        else
-          error "COMPONENT_NAME not specified for local source. Please provide -p COMPONENT_NAME=kserve or -p COMPONENT_NAME=odh-model-controller"
-          return 1
-        fi
-      fi
+      base_dir=$(basename ${ORIGINAL_DIR})    
+      export COMPONENT_NAME="${base_dir}"
+    
       info "Using COMPONENT_NAME=$COMPONENT_NAME for local source"
       ;;
     "REMOTE_SOURCE")

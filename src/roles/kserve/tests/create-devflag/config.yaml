@@ -32,20 +32,17 @@ role:
       -p TARGET_USER_NAME=test \
       -p COMPONENT_NAME=kserve \
       -p TARGET_BRANCH_NAME=pr_branch \
-      -p CTRL_IMG_TAG=loopy \
       -p REGISTRY_URL=quay.io/jooholee
 
     2. PR source:
     ./loopy roles run create-devflag \
       -p USER_NAME=jooho \
       -p PR_URL=https://github.com/opendatahub-io/kserve/pulls/684 \
-      -p CTRL_IMG_TAG=loopy \
       -p REGISTRY_URL=quay.io/jooholee
 
     3. Local source:
     ./loopy roles run create-devflag \
       -p USER_NAME=jooho \
-      -p CTRL_IMG_TAG=loopy \
       -p REGISTRY_URL=quay.io/jooholee
 
     4. Custom image:
@@ -53,7 +50,6 @@ role:
       -p USER_NAME=jooho \
       -p COMPONENT_NAME=kserve \
       -p CUSTOM_IMAGE=quay.io/jooholee/kserve-controller:loopy \
-      -p CTRL_IMG_TAG=loopy \
       -p REGISTRY_URL=quay.io/jooholee
 
   input_env:

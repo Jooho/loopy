@@ -92,7 +92,7 @@ class Role:
 
         # Validate input/output variables
         ## Gather all input variables
-        aggregated_input_vars, required_envs = get_aggregated_input_vars(
+        aggregated_input_vars, required_envs = get_aggregated_vars(
             self.ctx,
             self.role_config_dir_path,
             self.name,
@@ -484,7 +484,7 @@ def export_env_variables(ctx, input_variabels):
 def Get_default_input_value(
     ctx, role_config_dir_path, role_name, additional_input_vars, input_key
 ):
-    aggregated_input_vars, _ = get_aggregated_input_vars(
+    aggregated_input_vars, _ = get_aggregated_vars(
         ctx, role_config_dir_path, role_name, None, additional_input_vars
     )
 
@@ -495,15 +495,28 @@ def Get_default_input_value(
 
 
 def Get_required_input_keys(ctx, role_config_dir_path, role_name):
-    _, required_envs = get_aggregated_input_vars(
+    _, required_envs = get_aggregated_vars(
         ctx, role_config_dir_path, role_name, None, None
     )
 
     return required_envs
 
 
-def get_aggregated_input_vars(
-    ctx, role_config_dir_path, role_name, params, additional_input_vars
+def Get_required_output_keys(ctx, role_config_dir_path, role_name):
+    _, required_envs = get_aggregated_vars(
+        ctx, role_config_dir_path, role_name, None, None, env_type="output_env"
+    )
+
+    return required_envs
+
+
+def get_aggregated_vars(
+    ctx,
+    role_config_dir_path,
+    role_name,
+    params,
+    additional_input_vars,
+    env_type="input_env",
 ):
     default_vars = ctx.obj.default_vars
     required_envs = []
@@ -516,7 +529,7 @@ def get_aggregated_input_vars(
     # Load config.yaml in the role. Read input_env and overwrite the environment value if there is default field
     with open(role_config_dir_path + "/config.yaml", "r") as file:
         role_config_vars = yaml.safe_load(file)
-        for input_env in role_config_vars["role"]["input_env"]:
+        for input_env in role_config_vars["role"][env_type]:
             for default_env in input_env:
                 if "required" in default_env:
                     required_envs.append(input_env["name"])

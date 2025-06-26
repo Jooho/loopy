@@ -5,7 +5,7 @@ import logging
 from cli.commands import utils
 import constants
 from cli.commands import loopy_report
-from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys
+from cli.logics.component import Role, Get_default_input_value, Get_required_input_keys, Get_required_output_keys
 from colorama import Fore, Style
 from core.report_manager import LoopyReportManager
 
@@ -136,13 +136,14 @@ def display_role_info(ctx, role_name,role_path):
     click.echo(f"{Fore.BLUE}Input:{Style.RESET_ALL}{' '*51}| {Fore.BLUE}Output:{Style.RESET_ALL}")
     click.echo(f"- {Fore.GREEN}required{Style.RESET_ALL}{' '*(57-len('- required'))}| - {Fore.GREEN}required{Style.RESET_ALL}")
     required_input_keys = Get_required_input_keys(ctx, role_path, role_name)
-    required_input_output_max_len = max(len(required_input_keys), len(output_env_list))
+    required_output_keys = Get_required_output_keys(ctx, role_path, role_name)
+    required_input_output_max_len = max(len(required_input_keys), len(required_output_keys))
     
     for i in range(required_input_output_max_len):
         input_env = required_input_keys[i] if i < len(required_input_keys) else {}
-        output_env = output_env_list[i] if i < len(output_env_list) else {}
+        output_env = required_output_keys[i] if i < len(required_output_keys) else {}
         input_name = input_env
-        output_name = output_env.get('name', '')
+        output_name = output_env
         default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name) if input_name else ''
         if input_name and output_name:
            click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} |   - {output_name}")
@@ -151,13 +152,20 @@ def display_role_info(ctx, role_name,role_path):
         elif not input_name and output_name:
            click.echo(f" {' '*(55)} |   - {output_name}")
    
+    optional_input_keys = [input_env for input_env in input_env_list if input_env['name'] not in required_input_keys]
+    optional_output_keys = [output_env for output_env in output_env_list if output_env['name'] not in required_output_keys]
+    optional_input_output_max_len = max(len(optional_input_keys), len(optional_output_keys))
+    
     click.echo(f"- {Fore.YELLOW}optional{Style.RESET_ALL}{' '*(57-len('- optional'))}| - {Fore.YELLOW}optional{Style.RESET_ALL}")
-    for input in input_env_list:
-        input_name=input['name']
-        if not input_name in required_input_keys:
-            default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name) if input_name else ''
-            if len(default_input_value)> 55:
-                click.echo(f"  - {input_name}  {' '*(50-len(input_name) )} | ")
-                click.echo(f"    ({default_input_value}) {' '*(48- len(default_input_value))} ")
-            else:                    
-                click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} | ")
+    for i in range(optional_input_output_max_len):
+        input_env = optional_input_keys[i] if i < len(optional_input_keys) else {}
+        output_env = optional_output_keys[i] if i < len(optional_output_keys) else {}
+        input_name = input_env.get('name', '') if isinstance(input_env, dict) else input_env
+        output_name = output_env.get('name', '') if isinstance(output_env, dict) else output_env
+        default_input_value = Get_default_input_value(ctx, role_path, role_name, None, input_name) if input_name else ''
+        if input_name and output_name:
+           click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} |   - {output_name}")
+        elif input_name and not output_name:
+           click.echo(f"  - {input_name} ({default_input_value}) {' '*(48-len(input_name) - len(default_input_value))} | ")
+        elif not input_name and output_name:
+           click.echo(f" {' '*(55)} |   - {output_name}")

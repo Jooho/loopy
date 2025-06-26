@@ -55,7 +55,7 @@ class Role:
 
         # Add default value "role" for e2e test
         first_component_type = reportManager.summary_dict.get(
-            "first_component_type", "role"
+            "first_component_type", "Role"
         )
         # Setup for role
         if first_component_type == "Role":
@@ -219,9 +219,9 @@ class Role:
             reportManager.update_role_time("end_time", end_time)
 
         reportManager.load_summary()
-        # Add default value "role" for e2e test
+        # Add default value "Role" for e2e test
         first_component_type = reportManager.summary_dict.get(
-            "first_component_type", "role"
+            "first_component_type", "Role"
         )
         if first_component_type == "Role":
             reportManager.update_summary(
@@ -233,6 +233,7 @@ class Role:
                     self.uuid,
                     self.index,
                     self.role_description,
+                    role_dir_path,
                 ),
             )
         else:
@@ -243,6 +244,7 @@ class Role:
                 self.uuid,
                 self.index,
                 self.role_description,
+                role_dir_path,
             )
 
 
@@ -357,20 +359,20 @@ def add_unit_result(ctx, unit_name, uuid, role_result_components):
 
 
 def get_role_result(
-    ctx, reportManager, role_name, uuid, role_index, role_description="", first_component_type="role"
+    ctx, reportManager, role_name, uuid, role_index, role_description="", role_dir_path="", first_component_type="Role"
 ):
-    if first_component_type != "role":
-        artifacts_dir = os.path.join(
-            ctx.obj.config["artifacts_dir"], f"{role_index}-{role_name}"
-        )
-    else:
-        artifacts_dir = ctx.obj.config["artifacts_dir"]
+    # if first_component_type != "Role":
+    #     artifacts_dir = os.path.join(
+    #         ctx.obj.config["role_dir_path"], f"{role_index}-{role_name}"
+    #     )
+    # else:
+    # artifacts_dir = ctx.obj.config["role_dir_path"]
         
     role_component = {
         "type": "role",
         "name": role_name,
         "description": utils.getDescription(ctx, role_name, "role", role_description),
-        "artifacts_dir": f"{artifacts_dir}",
+        "artifacts_dir": f"{role_dir_path}",
         "uuid": uuid,
         "role_index": role_index,
         "commands": [],

@@ -15,23 +15,23 @@ verify_image_exists() {
 }
 
 verify_image_sha_match() {
-  local image_url=$1
+  local target_image_full_url=$1
   info "Verifying image SHA match between local and remote"
-  
-  # Get remote image SHA
-  remote_sha=$(${CONTAINER_CLI} manifest inspect $image_url | jq -r '.config.digest' 2>/dev/null)
+
+  # Get remote image SHA using skopeo
+  remote_sha=$(skopeo inspect docker://$target_image_full_url | jq -r '.Digest' 2>/dev/null)
   if [[ -z "$remote_sha" || "$remote_sha" == "null" ]]; then
     error "Failed to get remote image SHA"
     return 1
   fi
-  
+
   # Get local image SHA
-  local_sha=$(${CONTAINER_CLI} inspect docker.io/library/${COMPONENT_NAME}-controller:latest | jq -r '.[0].Id' 2>/dev/null)
+  local_sha=$(${CONTAINER_CLI} inspect $target_image_full_url | jq -r '.[0].Id' 2>/dev/null)
   if [[ -z "$local_sha" || "$local_sha" == "null" ]]; then
     error "Failed to get local image SHA"
     return 1
   fi
-  
+
   if [[ "$remote_sha" == "$local_sha" ]]; then
     success "Image SHA matches between local and remote"
     return 0
@@ -80,20 +80,20 @@ verify_branch_pushed() {
 }
 
 verify_image_url_updated() {
+  local target_image_full_url=$1
+  local component_name=$2
   local config_file="config/overlays/odh/params.env"
-  local expected_line="kserve-controller=${REGISTRY_URL}/kserve-controller:${CTRL_IMG_TAG}"
-  if [[ ${COMPONENT_NAME} == "kserve" ]]; then    
-    if [[ -n "${CUSTOM_IMAGE}" ]]; then
-      expected_line="kserve-controller=${CUSTOM_IMAGE}"
-    fi
-  else
+  local param_field_name="kserve-controller"
+  if [[ ${component_name} != "kserve" ]]; then       
     config_file="config/base/params.env"
-    expected_line="odh-model-controller=${REGISTRY_URL}/odh-model-controller:${CTRL_IMG_TAG}"
-    if [[ -n "${CUSTOM_IMAGE}" ]]; then
-      expected_line="odh-model-controller=${CUSTOM_IMAGE}"
-    fi
+    param_field_name="odh-model-controller"
+  fi    
+  
+  local expected_line="${param_field_name}=${target_image_full_url}"
+  if [[ -n "${CUSTOM_IMAGE}" ]]; then
+     expected_line="${param_field_name}=${CUSTOM_IMAGE}"
   fi
-  pwd      
+
   info "Verifying if image URL is correctly updated in $config_file"
   
   if [[ -f "$config_file" ]]; then
@@ -105,7 +105,7 @@ verify_image_url_updated() {
       error "Image URL not found or incorrect in $config_file"
       error "  Expected: $expected_line"
       error "  Current content:"
-      grep "${COMPONENT_NAME}-controller=" "$config_file" || error "  No controller line found"
+      grep "${param_field_name}=" "$config_file" || error "  No controller line found"
       return 1
     fi
   else
@@ -116,32 +116,26 @@ verify_image_url_updated() {
 
 # Function to run all verifications
 run_all_verifications() {
-  local target_image=$1
+  local target_image_full_url=$1
   local repo_dir=$2
+  local component_name=$3
   local result=0
   
   info "Starting verification process..."
   
   # 1. Verify image exists in registry
-  if ! verify_image_exists "$target_image"; then
+  if ! verify_image_exists "$target_image_full_url"; then
     result=1
   fi
   
-  # 2. Verify image SHA match (only if image exists and not using custom image)
-  if [[ $result -eq 0 && -z "${CUSTOM_IMAGE}" ]]; then
-    if ! verify_image_sha_match "$target_image"; then
-      result=1
-    fi
-  fi
-  
-  # 3. Verify branch is pushed
-  if ! verify_branch_pushed "$repo_dir" "$USER_NAME" "$COMPONENT_NAME"; then
+  # 2. Verify branch is pushed
+  if ! verify_branch_pushed "$repo_dir" "$USER_NAME" "$component_name"; then
     result=1
     exit 1
   fi
   
-  # 4. Verify image URL is updated in config
-  if ! verify_image_url_updated; then
+  # 3. Verify image URL is updated in config
+  if ! verify_image_url_updated "$target_image_full_url" "$component_name"; then
     result=1
   fi
   

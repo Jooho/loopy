@@ -78,28 +78,37 @@ if [[ $? -ne 0 ]]; then
   result=1
 fi
 
+# Define required variables based on component
+if [[ $component == "kserve" ]]; then
+  IMAGE_NAME="kserve-controller"
+  ORIGINAL_IMAGE_FULL_URL="docker.io/library/${IMAGE_NAME}:latest"
+  TARGET_IMAGE_FULL_URL="${REGISTRY_URL}/${IMAGE_NAME}:${CTRL_IMG_TAG}"
+else
+  IMAGE_NAME="odh-model-controller"
+  ORIGINAL_IMAGE_FULL_URL="quay.io/${USER}/${IMAGE_NAME}:latest"
+  TARGET_IMAGE_FULL_URL="${REGISTRY_URL}/${IMAGE_NAME}:${CTRL_IMG_TAG}"
+fi
+
 # Execute based on use case
-TARGET_IMAGE=""
 if [[ "$use_case" == "CUSTOM_IMAGE" ]]; then
   # Case 4: Custom image - only update manifests, no image building
-  TARGET_IMAGE="${CUSTOM_IMAGE}"
+  TARGET_IMAGE_FULL_URL="${CUSTOM_IMAGE}"
 else
   # Cases 1, 2, 3: Need to build and push image
   # Handle container image building and pushing
-  info "Building image: ${REGISTRY_URL}/${COMPONENT_NAME}-controller:${CTRL_IMG_TAG}"
-  handle_image_build "$GIT_PARENT_REPO_DIR"
+  info "Building image: ${TARGET_IMAGE_FULL_URL}"
+  handle_image_build "$COMPONENT_NAME" "$GIT_PARENT_REPO_DIR" "$ORIGINAL_IMAGE_FULL_URL" "$TARGET_IMAGE_FULL_URL"
   if [[ $? -ne 0 ]]; then
     error "Failed to build image"
     exit 1
   fi
-  TARGET_IMAGE=${REGISTRY_URL}/${COMPONENT_NAME}-controller:${CTRL_IMG_TAG}
 fi
 
 cd $GIT_PARENT_REPO_DIR/${COMPONENT_NAME}
 # Check and update controller image in params.env
-update_manifests "$TARGET_IMAGE" 
+update_manifests "$TARGET_IMAGE_FULL_URL" "$COMPONENT_NAME"
 ############# VERIFY #############
-run_all_verifications "$TARGET_IMAGE" "$GIT_PARENT_REPO_DIR/${COMPONENT_NAME}"
+run_all_verifications "$TARGET_IMAGE_FULL_URL" "$GIT_PARENT_REPO_DIR/${COMPONENT_NAME}" "$COMPONENT_NAME"
 result=$?
 
 ############# OUTPUT #############

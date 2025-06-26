@@ -34,34 +34,18 @@ check_and_create_branch() {
   fi
 }
 
-# Function to check if image already exists with same SHA
-check_image_exists() {
-  local image_url=$1
-  
-  if ${CONTAINER_CLI} manifest inspect $image_url >/dev/null 2>&1; then
-    echo "Image $image_url already exists"
-    return 0
-  else
-    echo "Image $image_url does not exist"
-    return 1
-  fi
-}
-
 # Function to build and push image
 build_and_push_image() {
-  local component=$1
-  local registry=$2
-  local tag=$3
-  local skip_build=$4
+  local make_target=$1
+  local original_image_full_url=$2
+  local target_image_full_url=$3  
+ 
+  info "Building and pushing ${target_image_full_url} image..."
   
-  if [[ "$skip_build" == "true" ]]; then
-    info "Skipping build and pushing ${component}-controller image..."
-  else
-    info "Building and pushing ${component}-controller image..."
-    ENGINE=${CONTAINER_CLI} make docker-build
-  fi
-  ${CONTAINER_CLI} tag docker.io/library/${component}-controller:latest ${registry}/${component}-controller:${tag}
-  ${CONTAINER_CLI} push ${registry}/${component}-controller:${tag}
+  CONTAINER_TOOL=${CONTAINER_CLI} ENGINE=${CONTAINER_CLI} make ${make_target}
+  
+  ${CONTAINER_CLI} tag ${original_image_full_url} ${target_image_full_url}
+  ${CONTAINER_CLI} push ${target_image_full_url}
 }
 
 # Function to setup git repository and branch
@@ -142,8 +126,9 @@ setup_git_repo() {
 
 # Function to update manifest files
 update_manifests() {
-  local target_image=$1
-    
+  local target_image_full_url=$1
+  local component_name=$2
+
   kserve_params_file="config/overlays/odh/params.env"
   odh_model_controller_params_file="config/base/params.env"
 
@@ -151,56 +136,43 @@ update_manifests() {
   # git checkout -b ${TEST_MANIFEST_BRANCH}  2>/dev/null || git checkout ${TEST_MANIFEST_BRANCH}
   check_and_create_branch ${TEST_MANIFEST_BRANCH}
   # Check and update controller image in params.env
-  if [[ ${COMPONENT_NAME} == "kserve" ]]; then
-    if grep -q "$target_image" ${kserve_params_file}; then
+  if [[ ${component_name} == "kserve" ]]; then
+    if grep -q "$target_image_full_url" ${kserve_params_file}; then
       info "Controller image is already updated in params.env, skipping update"
     else
       # Update the controller image in params.env
-      sed -i "s|^${COMPONENT_NAME}-controller=.*|kserve-controller=${target_image}|g" ${kserve_params_file}
-      info "Updated ${COMPONENT_NAME}-controller image in params.env"
+      sed -i "s|^${component_name}-controller=.*|kserve-controller=${target_image_full_url}|g" ${kserve_params_file}
+      info "Updated ${component_name}-controller image in params.env"
     fi
   else
-      if grep -q "$target_image" ${odh_model_controller_params_file}; then
+      if grep -q "$target_image_full_url" ${odh_model_controller_params_file}; then
       info "Controller image is already updated in params.env, skipping update"
     else
       # Update the controller image in params.env
-      sed -i "s|^${COMPONENT_NAME}=.*|odh-model-controller=${target_image}|g" ${odh_model_controller_params_file}
-      info "Updated ${COMPONENT_NAME} image in params.env"
+      sed -i "s|^${component_name}=.*|odh-model-controller=${target_image_full_url}|g" ${odh_model_controller_params_file}
+      info "Updated ${component_name} image in params.env"
     fi
   fi
   
   # Commit and push changes
   git add .
-  git commit -m "Update ${target_image} in params.env"
+  git commit -m "Update ${target_image_full_url} in params.env"
   git push -u origin ${TEST_MANIFEST_BRANCH} -f
 }
 
 # Function to handle image building and pushing
 handle_image_build() {
-  local target_image="${KO_DOCKER_REPO}/${COMPONENT_NAME}-controller:${TAG}"
-  local target_parent_directory=$1
-
-  cd $target_parent_directory/${COMPONENT_NAME}
-  if check_image_exists "$target_image"; then
-    info "Controller image $target_image already exists, checking SHA..."
-    
-    # Get the SHA of the existing image
-    existing_sha=$(${CONTAINER_CLI} manifest inspect $target_image | jq -r '.config.digest' 2>/dev/null || echo "")
-    
-    # Build locally to get the new SHA
-    make docker-build
-    local_sha=$(${CONTAINER_CLI} inspect docker.io/library/${COMPONENT_NAME}-controller:latest | jq -r '.[0].Id' 2>/dev/null || echo "")
-    
-    if [[ "$existing_sha" == "$local_sha" ]]; then
-      info "Controller image with same SHA already exists, skipping push"
-    else
-      info "Controller image exists but with different SHA, pushing new image..."
-      build_and_push_image "$COMPONENT_NAME" "$KO_DOCKER_REPO" "$TAG" "true"
-    fi
-  else
-    info "Controller image does not exist, building and pushing..."
-    build_and_push_image "$COMPONENT_NAME" "$KO_DOCKER_REPO" "$TAG" "false"
+  local component_name=$1
+  local target_parent_directory=$2
+  local original_image_full_url=$3
+  local target_image_full_url=$4
+   
+  local make_target="docker-build"
+ 
+  if [[ $component_name != "kserve" ]]; then        
+    make_target="container-build"
   fi
-  
-  echo "$target_image"
+
+  cd $target_parent_directory/${component_name}
+  build_and_push_image "$make_target" "$original_image_full_url" "$target_image_full_url"
 } 

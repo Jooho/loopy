@@ -26,6 +26,7 @@ keep_env_variables:
   - JENKINS_TOKEN
   - JENKINS_URL
   - CUSTOM_KSERVE_MANIFESTS
+  - CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS
   - HF_TEST_TOKEN
 additional_role_dirs: [] #example /home/roles
 additional_unit_dirs: [./tests/test-data/units]

@@ -89,9 +89,9 @@ role:
     description: github branch name for updating manifests
     default: "loopy-test-devflag"
 
-output_env:
-- name: CUSTOM_KSERVE_MANIFESTS
-  description: custom kserve manifests url (e.g. "https://github.com/jooho/kserve/tarball/loopy-test-devflag")
+  output_env:
+  - name: CUSTOM_KSERVE_MANIFESTS
+    description: custom kserve manifests url (e.g. "https://github.com/jooho/kserve/tarball/loopy-test-devflag")
 
-- name: CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS
-  description: custom odh-model-controller manifests url (e.g. "https://github.com/jooho/odh-model-controller/tarball/loopy-test-devflag")
+  - name: CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS
+    description: custom odh-model-controller manifests url (e.g. "https://github.com/jooho/odh-model-controller/tarball/loopy-test-devflag")

@@ -132,7 +132,7 @@ validate_env_vars() {
       # Extract component name and PR details from PR_URL
       if [[ $PR_URL =~ github\.com/([^/]+)/([^/]+)/pull/([0-9]+) ]]; then
         PR_OWNER="${BASH_REMATCH[1]}"
-        COMPONENT_NAME="${BASH_REMATCH[2]}"
+        export COMPONENT_NAME="${BASH_REMATCH[2]}"
         PR_NUMBER="${BASH_REMATCH[3]}"
         info "Extracted from PR_URL: PR_OWNER=$PR_OWNER, COMPONENT_NAME=$COMPONENT_NAME, PR_NUMBER=$PR_NUMBER"
         

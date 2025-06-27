@@ -79,12 +79,17 @@ if ! echo "$crc_status" | grep -q "Running"; then
     die "Pull secret file not found at ${PULL_SECRET_PATH}"
   fi
 
+  # Function to start CRC and check if it started successfully
+  start_crc_cluster() {
+    crc_start_output=$(crc start -p $(eval echo ${PULL_SECRET_PATH}))
+    echo "$crc_start_output" | grep -q "Started the OpenShift cluster"
+  }
+
   # Start crc
   info "Starting CRC VM..."
   debug "crc start -p $(eval echo ${PULL_SECRET_PATH})"
-  crc_start_output=$(crc start -p $(eval echo ${PULL_SECRET_PATH}))
-  if ! echo "$crc_start_output" | grep -q "Started the instance"; then
-    die "Failed to start CRC cluster"
+  if ! retry 30 10 "start_crc_cluster" "Starting CRC cluster"; then
+    die "Failed to start CRC cluster after 10 attempts"
   fi
 else
   info "CRC is already running, skipping start"
@@ -98,10 +103,15 @@ result=0
 if ! retry 60 5 "crc status -o json|jq -r .openshiftStatus | grep -q Running" "Waiting for openshift local cluster to be ready"; then
     fail "Openshift local cluster is not running properly after 5 minutes"
     result=1
-else
-    success "Openshift local cluster is running properly"
+fi
+if ! retry 30 10 '[[ $(oc get po -A --no-headers | grep -E -v "Running|Completed" | wc -l) -eq 0 ]]' "Waiting for all pods to be Running or Completed"; then
+  fail "Openshift local cluster is not running properly after 5 minutes"
+  result=1
 fi
 
+if [[ $result -eq 0 ]]; then
+  success "Openshift local cluster is running properly"
+fi
 
 ############# OUTPUT #############
 if [[ $result -eq 0 ]]; then
@@ -112,10 +122,10 @@ if [[ $result -eq 0 ]]; then
   fi
    
   cluster_console_url=$(crc console --url)
-  cluster_api_url=$(oc whoami --show-server)
+  cluster_api_url="https://api.crc.testing:6443"
   cluster_admin_id=kubeadmin
   cluster_admin_pw=${KUBEADMIN_PASSWORD}
-  cluster_token=$(oc whoami -t)
+  cluster_token=""
   cluster_type="openshift-local"
   
 

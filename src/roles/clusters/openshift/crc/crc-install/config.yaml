@@ -31,7 +31,7 @@ role:
   - name: MEMORY
     description: |
       Set MEMORY size (default: 40000)
-    default: 10752
+    default: 40000
   - name: CPU
     description: |
       Set CPU core count (default: 10)

@@ -53,8 +53,8 @@ setup_git_repo() {
   local use_case=$1
   local target_parent_directory=$2
 
+  cd $target_parent_directory
   if [[ "${use_case}" != "LOCAL_SOURCE" ]]; then
-    cd $target_parent_directory
     
     # Clone repository
     if [[ -d ${COMPONENT_NAME} ]]; then
@@ -67,21 +67,15 @@ setup_git_repo() {
         return 1
       fi
     fi
-    cd ${COMPONENT_NAME}
   else
     if [[ $(basename "$ORIGINAL_DIR") != ${COMPONENT_NAME} ]]; then
       error "This is not the ${COMPONENT_NAME} repository"
       return 1
     fi
   fi
+  cd ${COMPONENT_NAME}
   
 
-  if [[ ${COMPONENT_NAME} == "kserve" ]]; then
-    if [[ ! -d /tmp/kserve/config/overlays/odh ]]; then
-      error "This is upstream kserve that does not support devflag"
-      return 1
-    fi
-  fi
   # Set environment variables
   export REPO_URL=https://github.com/${USER_NAME}/${COMPONENT_NAME}.git
   export KO_DOCKER_REPO=${REGISTRY_URL}
@@ -122,6 +116,14 @@ setup_git_repo() {
       info "Use custom image without build: ${CUSTOM_IMAGE}"    
       ;;
   esac
+
+  info "Downloaded ${COMPONENT_NAME} directory: $(pwd)"
+  if [[ ${COMPONENT_NAME} == "kserve" ]]; then
+    if [[ ! -d config/overlays/odh ]]; then
+      error "This is upstream kserve that does not support devflag"
+      return 1
+    fi
+  fi
 }
 
 # Function to update manifest files

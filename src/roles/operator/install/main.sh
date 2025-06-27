@@ -42,7 +42,8 @@ if [[ z${USE_KIND} == z ]]; then
   fi
   check_oc_status
 fi
-if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] && [[ z${USE_KIND} == z ]]; then  
+
+if [[ $OPERATOR_NAMESPACE != 'openshift-operators' ]] || [[ z${USE_KIND} != z ]]; then  
   oc get ns $OPERATOR_NAMESPACE || oc create ns $OPERATOR_NAMESPACE
   result=$?
   if [[ $result != 0 ]]; then
@@ -92,7 +93,7 @@ if [[ z${CONFIG_ENV} != z ]]; then
 fi
 
 info "Check if catalogsource is needed or not"
-if [[ ${CATALOGSOURCE_NAME} == "community-operators" || ${CATALOGSOURCE_NAME} == "redhat-operators" || ${CATALOGSOURCE_NAME} == "redhat-marketplace" || ${CATALOGSOURCE_NAME} == "certified-operators" ]]; then
+if [[ ${CATALOGSOURCE_NAME} == "operatorhubio-catalog"||${CATALOGSOURCE_NAME} == "community-operators" || ${CATALOGSOURCE_NAME} == "redhat-operators" || ${CATALOGSOURCE_NAME} == "redhat-marketplace" || ${CATALOGSOURCE_NAME} == "certified-operators" ]]; then
   info "The catalogsource(${CATALOGSOURCE_NAME}) is official one"
 else
   info "The catalogsource(${CATALOGSOURCE_NAME}) is NOT official one so it will create a catalogsource with catalog image{${CATALOGSOURCE_IMAGE}}"

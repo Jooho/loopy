@@ -61,4 +61,7 @@ role:
     required: true
   - name: CLUSTER_TYPE
     description: This shows the type of the cluster
-    required: true
+    required: true 
+  - name: USE_KIND
+    description: This shows the type of the cluster
+    required: true 

@@ -28,6 +28,9 @@ keep_env_variables:
   - CUSTOM_KSERVE_MANIFESTS
   - CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS
   - HF_TEST_TOKEN
+  - USE_KIND
+  - CATALOGSOURCE_NAMESPACE
+
 additional_role_dirs: [] #example /home/roles
 additional_unit_dirs: [./tests/test-data/units]
 additional_playbook_dirs: [./tests/test-data/playbooks]

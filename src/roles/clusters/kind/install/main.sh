@@ -108,7 +108,13 @@ if [[ $result -eq 0 ]]; then
     info "Writing environment variables to output file"    
     echo "KUBECONFIG_PATH=${KUBECONFIG_PATH}" >>${OUTPUT_ENV_FILE}
 fi
-echo "CLUSTER_TYPE=kind" >> ${OUTPUT_ENV_FILE}
+echo "CLUSTER_TYPE=KIND" >> ${OUTPUT_ENV_FILE}
 
+echo "CLUSTER_CONSOLE_URL=''" >>${OUTPUT_ENV_FILE}
+echo "CLUSTER_API_URL=''" >>${OUTPUT_ENV_FILE}
+echo "CLUSTER_ADMIN_ID=''" >>${OUTPUT_ENV_FILE}
+echo "CLUSTER_ADMIN_PW=''" >>${OUTPUT_ENV_FILE}
+echo "USE_KIND=1" >>${OUTPUT_ENV_FILE}
+echo "CATALOGSOURCE_NAMESPACE=olm" >>${OUTPUT_ENV_FILE}
 ############# REPORT #############
 echo "${index_role_name}::${result}" >>${REPORT_FILE}

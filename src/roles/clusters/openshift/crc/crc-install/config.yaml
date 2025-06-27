@@ -65,19 +65,17 @@ role:
   output_env:
     - name: CLUSTER_CONSOLE_URL
       description: openshift console url
-
     - name: CLUSTER_API_URL
       description: openshift api url
-
+      required: true
     - name: CLUSTER_TYPE
       description: openshift cluster type (ROSA)
-
+      required: true
     - name: CLUSTER_ADMIN_ID
       description: openshift cluster user id
-
+      required: true
     - name: CLUSTER_ADMIN_PW
       description: openshift cluster user password
-
+      required: true
     - name: CLUSTER_TOKEN
       description: openshift cluster login token
-

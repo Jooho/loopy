@@ -4,8 +4,28 @@ playbook:
   steps:
     - role:
         name: kind-install
-    - role:
-        name: llm-d-install-with-manifests
-        input_env:
-          TEST_NAMESPACE: llm-d-test
+
+    # PoC    
+    # - role:
+    #     name: llm-d-install-with-manifests
+    #     input_env:
+    #       TEST_NAMESPACE: llm-d-test
     
+    # Setup required operators
+    - role:
+        name: shell-execute
+        description: Build kserve controller image and deploy it to kind cluster
+        input_env:
+          COMMANDS: |
+            cd $ROLE_DIR
+            git clone https://github.com/opendatahub-io/kserve.git --branch feature-llmd-llm-inference-service
+            cd kserve
+            export KO_DOCKER_REPO=quay.io/jooholee
+            make deploy-dev-llm            
+
+    - role:
+        name: shell-execute
+        description: create sample llm-d-inference-service
+        input_env:
+          COMMANDS: |
+            kubectl apply -f https://gist.githubusercontent.com/Jooho/d2aa8eb13f5c07d3dc4cd784a65c2bb3/raw/5e045404fb44aca066f890851ed198987309394f/llmisvc.yaml

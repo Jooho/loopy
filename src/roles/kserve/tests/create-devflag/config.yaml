@@ -6,23 +6,23 @@ role:
     It supports 4 different use cases with different environment variable requirements.
 
     pre-requirements:
-      - docker or podman
+      - docker or podman on local
       - You have to setup SSH key to github before running this role.
       - You have to login to registry like dockerhub or quay.io before running this role.
       - curl and jq are required for PR source mode
 
     Use Cases:
     1. Remote Source: Build controller image from remote source and push to registry, then create devflag branch
-       Required: USER_NAME, TARGET_USER_NAME, COMPONENT_NAME, TARGET_BRANCH_NAME, CTRL_IMG_TAG, REGISTRY_URL
+       Required: USER_NAME, TARGET_USER_NAME, COMPONENT_NAME, TARGET_BRANCH_NAME, REGISTRY_URL
 
     2. PR Source: Build controller image from PR source and push to registry, then create devflag branch  
-       Required: USER_NAME, PR_URL, CTRL_IMG_TAG, REGISTRY_URL
+       Required: USER_NAME, PR_URL, REGISTRY_URL
        
     3. Local Source: Build controller image from local source and push to registry, then create devflag branch
-       Required: USER_NAME, CTRL_IMG_TAG, REGISTRY_URL
+       Required: USER_NAME, REGISTRY_URL
        
     4. Custom Image: Create devflag branch and update manifests with custom image (no building)
-       Required: USER_NAME, COMPONENT_NAME, CUSTOM_IMAGE, CTRL_IMG_TAG, REGISTRY_URL
+       Required: USER_NAME, COMPONENT_NAME, CUSTOM_IMAGE, REGISTRY_URL
 
     Usage Examples:
 
@@ -53,10 +53,6 @@ role:
       -p REGISTRY_URL=quay.io/jooholee
 
   input_env:
-  - name: CONTAINER_CLI
-    description: container runtime cli (docker or podman)
-    default: "docker"
-
   - name: USER_NAME
     description: Set your github user name
     required: true
@@ -64,6 +60,10 @@ role:
   - name: REGISTRY_URL
     description: DockerHub/Quay repo url (e.g. quay.io/jooholee)
     required: true
+
+  - name: CONTAINER_CLI
+    description: container runtime cli (docker or podman)
+    default: "docker"
 
   - name: COMPONENT_NAME
     description: Set target github repo name (kserve or odh-model-controller)

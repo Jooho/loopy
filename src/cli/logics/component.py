@@ -577,7 +577,11 @@ def validate_output_env_file(output_env_file_path, role_config_dir_path):
         utils.set_env_vars_if_file_exist(output_env_file_path)
         if "output_env" in target_component_vars["role"]:
             for output_env in target_component_vars["role"]["output_env"]:
-                if "required" in output_env and utils.is_positive(output_env["required"]) == 1 and str(output_env["name"]) not in os.environ:
+                if (
+                    "required" in output_env
+                    and utils.is_positive(output_env["required"]) == 1
+                    and str(output_env["name"]) not in os.environ
+                ):
                     logger.error(
                         f"{Fore.RED}Please check this role. output_env({output_env}) is not set{Fore.RESET}"
                     )

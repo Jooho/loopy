@@ -48,6 +48,8 @@ sed -e \
  s+%minio_image%+$MINIO_IMAGE+g" $minio_deployment_manifests_path >${ROLE_DIR}/$(basename $minio_deployment_manifests_path)
 
 enable_ssl=$(is_positive ${ENABLE_SSL})
+edge_enable_ssl=$(is_positive ${EDGE_ENABLE_SSL})
+
 if [[ ${enable_ssl} == "0" ]]; then
   info "MINIO SSL Enabled"
   info "ROOT_CA_CERT_FILE_PATH: ${ROOT_CA_CERT_FILE_PATH}"

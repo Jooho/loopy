@@ -51,19 +51,23 @@ role:
     - name: PYTEST_JIRA_TOKEN
       description: pytest jira token
       required: true
-    - name: MINIO_S3_SVC_URL
-      description: Set minio s3 service url,if you want to use your own minio. (HTTPS is required)
+    - name: MINIO_ODS_CI_S3_SVC_URL
+      description: Set minio ods-ci-s3 service url,if you want to use your own minio. 
+      required: true
+    - name: MINIO_ODS_CI_WISDOM_SVC_URL
+      description: Set minio ods-ci-wisdom service url,if you want to use your own minio. 
+      required: true
     - name: MINIO_ACCESS_KEY_ID
       description: minio access key id
       default: "admin"
     - name: MINIO_SECRET_ACCESS_KEY
       description: minio secret access key
       default: "password"
+
     - name: PYTEST_PATH
       description: Set other path, if you want to run specific test cases
-      default: "tests/model_serving"
+      default: "tests/model_serving/model_server"
     - name: PYTEST_MARKER
       description: Set pytest marker, if you want to run specific test cases.
       default: ""
-    - name: CUSTOM_KSERVE_IMG
       

@@ -1,0 +1,102 @@
+playbook:
+  name: kserve-execute-e2e-test
+  created_date: "20250620"
+  description: |
+    This playbook configure test cluster that install all required objects for e2e tests and run test.
+
+    By default, it will use the fast channel of kserve/odh-model-controller. If you want to test with custom build, you can set the following cases:   
+    
+  steps:
+    # Create a new cluster
+    # Uncomment this if you want to create a new cluster
+
+    # - role:
+    #     name: openshift-rosa-install
+    #     description: Install ROSA Openshift Cluster
+
+    # Create devflag for kserve custom image test with remote branch source code
+    # Uncomment this if you want to deploy custom image using devflag
+
+    # - role:
+    #     name: create-devflag
+    #     description: Create devflag for kserve custom image test
+    #     input_env:
+    #       USER_NAME: jooho
+    #       REGISTRY_URL: quay.io/jooholee
+    #       COMPONENT_NAME: kserve
+    #       TARGET_BRANCH_NAME: "pr_branch"
+
+
+    #Setup required operators
+
+    - unit:
+        name: install-odh-stable-operator
+        description: Install ODH operator fast channel
+        input_env:
+          CHANNEL: "fast"               
+    - unit:
+        name: install-serverless-stable-operator
+        description: Install Serverless operator fast channel
+        input_env:
+          CHANNEL: "fast"
+    - unit:
+        name: install-ossm-stable-operator
+        description: Install OSSM operator fast channel
+    - unit:
+        name: install-authorino-stable-operator
+        description: Install Authorino operator fast channel
+
+    # Create DSCI and DSC 
+    - role:    
+        name: opendatahub-create-dsci
+        description: Create a OpneDataHub DSCI
+        input_env:
+          OPENDATAHUB_TYPE: opendatahub
+
+    # If you uncomment the devflag role, it will set devflag for DSC.
+    - role:
+        name: opendatahub-create-dsc
+        description: Create a OpenDataHub DSC 
+        input_env:
+          OPENDATAHUB_TYPE: opendatahub
+          ENABLE_KSERVE: Managed
+          ENABLE_KSERVE_KNATIVE: Managed
+          DEFAULT_DEPLOYMENTMODE: Serverless
+
+    - role:
+        name: nfs-provisioner-deploy
+        description: Deploy NFS Provisioner
+        input_env:
+          PVC_STORAGECLASS_NAME: gp3-csi
+
+    - role:
+        name: minio-deploy
+        description: Deploy minio for ods-ci-wisdom bucket
+        input_env:
+          MINIO_NAMESPACE: "minio-wisdom"
+          MINIO_IMAGE: "quay.io/jooholee/model-minio:ods-ci-wisdom"
+          CLUSTER_TYPE: "OCP"
+          EDGE_ENABLE_SSL: "False"
+
+    - role:
+        name: minio-deploy
+        description: Deploy minio for ods-ci-s3 bucket
+        input_env:
+          MINIO_NAMESPACE: "minio-s3"
+          MINIO_IMAGE: "quay.io/jooholee/model-minio:ods-ci-s3"
+          CLUSTER_TYPE: "OCP"
+          EDGE_ENABLE_SSL: "False"
+
+    # Execute e2e test
+    - role:
+        name: kserve-odh-e2e-test
+        description: Run kserve e2e test
+        input_env:
+          MINIO_ODS_CI_S3_SVC_URL: "http://minio-minio-s3"
+          MINIO_ODS_CI_WISDOM_SVC_URL: "http://minio-minio-wisdom"
+          PYTEST_MARKER: "not tls and not modelmesh and not kueue and not gpu and not multinode and not minio and raw_deployment"
+          
+          # This is example to run specific test case
+          # PYTEST_PATH: "tests/model_serving/model_server/components/test_custom_resources.py::TestInferenceServiceCustomResources::test_isvc_with_invalid_models_s3_path"
+          # PYTEST_PATH: "tests/model_serving/model_server/serverless/test_scale_to_zero.py::TestServerlessScaleToZero::test_serverless_before_scale_to_zero"
+          #   PYTEST_PATH: "tests/model_serving/model_server/routes/test_raw_deployment.py::TestRestRawDeploymentRoutes::test_rest_raw_deployment_exposed_route"          

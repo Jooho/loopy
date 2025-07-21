@@ -80,7 +80,7 @@ role:
 
     - name: OCP_ADMIN_PW
       description: set default openshift console user password
-      default: ABC12345!!22
+      default: ABC1234567!!22
 
     - name: OIDC_CONFIG_ID
       description: set the information that devops team provided
@@ -109,18 +109,17 @@ role:
   output_env:
     - name: CLUSTER_CONSOLE_URL
       description: openshift console url
-
     - name: CLUSTER_API_URL
       description: openshift api url
-
+      required: true
     - name: CLUSTER_TYPE
       description: openshift cluster type (ROSA)
-
+      required: true
     - name: CLUSTER_ADMIN_ID
       description: openshift cluster user id
-
+      required: true
     - name: CLUSTER_ADMIN_PW
       description: openshift cluster user password
-
+      required: true
     - name: CLUSTER_TOKEN
       description: openshift cluster login token

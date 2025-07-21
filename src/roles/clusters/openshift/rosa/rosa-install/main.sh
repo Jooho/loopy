@@ -31,90 +31,110 @@ result=1                   # 0 is "succeed", 1 is "fail"
 failed_to_create_cluster=1 # 0 is true(fail), 1 is false(succeed)
 
 check_rosa_access
-
-rosa create cluster --sts --oidc-config-id $OIDC_CONFIG_ID --cluster-name=$CLUSTER_NAME --replicas=$WORKER_NODE_COUNT --sts --mode=auto --hosted-cp --subnet-ids=$PRIVATE_SUBNET,$PUBLIC_SUBNET --compute-machine-type $MACHINE_POOL_TYPE --role-arn=$INSTALLER_ROLE --support-role-arn=$SUPPORT_ROLE --worker-iam-role=$WORKER_ROLE
-
-result=$?
-
-if [[ $result != "0" ]]; then
-  error "ROSA failed to create a cluster"
-  result=1
-  failed_to_create_cluster=0
-  stop_when_error_happened $result $index_role_name $REPORT_FILE
+cluster_exists=no # 1 
+if rosa list clusters | grep -q "$CLUSTER_NAME"; then
+    cluster_exists=yes  #0
+    STATUS=$(rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.state')
+    if [[ "$STATUS" == "ready" ]]; then
+        echo "Cluster '$CLUSTER_NAME' exists and is READY."
+    else
+        echo "Cluster '$CLUSTER_NAME' exists but is in state: $STATUS"
+    fi
 else
-  info "The ROSA cluster has been created. Please wait until it's ready!"
+    echo "Cluster '$CLUSTER_NAME' does not exist."
 fi
 
-if [[ $failed_to_create_cluster != 0 ]]; then
-  # Function to check the cluster status
-  check_cluster_status() {
-    rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.status.state'
-  }
+if [[  $(is_positive $cluster_exists) == 0 ]]; then
+  info "Cluster '$CLUSTER_NAME' already exists. Skipping cluster creation."
+  result=0
+else
+  rosa create cluster --sts --oidc-config-id $OIDC_CONFIG_ID --cluster-name=$CLUSTER_NAME --replicas=$WORKER_NODE_COUNT --sts --mode=auto --hosted-cp --subnet-ids=$PRIVATE_SUBNET,$PUBLIC_SUBNET --compute-machine-type $MACHINE_POOL_TYPE --role-arn=$INSTALLER_ROLE --support-role-arn=$SUPPORT_ROLE --worker-iam-role=$WORKER_ROLE
+  result=$?
+fi
 
-  # Periodically check the cluster status. (60m)
-  # Retry logic variables
-  MAX_RETRIES=60
-  RETRY_INTERVAL=60 # Interval between retries in seconds
-  RETRY_COUNT=0
 
-  # Infinite loop to check the cluster status
-  while true; do
-    STATUS=$(check_cluster_status)
-    RETRY_COUNT=$((RETRY_COUNT + 1))
+if [[ $(is_positive $cluster_exists) == 0 ]]; then
 
-    info "Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+  if [[ $result != "0" ]]; then
+    error "ROSA failed to create a cluster"
+    result=1
+    failed_to_create_cluster=0
+    stop_when_error_happened $result $index_role_name $REPORT_FILE
+  else
+    info "The ROSA cluster has been created. Please wait until it's ready!"
+  fi
 
-    case "$STATUS" in
-    "ready")
-      success "The ROSA cluster is now ready!"
-      result=0
-      break
-      ;;
-    "error")
-      error "Cluster status: $STATUS."
-      rosa describe cluster -c "$CLUSTER_NAME" --output json
-      result=1
-      stop_when_error_happened $result $index_role_name $REPORT_FILE
-      ;;
-    *)
-      info "Cluster status: $STATUS. Waiting for it to become ready..."
-      ;;
-    esac
+  if [[ $failed_to_create_cluster != 0 ]]; then
+    # Function to check the cluster status
+    check_cluster_status() {
+      rosa describe cluster -c "$CLUSTER_NAME" --output json | jq -r '.status.state'
+    }
 
-    if ((RETRY_COUNT >= MAX_RETRIES)); then
-      error "Cluster failed to be created after $MAX_RETRIES attempts."
+    # Periodically check the cluster status. (60m)
+    # Retry logic variables
+    MAX_RETRIES=60
+    RETRY_INTERVAL=60 # Interval between retries in seconds
+    RETRY_COUNT=0
+
+    # Infinite loop to check the cluster status
+    while true; do
+      STATUS=$(check_cluster_status)
+      RETRY_COUNT=$((RETRY_COUNT + 1))
+
+      info "Attempt ${RETRY_COUNT} of $MAX_RETRIES."
+
+      case "$STATUS" in
+      "ready")
+        success "The ROSA cluster is now ready!"
+        result=0
+        break
+        ;;
+      "error")
+        error "Cluster status: $STATUS."
+        rosa describe cluster -c "$CLUSTER_NAME" --output json
+        result=1
+        stop_when_error_happened $result $index_role_name $REPORT_FILE
+        ;;
+      *)
+        info "Cluster status: $STATUS. Waiting for it to become ready..."
+        ;;
+      esac
+
+      if ((RETRY_COUNT >= MAX_RETRIES)); then
+        error "Cluster failed to be created after $MAX_RETRIES attempts."
+        result=1
+        stop_when_error_happened $result $index_role_name $REPORT_FILE
+      fi
+
+      sleep $RETRY_INTERVAL
+    done
+
+    info "Add a openshift user($OCP_ADMIN_ID)"
+    rosa create idp --cluster=$CLUSTER_NAME --type=htpasswd -u $OCP_ADMIN_ID:$OCP_ADMIN_PW --name htpasswd
+    if [[ $? != 0 ]]; then
+      error "Failed to create a default user"
       result=1
       stop_when_error_happened $result $index_role_name $REPORT_FILE
     fi
 
-    sleep $RETRY_INTERVAL
-  done
+    info "add cluster-admin role to the user($OCP_ADMIN_ID)"
+    rosa grant user cluster-admin --user=$OCP_ADMIN_ID --cluster=$CLUSTER_NAME
+    if [[ $? != 0 ]]; then
+      error "Failed to grant cluster-admin role to the default user"
+      result=1
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
+    fi
+    sleep 10
+    IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
 
-  info "Add a openshift user($OCP_ADMIN_ID)"
-  rosa create idp --cluster=$CLUSTER_NAME --type=htpasswd -u $OCP_ADMIN_ID:$OCP_ADMIN_PW --name htpasswd
-  if [[ $? != 0 ]]; then
-    error "Failed to create a default user"
-    result=1
-    stop_when_error_happened $result $index_role_name $REPORT_FILE
-  fi
-
-  info "add cluster-admin role to the user($OCP_ADMIN_ID)"
-  rosa grant user cluster-admin --user=$OCP_ADMIN_ID --cluster=$CLUSTER_NAME
-  if [[ $? != 0 ]]; then
-    error "Failed to grant cluster-admin role to the default user"
-    result=1
-    stop_when_error_happened $result $index_role_name $REPORT_FILE
-  fi
-  sleep 10
-  IsUserAdded=$(rosa list users --cluster=$CLUSTER_NAME | grep $OCP_ADMIN_ID | grep cluster-admin | wc -l)
-
-  if [[ $IsUserAdded != 1 ]]; then
-    error "Openshift cluster user failed to be added"
-    rosa list users --cluster=$CLUSTER_NAME
-    result=1
-    stop_when_error_happened $result $index_role_name $REPORT_FILE
-  else
-    success "The OpenShift cluster-admin user has been successfully added."
+    if [[ $IsUserAdded != 1 ]]; then
+      error "Openshift cluster user failed to be added"
+      rosa list users --cluster=$CLUSTER_NAME
+      result=1
+      stop_when_error_happened $result $index_role_name $REPORT_FILE
+    else
+      success "The OpenShift cluster-admin user has been successfully added."
+    fi
   fi
 fi
 

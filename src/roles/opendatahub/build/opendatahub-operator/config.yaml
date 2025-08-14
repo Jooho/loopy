@@ -1,0 +1,52 @@
+role:
+  created_date: "20250814"
+  name: build-odh-operator
+  description: |
+    This role provides easily build of the opendatahub-operator image from the incubating branch, simplifying the process and improving development efficiency.
+
+    pre-requirements:
+      - podman on local
+      - You have to login to registry quay.io before running this role.
+
+    Use Cases:
+    1. Remote Source: Build controller image from remote source and push to registry, then create devflag branch
+       Required: USER_NAME, TARGET_USER_NAME, COMPONENT_NAME, TARGET_BRANCH_NAME, REGISTRY_URL
+
+    2. PR Source: Build controller image from PR source and push to registry, then create devflag branch  
+       Required: USER_NAME, PR_URL, REGISTRY_URL
+       
+    3. Local Source: Build controller image from local source and push to registry, then create devflag branch
+       Required: USER_NAME, REGISTRY_URL
+       
+    4. Custom Image: Create devflag branch and update manifests with custom image (no building)
+       Required: USER_NAME, COMPONENT_NAME, CUSTOM_IMAGE, REGISTRY_URL
+
+    Usage Examples:
+
+    1. Remote source:
+    loopy roles run build-odh-operator \
+      -p QUAY_NAME=jooholee \
+      -p KSERVE_MANIFESTS_BRANCH_URL=https://github.com/jooho/kserve/tree/loopy-test-devflag \
+      -p VERSION=2.34.9
+
+  input_env:
+  - name: QUAY_NAME
+    description: Set your quay user name to push image to quay.io
+    required: true
+
+  - name: ODH_OPERATOR_BRANCH
+    description: Set the branch name of the opendatahub-operator repository to build(default-incubating)
+    default: "incubation"
+
+  - name: KSERVE_MANIFESTS_BRANCH_URL
+    description: Repository url of the kserve-controller manifests branch (e.g. "https://github.com/jooho/kserve/tree/loopy-test-devflag")
+
+  - name: ODH_MODEL_CONTROLLER_MANIFESTS_BRANCH_URL
+    description: Repository url of the odh-model-controller manifests branch (e.g. "https://github.com/jooho/odh-model-controller/tree/loopy-test-devflag")
+
+  - name: VERSION
+    description: Set version for opendatahub-operator package. By default, it will use the version from makefile)
+
+  output_env:
+  - name: ODH_OPERATOR_CATALOG_IMG
+    description: catalog image url (e.g. "quay.io/jooholee/odh-operator-index:loopy")

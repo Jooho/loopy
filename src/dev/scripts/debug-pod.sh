@@ -6,6 +6,7 @@
 # Available Parameters:
 #   NAME: Name of the debug pod (default: debug-pod)
 #   WITH_ISTIO: Enable Istio sidecar injection (default: false)
+#   NAMESPACE: Namespace to run the pod in (default: "")
 #   CLEAN: Set to true to clean up the pod (default: false)
 
 # Source utility functions
@@ -14,11 +15,12 @@ source "$(dirname "$0")/../../commons/scripts/utils.sh"
 # Define allowed parameters
 # NAME: Pod name (default: debug-pod)
 # WITH_ISTIO: Enable Istio sidecar injection (default: false)
-ALLOWED_PARAMS=("NAME" "WITH_ISTIO")
+ALLOWED_PARAMS=("NAME" "WITH_ISTIO" "NAMESPACE")
 
 # Default values
 WITH_ISTIO=${WITH_ISTIO:-false}
 NAME=${NAME:-debug-pod}
+NAMESPACE=${NAMESPACE:-}
 
 # Validate parameters
 if ! validate_script_params  "${ALLOWED_PARAMS[@]}"; then
@@ -43,6 +45,11 @@ execute() {
     
     # Build command as array
     local cmd_args=("kubectl" "run" "${pod_name}" "--image=registry.access.redhat.com/rhel7/rhel-tools")
+    
+    # Add namespace if specified
+    if [ -n "${NAMESPACE}" ]; then
+        cmd_args+=("-n" "${NAMESPACE}")
+    fi
     
     # Add Istio annotation if requested
     if [ "${with_istio}" = "true" ]; then

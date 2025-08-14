@@ -56,7 +56,7 @@ role:
     - name: ISTIO_HUB_VERSION
       description: |
         Set this, if you want to use specific ISTIO image tag for helm install(ex "1.26")
-      default: 1.26-alpha.9befed2f1439d883120f8de70fd70d84ca0ebc3d
+      default: 1.27-alpha.0551127f00634403cddd4634567e65a8ecc499a7
     - name: ISTIO_HUB
       description: |
         Set this, if you want to use specific ISTIO image hub for helm install(ex "gcr.io/istio-testing")

@@ -54,7 +54,7 @@ role:
 
   input_env:
   - name: USER_NAME
-    description: Set your github user name
+    description: Set your github user name for pushing devflag manifests
     required: true
 
   - name: REGISTRY_URL
@@ -70,10 +70,10 @@ role:
     default: "kserve"
 
   - name: TARGET_USER_NAME
-    description: github user name for remote source (Case 1)
+    description: github user name to build image with remote source (Case 1)
 
   - name: TARGET_BRANCH_NAME
-    description: github branch name for remote source (Case 1)
+    description: github branch name to build image with remote source (Case 1)
 
   - name: PR_URL
     description: github PR url for PR source (Case 2). Format https://github.com/user/repo/pull/number

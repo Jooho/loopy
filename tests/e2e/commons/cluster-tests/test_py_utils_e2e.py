@@ -1,6 +1,7 @@
 import pytest
 import subprocess
 import time
+import uuid
 from commons.python.py_utils import (
     check_pod_status,
     wait_pod_containers_ready,
@@ -21,14 +22,16 @@ from commons.python.py_utils import (
 @pytest.mark.common
 def test_check_pod_status():
     """Test checking pod status with actual cluster"""
-    # Create a test pod
-    pod_name = "test-pod-status"
+    # Create a test pod with unique name
+    pod_name = f"test-pod-status-{uuid.uuid4().hex[:8]}"
     namespace = "default"
     subprocess.run(
         [
             "kubectl",
             "run",
             pod_name,
+            "-n",
+            namespace,
             "--image=registry.access.redhat.com/rhel7/rhel-tools",
             "--",
             "tail",
@@ -48,7 +51,7 @@ def test_check_pod_status():
     finally:
         # Cleanup
         subprocess.run(
-            ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+            ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
             check=True,
         )
 
@@ -58,14 +61,16 @@ def test_check_pod_status():
 @pytest.mark.common
 def test_wait_pod_containers_ready():
     """Test waiting for pod containers to be ready with actual cluster"""
-    # Create a test pod
-    pod_name = "test-pod-containers"
+    # Create a test pod with unique name
+    pod_name = f"test-pod-containers-{uuid.uuid4().hex[:8]}"
     namespace = "default"
     subprocess.run(
         [
             "kubectl",
             "run",
             pod_name,
+            "-n",
+            namespace,
             "--image=registry.access.redhat.com/rhel7/rhel-tools",
             "--",
             "tail",
@@ -82,7 +87,7 @@ def test_wait_pod_containers_ready():
     finally:
         # Cleanup
         subprocess.run(
-            ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+            ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
             check=True,
         )
 
@@ -92,14 +97,16 @@ def test_wait_pod_containers_ready():
 @pytest.mark.common
 def test_wait_for_pods_ready():
     """Test waiting for pods to be ready with actual cluster"""
-    # Create test pods
-    pod_name = "test-pod-ready"
+    # Create test pods with unique name
+    pod_name = f"test-pod-ready-{uuid.uuid4().hex[:8]}"
     namespace = "default"
     subprocess.run(
         [
             "kubectl",
             "run",
             pod_name,
+            "-n",
+            namespace,
             "--image=registry.access.redhat.com/rhel7/rhel-tools",
             "--",
             "tail",
@@ -116,7 +123,7 @@ def test_wait_for_pods_ready():
     finally:
         # Cleanup
         subprocess.run(
-            ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+            ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
             check=True,
         )
 
@@ -126,14 +133,16 @@ def test_wait_for_pods_ready():
 @pytest.mark.common
 def test_wait_for_pod_name_ready():
     """Test waiting for specific pod to be ready with actual cluster"""
-    # Create a test pod
-    pod_name = "test-pod-name"
+    # Create a test pod with unique name
+    pod_name = f"test-pod-name-{uuid.uuid4().hex[:8]}"
     namespace = "default"
     subprocess.run(
         [
             "kubectl",
             "run",
             pod_name,
+            "-n",
+            namespace,
             "--image=registry.access.redhat.com/rhel7/rhel-tools",
             "--",
             "tail",
@@ -150,7 +159,7 @@ def test_wait_for_pod_name_ready():
     finally:
         # Cleanup
         subprocess.run(
-            ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+            ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
             check=True,
         )
 
@@ -168,14 +177,16 @@ def test_check_oc_status():
 @pytest.mark.common
 def test_oc_wait_object_availability():
     """Test waiting for object availability with actual cluster"""
-    # Create a test pod
-    pod_name = "test-pod-wait"
+    # Create a test pod with unique name
+    pod_name = f"test-pod-wait-{uuid.uuid4().hex[:8]}"
     namespace = "default"
     subprocess.run(
         [
             "kubectl",
             "run",
             pod_name,
+            "-n",
+            namespace,
             "--image=registry.access.redhat.com/rhel7/rhel-tools",
             "--",
             "tail",
@@ -192,7 +203,7 @@ def test_oc_wait_object_availability():
     finally:
         # Cleanup
         subprocess.run(
-            ["kubectl", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+            ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
             check=True,
         )
 
@@ -251,7 +262,7 @@ def test_retry_with_oc():
         )
 
         # Test with a command that should succeed after pod creation
-        pod_name = "test-pod-retry-oc"
+        pod_name = f"test-pod-retry-oc-{uuid.uuid4().hex[:8]}"
         namespace = "default"
 
         try:
@@ -261,6 +272,8 @@ def test_retry_with_oc():
                     "oc",
                     "run",
                     pod_name,
+                    "-n",
+                    namespace,
                     "--image=registry.access.redhat.com/rhel7/rhel-tools",
                     "--",
                     "tail",
@@ -288,7 +301,7 @@ def test_retry_with_oc():
         finally:
             # Cleanup
             subprocess.run(
-                ["oc", "delete", "pod", pod_name, "--force", "--grace-period=0"],
+                ["oc", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"],
                 check=True,
                 capture_output=True,
             )

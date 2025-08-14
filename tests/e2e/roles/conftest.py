@@ -85,12 +85,12 @@ def ensure_namespace_and_operatorgroup(
 @pytest.fixture(scope="session", autouse=True)
 def setup_operator_namespace_and_group():
     namespace = "openshift-operators"
-    operatorgroup_name = "global-operator-group"
+    operatorgroup_name = "global-operators"
     operatorgroup_yaml = """
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: global-operator-group
+  name: global-operators
   namespace: openshift-operators
 spec: {}
 """

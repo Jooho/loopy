@@ -29,11 +29,11 @@ role_name=$(yq e '.role.name' ${current_dir}/config.yaml)
 
 cd $ROLE_DIR
 # Clone opendatahub-tests
-# if [[ ! -d "opendatahub-tests" ]]; then
-#   git clone git@github.com:opendatahub-io/opendatahub-tests.git
-# fi
-# cd opendatahub-tests
-cd /tmp/opendatahub-tests
+  if [[ ! -d "opendatahub-tests" ]]; then
+    git clone git@github.com:opendatahub-io/opendatahub-tests.git
+  fi
+  cd opendatahub-tests
+#cd /tmp/opendatahub-tests
 
 result=1 # 0 is "succeed", 1 is "fail"
 if [[ ${CLUSTER_TYPE} != "KIND" ]]; then
@@ -115,21 +115,21 @@ if [[ ${CLUSTER_ADMIN_ID} != "user" ]]; then
 fi
 
 # Run pytest
-# if [[ ${PYTEST_MARKER} != "" ]]; then
-#   echo "uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m \"${PYTEST_MARKER}\" -s"
-#   uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m "${PYTEST_MARKER}" -s
-# else
-#   echo "uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -s"
-#   uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -s
-# fi
-
 if [[ ${PYTEST_MARKER} != "" ]]; then
-  echo "uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -m \"${PYTEST_MARKER}\" -s"
-  uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -m "${PYTEST_MARKER}" -s
+  echo "uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m \"${PYTEST_MARKER}\" -s"
+  uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -m "${PYTEST_MARKER}" -s
 else
-  echo "uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -s"
-  uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -s
+  echo "uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -s"
+  uv run pytest --setup-show --tc=distribution:upstream $ROLE_DIR/opendatahub-tests/${PYTEST_PATH} -s --pdb
 fi
+
+#if [[ ${PYTEST_MARKER} != "" ]]; then
+#  echo "uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -m \"${PYTEST_MARKER}\" -s"
+#  uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -m "${PYTEST_MARKER}" -s
+#else
+#  echo "uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -s"
+#  uv run pytest --setup-show --tc=distribution:upstream /tmp/opendatahub-tests/${PYTEST_PATH} -s
+#fi
 
 ############# VERIFY #############
 

@@ -1,6 +1,7 @@
 import pytest
 import subprocess
 import os
+import uuid
 import commons.python.py_utils as py_utils
 
 
@@ -46,6 +47,8 @@ def test_debug_pod_with_istio():
     # env["LOOPY_DEBUG"] = "1"
 
     # Run the command with istio
+    namespace = "default"
+    pod_name = f"debug-pod-istio-{uuid.uuid4().hex[:8]}"
     result = subprocess.run(
         [
             "./loopy",
@@ -54,7 +57,9 @@ def test_debug_pod_with_istio():
             "-p",
             "WITH_ISTIO=true",
             "-p",
-            "NAME=debug-pod-istio",
+            f"NAME={pod_name}",
+            "-p",
+            f"NAMESPACE={namespace}",
         ],
         capture_output=True,
         text=True,
@@ -65,7 +70,7 @@ def test_debug_pod_with_istio():
     assert result.returncode == 0
 
     # Wait for pod to be ready
-    assert py_utils.wait_for_pod_name_ready("debug-pod-istio", "default") == 0
+    assert py_utils.wait_for_pod_name_ready(pod_name, namespace) == 0
 
     # Verify pod was created with istio sidecar
     pod_check = subprocess.run(
@@ -73,7 +78,9 @@ def test_debug_pod_with_istio():
             "kubectl",
             "get",
             "pod",
-            "debug-pod-istio",
+            pod_name,
+            "-n",
+            namespace,
             "-o",
             "jsonpath='{.metadata.annotations}'",
         ],
@@ -85,5 +92,5 @@ def test_debug_pod_with_istio():
 
     # Cleanup
     subprocess.run(
-        ["kubectl", "delete", "pod", "debug-pod-istio", "--force", "--grace-period=0"]
+        ["kubectl", "delete", "pod", pod_name, "-n", namespace, "--force", "--grace-period=0"]
     )

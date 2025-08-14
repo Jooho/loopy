@@ -151,7 +151,7 @@ if [[ z$OPERATOR_POD_PREFIX != z && $OPERATOR_POD_PREFIX != "NONE" ]]; then
   info "OPERATOR_POD_PREFIX is set: ${OPERATOR_POD_PREFIX}"
   wait_counter=0
   while true; do
-    pod_name=$(oc get pod -n ${OPERATOR_NAMESPACE} | grep ${OPERATOR_POD_PREFIX} | awk '{print $1}')
+    pod_name=$(oc get pod -n ${OPERATOR_NAMESPACE} | grep ${OPERATOR_POD_PREFIX} |head -1 | awk '{print $1}')
     if [[ $pod_name == "" ]]; then
       wait_counter=$((wait_counter + 1))
       pending " Waiting 10 secs ..."

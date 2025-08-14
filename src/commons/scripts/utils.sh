@@ -422,6 +422,7 @@ function check_rosa_access() {
 
   # 4. can rosa login?
   rosa login --token=$OCM_TOKEN
+  # rosa login --use-auth-code  
 
   if [[ $? != "0" ]]; then
     error "rosa login failed"

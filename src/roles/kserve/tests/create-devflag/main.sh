@@ -40,14 +40,16 @@ result=0
 export CONTAINER_CLI=${CONTAINER_CLI:-podman}
 if [[ ! $(command -v ${CONTAINER_CLI}) ]]; then
   error "${CONTAINER_CLI} is not installed."
-  exit 1
+  exit 1 # TODO: replace STOP_ON_ERROR with result=1
+  result=1
 fi
 
 # Validate environment variables first
 info "Validating environment variables"
 if ! validate_env_vars ${root_directory}; then
   error "Validation failed"
-  exit 1
+  exit 1 # TODO: replace STOP_ON_ERROR with result=1
+  result=1
 fi
 
 # Determine use case

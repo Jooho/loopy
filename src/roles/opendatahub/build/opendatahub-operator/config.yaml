@@ -8,22 +8,16 @@ role:
       - podman on local
       - You have to login to registry quay.io before running this role.
 
-    Use Cases:
-    1. Remote Source: Build controller image from remote source and push to registry, then create devflag branch
-       Required: USER_NAME, TARGET_USER_NAME, COMPONENT_NAME, TARGET_BRANCH_NAME, REGISTRY_URL
+    Input Environment:
+      The parameters include:
+      - QUAY_NAME: Set your quay user name to push image to quay.io
+      - ODH_OPERATOR_BRANCH: Set the branch name of the opendatahub-operator repository to build(default-incubating)
+      - KSERVE_MANIFESTS_BRANCH_URL: Repository url of the kserve-controller manifests branch (e.g. "https://github.com/jooho/kserve/tree/loopy-test-devflag")
+      - ODH_MODEL_CONTROLLER_MANIFESTS_BRANCH_URL: Repository url of the odh-model-controller manifests branch (e.g. "https://github.com/jooho/odh-model-controller/tree/loopy-test-devflag")
+      - VERSION: Set version for opendatahub-operator package. By default, it will use the version from makefile)
 
-    2. PR Source: Build controller image from PR source and push to registry, then create devflag branch  
-       Required: USER_NAME, PR_URL, REGISTRY_URL
-       
-    3. Local Source: Build controller image from local source and push to registry, then create devflag branch
-       Required: USER_NAME, REGISTRY_URL
-       
-    4. Custom Image: Create devflag branch and update manifests with custom image (no building)
-       Required: USER_NAME, COMPONENT_NAME, CUSTOM_IMAGE, REGISTRY_URL
-
-    Usage Examples:
-
-    1. Remote source:
+    To run it:
+    
     loopy roles run build-odh-operator \
       -p QUAY_NAME=jooholee \
       -p KSERVE_MANIFESTS_BRANCH_URL=https://github.com/jooho/kserve/tree/loopy-test-devflag \

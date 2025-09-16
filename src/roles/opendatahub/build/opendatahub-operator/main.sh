@@ -82,9 +82,15 @@ export CATALOG_IMG=$IMAGE_TAG_BASE-index:$VERSION
 
 
 # Setup git repository
+export ODH_OPERATOR_REPO="https://github.com/opendatahub-io/opendatahub-operator.git"
+if [[ ${OPENDATAHUB_TYPE} != "odh" ]]; then
+  ODH_OPERATOR_REPO="https://github.com/red-hat-data-services/rhods-operator.git"
+  ODH_OPERATOR_BRANCH="main"
+fi
+
 info "Cloning opendatahub-operator repository"
 cd $ROLE_DIR
-git clone --branch $ODH_OPERATOR_BRANCH https://github.com/opendatahub-io/opendatahub-operator.git 
+git clone --branch $ODH_OPERATOR_BRANCH $ODH_OPERATOR_REPO
 cd opendatahub-operator
 
 #update version

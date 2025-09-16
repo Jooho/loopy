@@ -28,6 +28,10 @@ role:
     description: Set your quay user name to push image to quay.io
     required: true
 
+  - name: OPENDATAHUB_TYPE
+    description: Set the type of the opendatahub (default:odh, you can set to rhoai)
+    default: "odh"
+
   - name: ODH_OPERATOR_BRANCH
     description: Set the branch name of the opendatahub-operator repository to build(default-incubating)
     default: "incubation"

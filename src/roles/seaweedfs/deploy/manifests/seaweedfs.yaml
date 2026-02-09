@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: seaweedfs
+  namespace: %seaweedfs_namespace%
+spec:
+  ports:
+    - name: master-ui
+      port: 9333
+      protocol: TCP
+      targetPort: 9333
+    - name: filer-ui
+      port: 8888
+      protocol: TCP
+      targetPort: 8888
+    - name: s3
+      port: 8333
+      protocol: TCP
+      targetPort: 8333      
+    - name: volume
+      port: 9340
+      protocol: TCP
+      targetPort: 9340
+    - name: admin-ui
+      port: 23646
+      protocol: TCP
+      targetPort: 23646      
+  selector:
+    app: seaweedfs
+---  
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: seaweedfs
+  name: seaweedfs
+  namespace: %seaweedfs_namespace%
+spec:
+  securityContext:
+    allowPrivilegeEscalation: false
+  containers:
+    - args:
+        - mini
+        - -ip=0.0.0.0
+        - -dir=/data1
+        - -s3
+      env:
+        - name: AWS_ACCESS_KEY_ID
+          value: %access_key_id%
+        - name: AWS_SECRET_ACCESS_KEY
+          value: %secret_access_key%
+      image: %seaweedfs_image%
+      imagePullPolicy: Always
+      name: seaweedfs
+      volumeMounts:
+        - name: data
+          mountPath: /data
+      ports:
+        - name: s3
+          containerPort: 8333
+        - name: admin-ui
+          containerPort: 23646
+        - name: master-ui
+          containerPort: 9333
+        - name: filer-ui
+          containerPort: 8888
+        - name: volume
+          containerPort: 9340
+  volumes:
+    - name: data
+      emptyDir: {}

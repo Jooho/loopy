@@ -1,0 +1,64 @@
+role:
+  created_date: '20260121'
+  name: seaweedfs-deploy
+  description: |
+    SeaweedFS is an open-source, high-performance object storage server built for cloud-native and containerized environments. It is compatible with Amazon S3 APIs, making it easy to integrate with existing S3-compatible applications and tools. SeaweedFS is designed to be lightweight, scalable, and highly available, making it suitable for storing unstructured data such as images, videos, log files, backups, and more. It is often used as a standalone object storage solution or as part of a larger data infrastructure stack.
+
+    This role facilitates easy installation and testing of SeaweedFS by providing straightforward setup. With no required values, it can be executed immediately, and the ID/PW can be checked with 'loopy roles show seaweedfs-deploy'. Additionally, installation information for SeaweedFS is specified in the output folder.
+
+    Pre-requirements:
+      N/A
+
+    The output variables(ex) include:
+      S3_SVC_URL=http://seaweedfs.seaweedfs.svc.cluster.local:8333
+      S3_DEFAULT_BUCKET_NAME=example-models
+      S3_ACCESS_KEY_ID=admin
+      S3_SECRET_ACCESS_KEY=admin
+      S3_REGION=us-east-1
+  # output_filename: operator-install-output.sh
+  manifests:
+    seaweedfs_deployment: ./manifests/seaweedfs.yaml  
+  input_env:
+    - name: SEAWEEDFS_NAMESPACE
+      description: The namespace where the seaweedfs pod is running
+    - name: ACCESS_KEY_ID
+      description: The Access Key Id for seaweedfs
+    - name: SECRET_ACCESS_KEY
+      description: The Secret Access Key for seaweedfs
+    - name: SEAWEEDFS_IMAGE
+      description: Set your own seaweedfs image, if you want to use your own seaweedfs version
+    - name: DEFAULT_BUCKET_NAME
+      description: Set your own bucket name, if you want to user your own bucket
+    - name: SEAWEEDFS_REGION
+      description: Seaweedfs does not use region so you don't need to set this. This is to align with the standard protocol of S3    
+    - name: EDGE_ENABLE_SSL
+      description: Set True if you want to use router for ssl seaweedfs using openshift edge route.
+      default: "False"
+    
+    - name: CLUSTER_TYPE
+      description: cluster type
+      default: "OCP"      
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token
+
+  output_env:
+    - name: S3_SVC_URL
+      required: true
+    - name: S3_DEFAULT_BUCKET_NAME
+      required: true
+    - name: S3_ACCESS_KEY_ID
+      required: true
+    - name: S3_SECRET_ACCESS_KEY
+      required: true
+    - name: S3_REGION
+      required: true
+    # - name: SEAWEEDFS_CONSOLE_URL

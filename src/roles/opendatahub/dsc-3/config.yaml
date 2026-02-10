@@ -1,0 +1,92 @@
+role:
+  created_date: "20260209"
+  name: opendatahub-create-dsc-3
+  description: |
+    The Data Science Cluster (DSC) v2 serves as the main configuration object within OpenDataHub. It enables the installation and uninstallation of each component of RHOAI. Unlike v1, this version does not depend on KNATIVE or ISTIO (Service Mesh), and supports new components like aipipelines, feastoperator, mlflowoperator, and llamastackoperator.
+  manifests:
+    datasciencecluster_3: commons/manifests/opendatahub/datasciencecluster_3.yaml
+  input_env:
+    - name: OPENDATAHUB_TYPE
+      description: The opendatabub operator type (opendatahub,rhoai)
+
+    - name: DATASCIENCECLUSTER_NAME
+      description: The name of dsc object
+
+    - name: DEFAULT_DEPLOYMENTMODE
+      description: Set default deploymentMode for KServe (Serverless, RawDeployment)
+
+    - name: ENABLE_DASHBOARD
+      description: Deploy dashboard (Removed, Managed)
+
+    - name: CUSTOM_DASHBOARD_MANIFESTS
+      description: Set the url, if you want to use custom manifests for DASHBOARD (ex https://github.com/opendatahub-io/odh-dashboard/tarball/f/pipelines-v2)
+
+    - name: ENABLE_KSERVE
+      description: Deploy Kserve (Managed, Removed)
+
+    - name: ENABLE_KSERVE_NIM
+      default: "Removed"
+      description: Enable NIM for KServe (Managed, Removed)
+
+    - name: CUSTOM_KSERVE_MANIFESTS
+      description: Set the url, if you want to use custom manifests for Kserve (ex https://github.com/jooho/kserve/tarball/global-ca)
+
+    - name: CUSTOM_ODH_MODEL_CONTROLLER_MANIFESTS
+      description: Set the url, if you want to use custom manifests for ODH MODEL CONTROLLER (ex https://github.com/jooho/odh-model-controller/tarball/global-ca)
+
+    - name: ENABLE_RAY
+      description: Deploy ray (Removed, Managed)
+
+    - name: ENABLE_TRUSTYAI
+      description: Deploy Trust AI (Removed, Managed)
+
+    - name: ENABLE_WORKBENCHES
+      description: Deploy workbenches (Removed, Managed)
+
+    - name: ENABLE_TRAININGOPERATOR
+      description: Deploy training operator (Removed, Managed)
+
+    - name: ENABLE_KUEUE
+      description: Deploy kueue (Removed, Managed)
+
+    - name: ENABLE_MODELREGISTRY
+      description: Deploy model registry (Removed, Managed)
+
+    - name: MODELREGISTRY_NAMESPACE
+      default: "odh-model-registries"
+      description: Model registry namespace
+
+    - name: ENABLE_FEASTOPERATOR
+      default: "Removed"
+      description: Deploy feast operator (Removed, Managed)
+
+    - name: ENABLE_AIPIPELINES
+      default: "Removed"
+      description: Deploy AI pipelines (Removed, Managed)
+
+    - name: ENABLE_MLFLOWOPERATOR
+      default: "Removed"
+      description: Deploy MLFlow operator (Removed, Managed)
+
+    - name: ENABLE_LLAMASTACKOPERATOR
+      default: "Removed"
+      description: Deploy Llama Stack operator (Removed, Managed)
+
+    - name: CLUSTER_TYPE
+      description: openshift platform
+      required: true
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token

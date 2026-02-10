@@ -1,0 +1,27 @@
+playbook:
+  created_date: "20260209"
+  name: rhoai-3-kserve-raw-on-existing-cluster
+  description: |
+    This playbook will deploy kserve rawDeployment mode with rhoai using fast-3.x channel.
+
+    It installs RHOAI operator through fast-3.x channel. 
+
+    Tested operator version:
+    - RHOAI 3.2.0
+  steps:
+    - unit:
+       name: install-rhoai-fast-3-operator
+       description: Install RHOAI operator from fast-3.x channel
+    - role:
+        name: opendatahub-create-dsci-3 
+        description: Create a DSCI set servicemesh to "Removed"
+        input_env:
+            OPENDATAHUB_TYPE: rhoai
+    - role:
+        name: opendatahub-create-dsc-3
+        description: Create a DSC setting defaultDeploymentMode to "RawDeployment"
+        input_env:
+            OPENDATAHUB_TYPE: rhoai
+            ENABLE_KSERVE: Managed
+            DEFAULT_DEPLOYMENTMODE: RawDeployment
+  

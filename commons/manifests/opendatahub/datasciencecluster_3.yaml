@@ -1,0 +1,39 @@
+kind: DataScienceCluster
+apiVersion: datasciencecluster.opendatahub.io/v2
+metadata:
+  name: %datasciencecluster_name%
+  labels:
+    app.kubernetes.io/name: datasciencecluster
+    app.kubernetes.io/instance: rhods
+    app.kubernetes.io/part-of: rhods-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: rhods-operator
+spec:
+  components:
+    aipipelines:
+      managementState: %enable_aipipelines%
+    dashboard:
+      managementState: %enable_dashboard%
+    feastoperator:
+      managementState: %enable_feastoperator%
+    kserve:
+      managementState: %enable_kserve%
+      nim:
+        managementState: %enable_kserve_nim%
+    kueue:
+      managementState: %enable_kueue%
+    llamastackoperator:
+      managementState: %enable_llamastackoperator%
+    mlflowoperator:
+      managementState: %enable_mlflowoperator%
+    modelregistry:
+      managementState: %enable_modelregistry%
+      registriesNamespace: %modelregistry_namespace%
+    ray:
+      managementState: %enable_ray%
+    trainingoperator:
+      managementState: %enable_trainingoperator%
+    trustyai:
+      managementState: %enable_trustyai%
+    workbenches:
+      managementState: %enable_workbenches%

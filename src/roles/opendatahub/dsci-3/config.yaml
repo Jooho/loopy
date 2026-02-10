@@ -1,0 +1,41 @@
+role:
+  created_date: "20260209"
+  name: opendatahub-create-dsci-3
+  description: |
+    The Data Science Cluster Initialization (DSCI) v2 serves as the main initialization object for OpenDataHub. This role enables the enablement or disablement of Monitoring and allows for the specification of the opendatahub_type as either "opendatahub" or "rhoai", thereby altering the target namespace. Unlike v1, this version does not depend on KNATIVE or ISTIO (Service Mesh).
+  manifests:
+    dsci_3: commons/manifests/opendatahub/dsci_3.yaml
+  input_env:
+    - name: OPENDATAHUB_TYPE
+      description: The opendatabub operator type (opendatahub,rhoai)
+
+    - name: DSCI_NAME
+      description: The name of dsc object
+
+    - name: ENABLE_MONITORING
+      description: Install monitoring (Managed,Removed)
+
+    - name: MONITORING_NAMESPACE
+      description: Set monitoring namespace (redhat-ods-monitoring)
+
+    - name: ENABLE_TRUSTEDCABUNDLE
+      description: Install trustedCABundle (Managed,Removed)
+
+    - name: CLUSTER_TYPE
+      description: openshift platform
+      required: true
+
+    - name: CLUSTER_API_URL
+      description: openshift api url
+      required: true
+
+    - name: CLUSTER_ADMIN_ID
+      description: openshift cluster user id
+      required: true
+
+    - name: CLUSTER_ADMIN_PW
+      description: openshift cluster user password
+      required: true
+
+    - name: CLUSTER_TOKEN
+      description: openshift cluster login token

@@ -1,0 +1,19 @@
+apiVersion: dscinitialization.opendatahub.io/v2
+kind: DSCInitialization
+metadata:
+  name: %dsci_name%
+  labels:
+    app.kubernetes.io/created-by: %application_namespace%-operator
+    app.kubernetes.io/instance: default
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: dscinitialization
+    app.kubernetes.io/part-of: %application_namespace%-operator
+spec:
+  applicationsNamespace: %application_namespace%
+  monitoring:
+    managementState: %enable_monitoring%
+    namespace: %monitoring_namespace%
+  trustedCABundle:
+    customCABundle: ""
+    managementState: %enable_trustedCABundle%
+

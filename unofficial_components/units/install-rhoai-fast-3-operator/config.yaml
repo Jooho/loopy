@@ -1,0 +1,15 @@
+unit:
+  created_date: "20260209"
+  name: install-rhoai-fast-3-operator
+  description: This unit install the latest verion of RHOAI operator using stable channel. 
+  steps:
+  - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: rhods-operator
+        OPERATOR_NAMESPACE: redhat-ods-operator
+        OPERATOR_NAME: rhods-operator
+        CHANNEL: fast-3.x
+        CATALOGSOURCE_NAME: redhat-operators
+        OPERATOR_LABEL: "name=rhods-operator"
+        OPENDATAHUB_TYPE: rhoai

@@ -1,0 +1,33 @@
+unit:
+  created_date: "20240311"
+  name: install-odh-stable-operator
+  description: This unit install stable channel of opendatahub operator. This use OPERATOR_POD_PREFIX because the odh operator does not have unique label.
+  steps:
+  - role:
+      name: operator-install
+      input_env:
+        SUBSCRIPTION_NAME: opendatahub-operator
+        OPERATOR_NAMESPACE: openshift-operators
+        OPERATOR_NAME: opendatahub-operator
+        OPERATOR_LABEL: "name=error"
+        OPERATOR_POD_PREFIX: "opendatahub"
+
+
+  # - role:
+  #     name: shell-execute
+  #     description: wait for pod is ready    
+  #     input_env:
+  #       COMMANDS: |          
+  #         TARGET_MESSAGE="Starting workers"
+  #         export POD_NAME=$(oc get pods -n openshift-operators -l name=opendatahub-operator -o jsonpath="{.items[0].metadata.name}")          
+  #         while true
+  #         do
+  #           export ok=$(kubectl logs -n openshift-operators "$POD_NAME" | grep "$TARGET_MESSAGE"|wc -l)
+  #           if [[ $ok -ge 4 ]];
+  #           then
+  #             break
+  #           else
+  #             sleep 2
+  #           fi
+  #         done
+  #         echo "OpenDataHub operator become Ready"

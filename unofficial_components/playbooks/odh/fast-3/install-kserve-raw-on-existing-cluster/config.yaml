@@ -1,0 +1,25 @@
+playbook:
+  created_date: "20260209"
+  description: |
+    This playbook will deploy kserve rawDeployment mode with ODH using fast-3.x channel.
+
+    tested operator version:
+    - OHD 3.2.0
+  steps:
+    - unit:
+        name: install-odh-fast-3-operator
+        description: Install ODH operator fast version
+        input_env:
+              CHANNEL: "fast-3"
+    - role:
+        name: opendatahub-create-dsci-3 
+        description: Create a DSCI set servicemesh to "Removed"
+        input_env:
+            OPENDATAHUB_TYPE: "opendatahub"
+    - role:
+        name: opendatahub-create-dsc-3
+        description: Create a DSC setting defaultDeploymentMode to "RawDeployment"
+        input_env:
+            ENABLE_KSERVE: Managed
+            OPENDATAHUB_TYPE: "opendatahub"
+  
